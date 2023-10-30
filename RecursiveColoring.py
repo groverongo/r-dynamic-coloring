@@ -6,6 +6,10 @@ import pandas as pd
 import os
 
 class T_Grid_Graph():
+    ACR = 'ACR'
+    ACR_H = 'ACR-H'
+    ACR_R = 'ACR-R'
+    ACR_RH = 'ACR-RH'
 
     def __init__(self, n, r, k):
         self.n = n
@@ -53,7 +57,10 @@ class T_Grid_Graph():
             }
         } 
    
-    def linear_programming_model(self, previous_variables=None):
+    def linear_programming_model(self, model_name='ACR', previous_variables=None):
+        if model_name not in [self.ACR, self.ACR_H, self.ACR_R, self.ACR_RH]:
+            raise ValueError(f"model_name must be '{self.ACR}', '{self.ACR_H}', '{self.ACR_R}' or '{self.ACR_RH}'")
+        print(f'For n: {self.n}')
         adjacency_list = self.details["code"]["adjacency_list"]
         edges = self.details["code"]["edges"]
         degrees = self.details["miscelaneous"]["degree"]
@@ -69,7 +76,7 @@ class T_Grid_Graph():
         model += lpSum(w)
 
 
-        if previous_variables:
+        if previous_variables and model_name in [self.ACR_R, self.ACR_RH]:
             for k_i in range(k):
                 if previous_variables["w"][k_i].varValue == 0:
                     break
@@ -84,13 +91,17 @@ class T_Grid_Graph():
         # Constraint 2
         for (u, v) in edges:
             for k_i in range(k):
-                model += x[u, k_i] + x[v, k_i] <= w[k_i]
-        # Constraint 3
-        for k_i  in range(k):
-            model += w[k_i] <= lpSum(x[:, k_i])
-        # Constraint 4
-        for k_i in range(1, k):
-            model += w[k_i - 1] >= w[k_i]
+                if model_name in [self.ACR_H, self.ACR_RH]:
+                    model += x[u, k_i] + x[v, k_i] <= 1
+                else:
+                    model += x[u, k_i] + x[v, k_i] <= w[k_i]
+        if model_name in [self.ACR, self.ACR_R]:
+            # Constraint 3
+            for k_i  in range(k):
+                model += w[k_i] <= lpSum(x[:, k_i])
+            # Constraint 4
+            for k_i in range(1, k):
+                model += w[k_i - 1] >= w[k_i]
         # Constraint 5
         for v, deg in degrees.items():
             model += lpSum(q[v]) >= min(r, deg)
@@ -105,7 +116,7 @@ class T_Grid_Graph():
                     model += q[v, k_i] >= x[u, k_i]
 
         model.solve(solver=GLPK(msg=False))
-        print(LpStatus[model.status])
+        print(f'Result: {LpStatus[model.status]}')
 
 
         self.coloring_solution = {
@@ -196,9 +207,6 @@ class T_Grid_Graph():
         w_values_matrix = pd.DataFrame([ [w_vc.varValue for w_vc in self.coloring_solution["w"]]])
         w_values_matrix.to_csv(f"graphs/r{self.r}_w.csv", index=False, header=False)
 
-K = 4
-N = 10
-R = 3
 
 X_6_function = lambda v: (v[0]+5*v[1])%7
 def X_4_function(v):
@@ -211,14 +219,38 @@ def X_4_function(v):
     else:
         return (5+i-j)%6
 
+K = 8
+N = 2
+R = 5
+
 # Use a for loop
 T_nm1_coloring_solution = None
-for n in range(1, N+1):
+for n in range(N, N+10, 3):
     T_n = T_Grid_Graph(n=n, r=R, k=K)
     T_n.define_graph()
-    T_n.linear_programming_model(previous_variables=T_nm1_coloring_solution)
+    T_n.linear_programming_model(model_name='ACR-R',previous_variables=T_nm1_coloring_solution)
     T_n.coloring_assignment(coloring_function=None)
     T_n.graph_image(bw=False, label='color')
     # T_n.export_solution()
     # T_n.coloring_table()
     T_nm1_coloring_solution = T_n.coloring_solution
+
+def build_experiment_table(r_min, r_max, n_min, n_max):
+    results = {
+        'r': [r for r in range(r_min, r_max+1)],
+    }
+    for n in range(n_min, n_max+1):
+        results[f'T_{n}'] =  [] 
+    for r in range(r_min, r_max+1):
+        previous_solution = None
+        for n in range(n_min, n_max+1):
+            T_n = T_Grid_Graph(n=n, r=r, k=K)
+            T_n.define_graph()
+            T_n.linear_programming_model(previous_variables=previous_solution)
+            T_n.coloring_assignment(coloring_function=None)
+            previous_solution = T_n.coloring_solution
+            results[f'T_{n}'].append(T_n.colors_used)
+    experiment_table = pd.DataFrame(results)
+    return experiment_table
+
+# print(build_experiment_table(r_min=2, r_max=6, n_min=1, n_max=10).to_latex(index=False))
