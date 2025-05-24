@@ -23,9 +23,10 @@ def define_graph(n):
     border = [(0,0)] + [(i, 0) for i in range(1, n+1)] + [(0, i) for i in range(1, n+1)] + [(n-i, i) for i in range(1, n)]
 
     details =  {
+        "grid_order": n,
         "miscelaneous": {
-            "degree": degrees,
-            "border": border
+            "degree": degrees, # code
+            "border": border, # coordinates
         },
         "code": {
             "vertices": vertices_code,
