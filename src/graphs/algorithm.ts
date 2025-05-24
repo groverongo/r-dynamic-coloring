@@ -8,9 +8,7 @@ type LocationsType = 0|1|2;
 
 function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[]){
     let triadIndex = 0;
-    let triadSelected = T.at(triadIndex);
-    if(triadSelected === undefined)
-        return G;
+    let triadSelected = T[triadIndex];
 
     let triadVertex1Candidates: TriadType[] = [];
     let triadVertex2Candidates: TriadType[] = [];
@@ -59,4 +57,13 @@ function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[]){
     T.push(triadVertex1, triadVertex2);
 
     B.delete(triadSelected[MIDDLE]);
+
+    return {G, B, T};
 }
+
+const TRIADS: TriadType[] = [[0, 1, 3], [1, 3, 6], [0, 2, 5], [2, 5, 9], [9, 8, 7], [8, 7, 6]];
+const GRAPH: GraphType = {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [0, 2], 4: [1, 1], 5: [2, 0], 6: [0, 3], 7: [1, 2], 8: [2, 1], 9: [3, 0]};
+const BORDER: BorderType = new Set([0, 2, 5, 9, 1, 3, 6, 8, 7]);
+
+const response = obtainGraphs(GRAPH, BORDER, TRIADS);
+console.log(response)
