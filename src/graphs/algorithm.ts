@@ -12,12 +12,6 @@ function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[]){
     if(triadSelected === undefined)
         return G;
 
-    let triadRemoveIndexes: number[] = [];
-    T.forEach( (triad, index) => {
-        if(triad.some(vertex => vertex === triadSelected[MIDDLE]))
-            triadRemoveIndexes.push(index);
-    });
-
     let triadVertex1Candidates: TriadType[] = [];
     let triadVertex2Candidates: TriadType[] = [];
     T.forEach( (triad, index) => {
@@ -61,6 +55,7 @@ function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[]){
     G[triadSelected[VERTEX_2]].push(triadSelected[VERTEX_1]);
 
     T.splice(triadIndex, 1);
+    T = T.filter(triad => triad.indexOf(triadSelected[MIDDLE]) === -1)
     T.push(triadVertex1, triadVertex2);
 
     B.delete(triadSelected[MIDDLE]);
