@@ -13,7 +13,7 @@ function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], mapper: CodeT
     DEBUG && console.log('Available triads:', T.map(triad => triad.map(v => mapper[v])));
     while( T.length > 3 ){
 
-        let triadIndex = 0;
+        let triadIndex = 0//T.length - 1;
         let triadSelected = T[triadIndex];
 
         DEBUG && console.log('Selected triad', triadSelected.map(v => mapper[v]));
@@ -78,6 +78,17 @@ let TRIADS: TriadType[] = [[0, 1, 3], [1, 3, 6], [0, 2, 5], [2, 5, 9], [9, 8, 7]
 let GRAPH: GraphType = {0: [1, 2], 1: [0, 2, 3, 4], 2: [0, 1, 4, 5], 3: [1, 4, 6, 7], 4: [1, 2, 3, 5, 7, 8], 5: [2, 4, 8, 9], 6: [3, 7], 7: [3, 4, 6, 8], 8: [4, 5, 7, 9], 9: [5, 8]};
 let BORDER: BorderType = new Set([0, 2, 5, 9, 1, 3, 6, 8, 7]);
 let toCoordinate: CodeToCoordinateMapType = {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [0, 2], 4: [1, 1], 5: [2, 0], 6: [0, 3], 7: [1, 2], 8: [2, 1], 9: [3, 0]}
- 
+
+function convertToCoordinate(G: GraphType){
+    return Object.fromEntries(Object.entries(G).map(value => {
+    return [
+        toCoordinate[+value[0]],
+        value[1].map(vertex => toCoordinate[vertex])
+    ]
+}))
+}
+
+console.log(convertToCoordinate(GRAPH))
 const response = obtainGraphs(GRAPH, BORDER, TRIADS, toCoordinate);
-console.log(response)
+// console.log(response)
+console.log(convertToCoordinate(response.G))
