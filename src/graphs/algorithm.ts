@@ -9,12 +9,13 @@ type CodeToCoordinateMapType = Record<number, [number, number]>;
 
 const DEBUG = false;
 
-function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], mapper: CodeToCoordinateMapType){
+function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], mapper: CodeToCoordinateMapType, triadIndex: number = 0, TriadsHistory: TriadType[] = []){
     DEBUG && console.log('Available triads:', T.map(triad => triad.map(v => mapper[v])));
     while( T.length > 3 ){
 
-        let triadIndex = 0//T.length - 1;
+        triadIndex = triadIndex % T.length;
         let triadSelected = T[triadIndex];
+        TriadsHistory.push(triadSelected)
 
         DEBUG && console.log('Selected triad', triadSelected.map(v => mapper[v]));
         
@@ -71,24 +72,72 @@ function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], mapper: CodeT
         DEBUG && console.log('Result:', T.map(triad => triad.map(v => mapper[v])));
     }
 
-    return {G, B, T};
+    return {G, B, T, TriadsHistory};
 }
 
 let TRIADS: TriadType[] = [[0, 1, 3], [1, 3, 6], [0, 2, 5], [2, 5, 9], [9, 8, 7], [8, 7, 6]];
 let GRAPH: GraphType = {0: [1, 2], 1: [0, 2, 3, 4], 2: [0, 1, 4, 5], 3: [1, 4, 6, 7], 4: [1, 2, 3, 5, 7, 8], 5: [2, 4, 8, 9], 6: [3, 7], 7: [3, 4, 6, 8], 8: [4, 5, 7, 9], 9: [5, 8]};
 let BORDER: BorderType = new Set([0, 2, 5, 9, 1, 3, 6, 8, 7]);
-let toCoordinate: CodeToCoordinateMapType = {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [0, 2], 4: [1, 1], 5: [2, 0], 6: [0, 3], 7: [1, 2], 8: [2, 1], 9: [3, 0]}
+let toCoordinateMap: CodeToCoordinateMapType = {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [0, 2], 4: [1, 1], 5: [2, 0], 6: [0, 3], 7: [1, 2], 8: [2, 1], 9: [3, 0]}
 
-function convertToCoordinate(G: GraphType){
+function convertToCoordinateGraph(G: GraphType){
     return Object.fromEntries(Object.entries(G).map(value => {
-    return [
-        toCoordinate[+value[0]],
-        value[1].map(vertex => toCoordinate[vertex])
-    ]
-}))
+        return [
+            JSON.stringify(toCoordinateMap[+value[0]]),
+            value[1].map(vertex => toCoordinateMap[vertex])
+        ]
+    }))
+}
+function convertToCoordinateTriads(T: TriadType[]){
+    return T.map(val => val.map(v => toCoordinateMap[v]))
+}
+function convertToCoordinateBorder(B: BorderType){
+    return Array.from(B).map( v => toCoordinateMap[v] );
 }
 
-console.log(convertToCoordinate(GRAPH))
-const response = obtainGraphs(GRAPH, BORDER, TRIADS, toCoordinate);
-// console.log(response)
-console.log(convertToCoordinate(response.G))
+function deepCopyCodeKeyObject(object: GraphType): any {
+    const copiedObject = JSON.parse(JSON.stringify(object));
+    const result =  Object.fromEntries(Object.entries(copiedObject).map(value => {
+        return [value[0] ,value[1]]
+    }))
+    return result;
+}
+
+function convertResponseToCoordinate(resp: {
+    G: GraphType;
+    B: BorderType;
+    T: TriadType[];
+    TriadsHistory: TriadType[];
+}) {
+    const result: any = {};
+    result.G = convertToCoordinateGraph(resp.G);
+    result.T = convertToCoordinateTriads(resp.T);
+    result.TriadsHistory = convertToCoordinateTriads(resp.TriadsHistory);
+    result.B = convertToCoordinateBorder(resp.B);
+
+    return result;
+}
+
+// URGENT: CASE i=4
+
+const outputGraphs: GraphType[] = []
+for(let i = 0; i < TRIADS.length; i++) {
+    const copyGraph = deepCopyCodeKeyObject(GRAPH);
+    const copyBorder = new Set(BORDER)
+    const copyTriads = JSON.parse(JSON.stringify(TRIADS))
+    const response = obtainGraphs(copyGraph, copyBorder, copyTriads, toCoordinateMap, i)
+    outputGraphs.push(response)
+    // console.info(response)
+    console.info(`[ITERATION N°${i}]`)
+    const responseCoordinate = convertResponseToCoordinate(response)
+    console.info("Graph Adjacency List:",responseCoordinate.G);
+    console.info("Border:",responseCoordinate.B);
+    console.info("Triads:",responseCoordinate.T);
+    console.info("Selected Triad History:",responseCoordinate.TriadsHistory);
+}
+
+
+// console.log(convertToCoordinate(GRAPH))
+// const response = obtainGraphs(GRAPH, BORDER, TRIADS, toCoordinate);
+//// console.log(response)
+// console.log(convertToCoordinate(response.G))
