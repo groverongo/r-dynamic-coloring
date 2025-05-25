@@ -9,14 +9,14 @@ type CodeToCoordinateMapType = Record<number, [number, number]>;
 
 const DEBUG = false;
 
-function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], iterations: number, mapper: CodeToCoordinateMapType){
-    console.log(`Available triads:`, T.map(triad => triad.map(v => mapper[v])));
-    for(let i = 0; i < iterations && T.length > 3; i++){
+function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], mapper: CodeToCoordinateMapType){
+    DEBUG && console.log('Available triads:', T.map(triad => triad.map(v => mapper[v])));
+    while( T.length > 3 ){
 
         let triadIndex = 0;
         let triadSelected = T[triadIndex];
 
-        DEBUG && console.log("Selected triad", triadSelected.map(v => mapper[v]));
+        DEBUG && console.log('Selected triad', triadSelected.map(v => mapper[v]));
         
         let triadVertex1Candidates: TriadType[] = [] //T.filter((triad, index) => index !== triadIndex && triad.includes(triadSelected[VERTEX_1]));
         let triadVertex2Candidates: TriadType[] = [] //T.filter((triad, index) => index !== triadIndex && triad.includes(triadSelected[VERTEX_2]));
@@ -30,8 +30,8 @@ function obtainGraphs(G: GraphType, B: BorderType, T: TriadType[], iterations: n
                 triadVertex2Candidates.push(triad);
             }
         });
-        DEBUG && console.log(`Triad Vertex1 Candidates:`, triadVertex1Candidates.map(triad => triad.map(v => mapper[v])));
-        DEBUG && console.log(`Triad Vertex2 Candidates:`, triadVertex2Candidates.map(triad => triad.map(v => mapper[v])));
+        DEBUG && console.log('Triad Vertex1 Candidates:', triadVertex1Candidates.map(triad => triad.map(v => mapper[v])));
+        DEBUG && console.log('Triad Vertex2 Candidates:', triadVertex2Candidates.map(triad => triad.map(v => mapper[v])));
     
         function obtainCandidateVertex(selectedTriad: TriadType, triadCandidates: TriadType[], terminalVertex: 0|2) {
             for(const triad of triadCandidates){
@@ -79,5 +79,5 @@ let GRAPH: GraphType = {0: [1, 2], 1: [0, 2, 3, 4], 2: [0, 1, 4, 5], 3: [1, 4, 6
 let BORDER: BorderType = new Set([0, 2, 5, 9, 1, 3, 6, 8, 7]);
 let toCoordinate: CodeToCoordinateMapType = {0: [0, 0], 1: [0, 1], 2: [1, 0], 3: [0, 2], 4: [1, 1], 5: [2, 0], 6: [0, 3], 7: [1, 2], 8: [2, 1], 9: [3, 0]}
  
-const response = obtainGraphs(GRAPH, BORDER, TRIADS, Infinity, toCoordinate);
+const response = obtainGraphs(GRAPH, BORDER, TRIADS, toCoordinate);
 console.log(response)
