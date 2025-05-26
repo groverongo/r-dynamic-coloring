@@ -118,7 +118,6 @@ function convertResponseToCoordinate(resp: {
     return result;
 }
 
-// URGENT: CASE i=4
 
 const outputGraphs: GraphType[] = []
 for(let i = 0; i < TRIADS.length; i++) {
