@@ -39,6 +39,12 @@ class T_Grid_Graph():
 
         degrees = {vertex: len(adjacency_list_code[vertex]) for vertex in adjacency_list_code}
 
+        border_coordinate = [(0,0)] + [(i, 0) for i in range(1, n+1)] + [(0, i) for i in range(1, n+1)] + [(n-i, i) for i in range(1, n)]
+        border_code = [coordinate_to_code[coordinate] for coordinate in border_coordinate]
+
+        triad_candidates_coordinates = [((0, i), (0, i+1), (0, i+2)) for i in range(n-1)] + [((i, 0), (i+1, 0), (i+2, 0)) for i in range(n-1)] + [((n-i, i), (n-i-1, i+1), (n-i-2, i+2)) for i in range(n-1)]
+        triad_candidates_code = [(coordinate_to_code[triad[0]], coordinate_to_code[triad[1]], coordinate_to_code[triad[2]]) for triad in triad_candidates_coordinates]
+
         self.details =  {
             "miscelaneous": {
                 "degree": degrees,
@@ -47,20 +53,40 @@ class T_Grid_Graph():
                 "vertices": vertices_code,
                 "edges": edges_code,
                 "adjacency_list": adjacency_list_code,
-                "to_coordinate": code_to_coordinate
+                "to_coordinate": code_to_coordinate,
+                "border": border_code,
+                "triad_candidates": triad_candidates_code
             },
             "coordinate": {
                 "vertices": vertices_coordinate,
                 "edges": edges_coordinate,
                 "adjacency_list": adjacency_list_coordinate,
-                "to_code": coordinate_to_code
+                "to_code": coordinate_to_code,
+                "border": border_coordinate,
+                "triad_candidates": triad_candidates_coordinates
             }
         } 
+
+    def add_edges(self, edges:list[tuple[tuple[int, int], tuple[int, int]]]):
+        for edge in edges:
+            initial_vertex, final_vertex = edge
+            self.details["coordinate"]["adjacency_list"][initial_vertex].append(final_vertex)
+            self.details["coordinate"]["adjacency_list"][final_vertex].append(initial_vertex)
+            self.details["coordinate"]["edges"].append(tuple(sorted((initial_vertex, final_vertex))))
+
+            initial_vertex_code = self.details["coordinate"]["to_code"][initial_vertex]
+            final_vertex_code = self.details["coordinate"]["to_code"][final_vertex]
+            self.details["code"]["adjacency_list"][initial_vertex_code].append(final_vertex_code)
+            self.details["code"]["adjacency_list"][final_vertex_code].append(initial_vertex_code)
+            self.details["code"]["edges"].append(tuple(sorted((initial_vertex_code, final_vertex_code))))
+
+        self.details["miscelaneous"]["degree"] = {vertex: len(self.details["code"]["adjacency_list"][vertex]) for vertex in self.details["code"]["adjacency_list"]}
    
     def linear_programming_model(self, model_name='ACR', previous_variables=None):
         if model_name not in [self.ACR, self.ACR_H, self.ACR_R, self.ACR_RH]:
             raise ValueError(f"model_name must be '{self.ACR}', '{self.ACR_H}', '{self.ACR_R}' or '{self.ACR_RH}'")
         print(f'For n: {self.n}')
+        print(f'For r: {self.r}')
         adjacency_list = self.details["code"]["adjacency_list"]
         edges = self.details["code"]["edges"]
         degrees = self.details["miscelaneous"]["degree"]
@@ -144,7 +170,7 @@ class T_Grid_Graph():
         self.colors_used = max(color_assignment_code.values()) + 1
         print(f"Colors used: {self.colors_used}")
 
-    def graph_image(self, bw=False, label='color'):
+    def graph_image(self, bw=False, label='color', output_file: str = None, output_directory: str=None):
 
         color_map = ["#FFC0CB", "#90EE90", "#ADD8E6", "#FFFFE0", "#E6E6FA", "#FFD700", "#F0E68C", "#98FB98", "#F5DEB3", "#B0E0E6"]
 
@@ -180,9 +206,18 @@ class T_Grid_Graph():
 
         nx.draw(G, pos=positions, **options)
         plt.axis('equal')
-        if not os.path.exists("graphs"):
-            os.makedirs("graphs")
-        plt.savefig(f"graphs/r{self.r}_n{self.n}_k{self.colors_used}.png")
+
+        if output_directory == None:
+            output_directory = "graphs"
+
+        if not os.path.exists(output_directory):
+            os.makedirs(output_directory)
+
+        if output_file == None:
+            output_file = f'r{self.r}_n{self.n}_k{self.colors_used}.png'
+
+        output_path = f'{output_directory}/{output_file}'
+        plt.savefig(output_path)
         plt.clf()
         plt.close('all')
 
@@ -207,7 +242,7 @@ class T_Grid_Graph():
         w_values_matrix = pd.DataFrame([ [w_vc.varValue for w_vc in self.coloring_solution["w"]]])
         w_values_matrix.to_csv(f"graphs/r{self.r}_w.csv", index=False, header=False)
 
-
+""" 
 X_6_function = lambda v: (v[0]+5*v[1])%7
 def X_4_function(v):
     i = v[0]
@@ -219,21 +254,33 @@ def X_4_function(v):
     else:
         return (5+i-j)%6
 
+class Use_Cases():
+    def __init__(self, K: int, N: int, R: int):
+        self.K = K
+        self.N = N
+        self.R = R
+
+    def Graph_Only(n_min: int, n_max: int, skip):
+        for n in range(n_min, n_max + 1, skip):
+            T_n = T_Grid_Graph(n=n, r=R, k=K)
+
+            
+
 K = 8
-N = 2
+N = 4
 R = 5
 
 # Use a for loop
 T_nm1_coloring_solution = None
-for n in range(N, N+10, 3):
+for n in range(N, N+1, 1):
     T_n = T_Grid_Graph(n=n, r=R, k=K)
     T_n.define_graph()
-    T_n.linear_programming_model(model_name='ACR-R',previous_variables=T_nm1_coloring_solution)
-    T_n.coloring_assignment(coloring_function=None)
-    T_n.graph_image(bw=False, label='color')
+    # T_n.linear_programming_model(model_name='ACR-R',previous_variables=T_nm1_coloring_solution)
+    T_n.coloring_assignment(coloring_function=lambda x: 0)
+    T_n.graph_image(bw=True, label='coordinate')
     # T_n.export_solution()
     # T_n.coloring_table()
-    T_nm1_coloring_solution = T_n.coloring_solution
+    # T_nm1_coloring_solution = T_n.coloring_solution
 
 def build_experiment_table(r_min, r_max, n_min, n_max):
     results = {
@@ -253,4 +300,4 @@ def build_experiment_table(r_min, r_max, n_min, n_max):
     experiment_table = pd.DataFrame(results)
     return experiment_table
 
-# print(build_experiment_table(r_min=2, r_max=6, n_min=1, n_max=10).to_latex(index=False))
+# print(build_experiment_table(r_min=2, r_max=6, n_min=1, n_max=10).to_latex(index=False)) """
