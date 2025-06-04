@@ -1,11 +1,13 @@
+from typing import Callable, Tuple, Union
 from numpy import array
+from numpy.typing import NDArray
 from pulp import LpVariable, LpMinimize, LpStatus, LpProblem, lpSum, GLPK
 import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 from graph_constants import AVAILABLE_COLORS, MODEL_METHOD, EDGE_CONDITION
-from graph_details import Graph_Details
+from graph_details import Coloring_Solution, Graph_Colors, Graph_Details
         
 class T_Grid_Graph():
     def __init__(self, n: int, r: int, k: int):
@@ -82,9 +84,9 @@ class T_Grid_Graph():
         n = self.n
         r = self.r
 
-        w = array([LpVariable(f"w({k_i})", 0, 1, cat="Binary") for k_i in range(k)])
-        x = array([[LpVariable(name=f"x({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
-        q = array([[LpVariable(name=f"q({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
+        w: NDArray[LpVariable] = array([LpVariable(f"w({k_i})", 0, 1, cat="Binary") for k_i in range(k)])
+        x: NDArray[NDArray[LpVariable]] = array([[LpVariable(name=f"x({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
+        q: NDArray[NDArray[LpVariable]] = array([[LpVariable(name=f"q({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
 
         model = LpProblem(name=f'Coloring_T{n}', sense=LpMinimize)
         model += lpSum(w)
@@ -133,17 +135,12 @@ class T_Grid_Graph():
         print(f'Result: {LpStatus[model.status]}')
 
 
-        self.coloring_solution = {
-            "model": model,
-            "w": w,
-            "x": x,
-            "q": q
-        }
+        self.coloring_solution = Coloring_Solution(model=model, w=w, x=x, q=q)
     
 
-    def coloring_assignment(self, coloring_function=None):
+    def coloring_assignment(self, coloring_function: Union[Callable[Tuple[int, int], int], None] = None):
         if coloring_function == None:
-            x = self.coloring_solution["x"]
+            x = self.coloring_solution.x
             to_coordinate = self.details.code.to_other
 
             color_assignment_code = {v: [x_vc.varValue for x_vc in x_v].index(1) for v, x_v in enumerate(x)}
@@ -151,25 +148,25 @@ class T_Grid_Graph():
         else:
             color_assignment_coordinate = {v: coloring_function(v) for v in self.details.coordinate.vertices}
             color_assignment_code = {self.details.coordinate.to_other[v]: c for v, c in color_assignment_coordinate.items()}
-        self.graph_colors = {
-            "code": color_assignment_code,
-            "coordinate": color_assignment_coordinate,
-        }
-        self.colors_used = max(color_assignment_code.values()) + 1
-        print(f"Colors used: {self.colors_used}")
+        self.graph_colors = Graph_Colors(
+            code=color_assignment_code,
+            coordinate=color_assignment_coordinate,
+            used_colors=max(color_assignment_code.values()) + 1
+        )
+        print(f"Colors used: {self.graph_colors.used_colors}")
 
     def graph_image(self, bw=False, label='color', output_file: str = None, output_directory: str=None):
         vertices_coordinate = [str(v) for v in self.details.coordinate.vertices]
         edges_coordinate = [[str(initial_vertex),str(final_vertex)] for (initial_vertex, final_vertex) in self.details.coordinate.edges]
-        color_assignment_coordinate = list({ str(v): AVAILABLE_COLORS[c] for v, c in self.graph_colors["coordinate"].items()}.values())
+        color_assignment_coordinate = list({ str(v): AVAILABLE_COLORS[c] for v, c in self.graph_colors.coordinate.items()}.values())
 
         positions = dict(zip(vertices_coordinate, self.details.coordinate.vertices))
         if label=='color':
-            labels = { str(v): c for v, c in self.graph_colors["coordinate"].items()}
+            labels = { str(v): c for v, c in self.graph_colors.coordinate.items()}
         elif label=='coordinate':
-            labels = { str(v): str(v) for v in self.graph_colors["coordinate"].keys()}
+            labels = { str(v): str(v) for v in self.graph_colors.coordinate.keys()}
         elif label=='code':
-            labels = { str(v): str(v) for v in self.graph_colors["code"].keys()}
+            labels = { str(v): str(v) for v in self.graph_colors.code.keys()}
         else:
             raise ValueError("label must be 'color', 'coordinate' or 'code'")
 
@@ -198,7 +195,7 @@ class T_Grid_Graph():
             os.makedirs(output_directory)
 
         if output_file == None:
-            output_file = f'r{self.r}_n{self.n}_k{self.colors_used}.png'
+            output_file = f'r{self.r}_n{self.n}_k{self.graph_colors.used_colors}.png'
 
         output_path = f'{output_directory}/{output_file}'
         plt.savefig(output_path)
@@ -208,7 +205,7 @@ class T_Grid_Graph():
     def coloring_table(self):
         vertices_coordinate = [str(v) for v in self.details.coordinate.vertices]
         degrees_coordinate = [deg for deg in self.details.misc.degree.values()]
-        color_assignment_coordinate = list({ str(v): c for v, c in self.graph_colors["coordinate"].items()}.values())
+        color_assignment_coordinate = list({ str(v): c for v, c in self.graph_colors.coordinate.items()}.values())
         color_adjacent_coordinate = {str(v): [str(u) for u in self.details.coordinate.adjacency_list[v]] for v in self.details.coordinate.adjacency_list.keys()}
         print(vertices_coordinate)
         print(degrees_coordinate)
@@ -219,11 +216,11 @@ class T_Grid_Graph():
         if not os.path.exists("graphs"):
             os.makedirs("graphs")
         
-        x_values_matrix = pd.DataFrame([ [x_vc.varValue for x_vc in x_v] for x_v in self.coloring_solution["x"]])
+        x_values_matrix = pd.DataFrame([ [x_vc.varValue for x_vc in x_v] for x_v in self.coloring_solution.x])
         x_values_matrix.to_csv(f"graphs/r{self.r}_x.csv", index=False, header=False)
-        q_values_matrix = pd.DataFrame([ [q_vc.varValue for q_vc in q_v] for q_v in self.coloring_solution["q"]])
+        q_values_matrix = pd.DataFrame([ [q_vc.varValue for q_vc in q_v] for q_v in self.coloring_solution.q])
         q_values_matrix.to_csv(f"graphs/r{self.r}_q.csv", index=False, header=False)
-        w_values_matrix = pd.DataFrame([ [w_vc.varValue for w_vc in self.coloring_solution["w"]]])
+        w_values_matrix = pd.DataFrame([ [w_vc.varValue for w_vc in self.coloring_solution.w]])
         w_values_matrix.to_csv(f"graphs/r{self.r}_w.csv", index=False, header=False)
 
 """ 
@@ -280,7 +277,7 @@ def build_experiment_table(r_min, r_max, n_min, n_max):
             T_n.linear_programming_model(previous_variables=previous_solution)
             T_n.coloring_assignment(coloring_function=None)
             previous_solution = T_n.coloring_solution
-            results[f'T_{n}'].append(T_n.colors_used)
+            results[f'T_{n}'].append(T_n.graph_colors.used_colors)
     experiment_table = pd.DataFrame(results)
     return experiment_table
 
