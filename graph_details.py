@@ -4,6 +4,8 @@ from typing import TypeVar, Generic, List, Tuple, Dict
 from numpy.typing import NDArray
 from pulp import LpProblem, LpVariable
 
+from graph_types import VertexType
+
 T = TypeVar('T')
 U = TypeVar('U')
 @dataclass
@@ -22,8 +24,8 @@ class Graph_Details:
         degree: Dict[int, int]
 
     misc: Misc
-    code: Graph_Info[int, Tuple[int, int]]
-    coordinate: Graph_Info[Tuple[int, int], int]
+    code: Graph_Info[VertexType.Code, VertexType.Coordinate]
+    coordinate: Graph_Info[VertexType.Coordinate, VertexType.Code]
 
 @dataclass
 class Coloring_Solution:
@@ -34,6 +36,6 @@ class Coloring_Solution:
 
 @dataclass
 class Graph_Colors:
-    code: Dict[int, int]
-    coordinate: Dict[Tuple[int, int], int]
+    code: Dict[VertexType.Code, int]
+    coordinate: Dict[VertexType.Coordinate, int]
     used_colors: int

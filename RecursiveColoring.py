@@ -8,6 +8,7 @@ import pandas as pd
 import os
 from graph_constants import AVAILABLE_COLORS, MODEL_METHOD, EDGE_CONDITION
 from graph_details import Coloring_Solution, Graph_Colors, Graph_Details
+from graph_types import EdgeType, VertexType
         
 class T_Grid_Graph():
     def __init__(self, n: int, r: int, k: int):
@@ -57,7 +58,7 @@ class T_Grid_Graph():
             )
         )
 
-    def add_edges(self, edges:list[tuple[tuple[int, int], tuple[int, int]]]):
+    def add_edges(self, edges: list[EdgeType.Coordinate]):
         for edge in edges:
             initial_vertex, final_vertex = edge
             self.details.coordinate.adjacency_list[initial_vertex].append(final_vertex)
@@ -138,7 +139,7 @@ class T_Grid_Graph():
         self.coloring_solution = Coloring_Solution(model=model, w=w, x=x, q=q)
     
 
-    def coloring_assignment(self, coloring_function: Union[Callable[Tuple[int, int], int], None] = None):
+    def coloring_assignment(self, coloring_function: Union[Callable[VertexType.Coordinate, int], None] = None):
         if coloring_function == None:
             x = self.coloring_solution.x
             to_coordinate = self.details.code.to_other
