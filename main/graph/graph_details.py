@@ -19,13 +19,40 @@ class Graph_Details:
         border: List[T]
         triad_candidates: List[Tuple[T, T, T]]
 
+        def to_json(self):
+            def tuple_to_str(item):
+                if isinstance(item, tuple):
+                    return f"({item[0]},{item[1]})"
+                return item
+
+            return {
+                "vertices": self.vertices,
+                "edges": self.edges,
+                "adjacency_list": {tuple_to_str(k): v for k, v in self.adjacency_list.items()},
+                "to_other": {tuple_to_str(k): v for k, v in self.to_other.items()},
+                "border": self.border,
+                "triad_candidates": self.triad_candidates
+            }
+
     @dataclass
     class Misc:
         degree: Dict[int, int]
 
+        def to_json(self):
+            return {
+                "degree": self.degree
+            }
+
     misc: Misc
     code: Graph_Info[VertexType.Code, VertexType.Coordinate]
     coordinate: Graph_Info[VertexType.Coordinate, VertexType.Code]
+
+    def to_json(self):
+        return {
+            "misc": self.misc.to_json(),
+            "code": self.code.to_json(),
+            "coordinate": self.coordinate.to_json()
+        }
 
 @dataclass
 class Coloring_Solution:
@@ -39,3 +66,15 @@ class Graph_Colors:
     code: Dict[VertexType.Code, int]
     coordinate: Dict[VertexType.Coordinate, int]
     used_colors: int
+
+    def to_json(self):
+        def tuple_to_str(item):
+            if isinstance(item, tuple):
+                return f"({item[0]},{item[1]})"
+            return item
+        return {
+            "code": {tuple_to_str(k): v for k, v in self.code.items()},
+            "coordinate": {tuple_to_str(k): v for k, v in self.coordinate.items()},
+            "used_colors": self.used_colors
+        }
+        
