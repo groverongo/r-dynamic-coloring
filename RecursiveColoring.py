@@ -4,34 +4,24 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
-
+from graph_constants import AVAILABLE_COLORS, MODEL_METHOD, EDGE_CONDITION
+from graph_details import Graph_Details
+        
 class T_Grid_Graph():
-    ACR = 'ACR'
-    ACR_H = 'ACR-H'
-    ACR_R = 'ACR-R'
-    ACR_RH = 'ACR-RH'
-
-    def __init__(self, n, r, k):
+    def __init__(self, n: int, r: int, k: int):
         self.n = n
         self.r = r
         self.k = k
 
     def define_graph(self):
         n = self.n
-        manhattan_distance = lambda tuple_1, tuple_2: abs(tuple_1[0] - tuple_2[0]) + abs(tuple_1[1] - tuple_2[1])
-        x_difference = lambda tuple_1, tuple_2: tuple_1[0] - tuple_2[0]
-        y_difference = lambda tuple_1, tuple_2: tuple_1[1] - tuple_2[1]
-
-        condition_1 = lambda tuple_1, tuple_2: manhattan_distance(tuple_1, tuple_2) == 1
-        condition_2 = lambda tuple_1, tuple_2: manhattan_distance(tuple_1, tuple_2) == 2 and x_difference(tuple_1, tuple_2) != y_difference(tuple_1, tuple_2) and abs(y_difference(tuple_1, tuple_2)) == abs(x_difference(tuple_1, tuple_2)) == 1
-        edge_condition = lambda tuple_1, tuple_2: condition_1(tuple_1, tuple_2) or condition_2(tuple_1, tuple_2)
 
         vertices_coordinate = [(x, n_i - x) for n_i in range(n+1) for x in range(n_i +1) ]
         vertices_code = list(range(len(vertices_coordinate)))
         code_to_coordinate = dict(zip(vertices_code, vertices_coordinate))
         coordinate_to_code = dict(zip(vertices_coordinate, vertices_code))
 
-        adjacency_list_coordinate = {initial_vertex: [final_vertex for final_vertex in vertices_coordinate if edge_condition(initial_vertex, final_vertex)] for initial_vertex in vertices_coordinate}
+        adjacency_list_coordinate = {initial_vertex: [final_vertex for final_vertex in vertices_coordinate if EDGE_CONDITION(initial_vertex, final_vertex)] for initial_vertex in vertices_coordinate}
         adjacency_list_code = {coordinate_to_code[initial_vertex]: [coordinate_to_code[final_vertex] for final_vertex in adjacency_list_coordinate[initial_vertex] ] for initial_vertex in adjacency_list_coordinate}
 
         edges_code = list(set([tuple(sorted([initial_vertex, final_vertex])) for initial_vertex in adjacency_list_code for final_vertex in adjacency_list_code[initial_vertex]]))
@@ -45,51 +35,49 @@ class T_Grid_Graph():
         triad_candidates_coordinates = [((0, i), (0, i+1), (0, i+2)) for i in range(n-1)] + [((i, 0), (i+1, 0), (i+2, 0)) for i in range(n-1)] + [((n-i, i), (n-i-1, i+1), (n-i-2, i+2)) for i in range(n-1)]
         triad_candidates_code = [(coordinate_to_code[triad[0]], coordinate_to_code[triad[1]], coordinate_to_code[triad[2]]) for triad in triad_candidates_coordinates]
 
-        self.details =  {
-            "miscelaneous": {
-                "degree": degrees,
-            },
-            "code": {
-                "vertices": vertices_code,
-                "edges": edges_code,
-                "adjacency_list": adjacency_list_code,
-                "to_coordinate": code_to_coordinate,
-                "border": border_code,
-                "triad_candidates": triad_candidates_code
-            },
-            "coordinate": {
-                "vertices": vertices_coordinate,
-                "edges": edges_coordinate,
-                "adjacency_list": adjacency_list_coordinate,
-                "to_code": coordinate_to_code,
-                "border": border_coordinate,
-                "triad_candidates": triad_candidates_coordinates
-            }
-        } 
+        self.details = Graph_Details(
+            misc=Graph_Details.Misc(degree=degrees),
+            code=Graph_Details.Graph_Info(
+                vertices=vertices_code,
+                edges=edges_code,
+                adjacency_list=adjacency_list_code,
+                to_other=code_to_coordinate,
+                border=border_code,
+                triad_candidates=triad_candidates_code
+            ),
+            coordinate=Graph_Details.Graph_Info(
+                vertices=vertices_coordinate,
+                edges=edges_coordinate,
+                adjacency_list=adjacency_list_coordinate,
+                to_other=coordinate_to_code,
+                border=border_coordinate,
+                triad_candidates=triad_candidates_coordinates
+            )
+        )
 
     def add_edges(self, edges:list[tuple[tuple[int, int], tuple[int, int]]]):
         for edge in edges:
             initial_vertex, final_vertex = edge
-            self.details["coordinate"]["adjacency_list"][initial_vertex].append(final_vertex)
-            self.details["coordinate"]["adjacency_list"][final_vertex].append(initial_vertex)
-            self.details["coordinate"]["edges"].append(tuple(sorted((initial_vertex, final_vertex))))
+            self.details.coordinate.adjacency_list[initial_vertex].append(final_vertex)
+            self.details.coordinate.adjacency_list[final_vertex].append(initial_vertex)
+            self.details.coordinate.edges.append(tuple(sorted((initial_vertex, final_vertex))))
 
-            initial_vertex_code = self.details["coordinate"]["to_code"][initial_vertex]
-            final_vertex_code = self.details["coordinate"]["to_code"][final_vertex]
-            self.details["code"]["adjacency_list"][initial_vertex_code].append(final_vertex_code)
-            self.details["code"]["adjacency_list"][final_vertex_code].append(initial_vertex_code)
-            self.details["code"]["edges"].append(tuple(sorted((initial_vertex_code, final_vertex_code))))
+            initial_vertex_code = self.details.coordinate.to_other[initial_vertex]
+            final_vertex_code = self.details.coordinate.to_other[final_vertex]
+            self.details.code.adjacency_list[initial_vertex_code].append(final_vertex_code)
+            self.details.code.adjacency_list[final_vertex_code].append(initial_vertex_code)
+            self.details.code.edges.append(tuple(sorted((initial_vertex_code, final_vertex_code))))
 
-        self.details["miscelaneous"]["degree"] = {vertex: len(self.details["code"]["adjacency_list"][vertex]) for vertex in self.details["code"]["adjacency_list"]}
+        self.details.misc.degree = {vertex: len(self.details.code.adjacency_list[vertex]) for vertex in self.details.code.adjacency_list}
    
-    def linear_programming_model(self, model_name='ACR', previous_variables=None):
-        if model_name not in [self.ACR, self.ACR_H, self.ACR_R, self.ACR_RH]:
-            raise ValueError(f"model_name must be '{self.ACR}', '{self.ACR_H}', '{self.ACR_R}' or '{self.ACR_RH}'")
+    def linear_programming_model(self, model_name: MODEL_METHOD, previous_variables=None):
+        if model_name not in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
+            raise ValueError(f"model_name must be '{MODEL_METHOD.ACR}', '{MODEL_METHOD.ACR_H}', '{MODEL_METHOD.ACR_R}' or '{MODEL_METHOD.ACR_RH}'")
         print(f'For n: {self.n}')
         print(f'For r: {self.r}')
-        adjacency_list = self.details["code"]["adjacency_list"]
-        edges = self.details["code"]["edges"]
-        degrees = self.details["miscelaneous"]["degree"]
+        adjacency_list = self.details.code.adjacency_list
+        edges = self.details.code.edges
+        degrees = self.details.misc.degree
         k = self.k
         n = self.n
         r = self.r
@@ -102,7 +90,7 @@ class T_Grid_Graph():
         model += lpSum(w)
 
 
-        if previous_variables and model_name in [self.ACR_R, self.ACR_RH]:
+        if previous_variables and model_name in [MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
             for k_i in range(k):
                 if previous_variables["w"][k_i].varValue == 0:
                     break
@@ -117,11 +105,11 @@ class T_Grid_Graph():
         # Constraint 2
         for (u, v) in edges:
             for k_i in range(k):
-                if model_name in [self.ACR_H, self.ACR_RH]:
+                if model_name in [MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_RH]:
                     model += x[u, k_i] + x[v, k_i] <= 1
                 else:
                     model += x[u, k_i] + x[v, k_i] <= w[k_i]
-        if model_name in [self.ACR, self.ACR_R]:
+        if model_name in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_R]:
             # Constraint 3
             for k_i  in range(k):
                 model += w[k_i] <= lpSum(x[:, k_i])
@@ -156,13 +144,13 @@ class T_Grid_Graph():
     def coloring_assignment(self, coloring_function=None):
         if coloring_function == None:
             x = self.coloring_solution["x"]
-            to_coordinate = self.details["code"]["to_coordinate"]
+            to_coordinate = self.details.code.to_other
 
             color_assignment_code = {v: [x_vc.varValue for x_vc in x_v].index(1) for v, x_v in enumerate(x)}
             color_assignment_coordinate = {to_coordinate[v]: [x_vc.varValue for x_vc in x_v].index(1) for v, x_v in enumerate(x)}
         else:
-            color_assignment_coordinate = {v: coloring_function(v) for v in self.details["coordinate"]["vertices"]}
-            color_assignment_code = {self.details['coordinate']['to_code'][v]: c for v, c in color_assignment_coordinate.items()}
+            color_assignment_coordinate = {v: coloring_function(v) for v in self.details.coordinate.vertices}
+            color_assignment_code = {self.details.coordinate.to_other[v]: c for v, c in color_assignment_coordinate.items()}
         self.graph_colors = {
             "code": color_assignment_code,
             "coordinate": color_assignment_coordinate,
@@ -171,15 +159,11 @@ class T_Grid_Graph():
         print(f"Colors used: {self.colors_used}")
 
     def graph_image(self, bw=False, label='color', output_file: str = None, output_directory: str=None):
+        vertices_coordinate = [str(v) for v in self.details.coordinate.vertices]
+        edges_coordinate = [[str(initial_vertex),str(final_vertex)] for (initial_vertex, final_vertex) in self.details.coordinate.edges]
+        color_assignment_coordinate = list({ str(v): AVAILABLE_COLORS[c] for v, c in self.graph_colors["coordinate"].items()}.values())
 
-        color_map = ["#FFC0CB", "#90EE90", "#ADD8E6", "#FFFFE0", "#E6E6FA", "#FFD700", "#F0E68C", "#98FB98", "#F5DEB3", "#B0E0E6"]
-
-
-        vertices_coordinate = [str(v) for v in self.details["coordinate"]["vertices"]]
-        edges_coordinate = [[str(initial_vertex),str(final_vertex)] for (initial_vertex, final_vertex) in self.details["coordinate"]["edges"]]
-        color_assignment_coordinate = list({ str(v): color_map[c] for v, c in self.graph_colors["coordinate"].items()}.values())
-
-        positions = dict(zip(vertices_coordinate, self.details["coordinate"]["vertices"]))
+        positions = dict(zip(vertices_coordinate, self.details.coordinate.vertices))
         if label=='color':
             labels = { str(v): c for v, c in self.graph_colors["coordinate"].items()}
         elif label=='coordinate':
@@ -222,14 +206,14 @@ class T_Grid_Graph():
         plt.close('all')
 
     def coloring_table(self):
-        vertices_coordinate = [str(v) for v in self.details["coordinate"]["vertices"]]
-        degrees_coordinate = [deg for deg in self.details["miscelaneous"]["degree"].values()]
+        vertices_coordinate = [str(v) for v in self.details.coordinate.vertices]
+        degrees_coordinate = [deg for deg in self.details.misc.degree.values()]
         color_assignment_coordinate = list({ str(v): c for v, c in self.graph_colors["coordinate"].items()}.values())
-        color_adjacent_coordinate = {str(v): [str(u) for u in self.details["coordinate"]["adjacency_list"][v]] for v in self.details["coordinate"]["adjacency_list"].keys()}
-        # print(vertices_coordinate)
-        # print(degrees_coordinate)
-        # print(color_assignment_coordinate)
-        # print(color_adjacent_coordinate)
+        color_adjacent_coordinate = {str(v): [str(u) for u in self.details.coordinate.adjacency_list[v]] for v in self.details.coordinate.adjacency_list.keys()}
+        print(vertices_coordinate)
+        print(degrees_coordinate)
+        print(color_assignment_coordinate)
+        print(color_adjacent_coordinate)
 
     def export_solution(self):
         if not os.path.exists("graphs"):
