@@ -4,7 +4,7 @@ from typing import TypeVar, Generic, List, Tuple, Dict
 from numpy.typing import NDArray
 from pulp import LpProblem, LpVariable
 
-from graph_types import VertexType
+from .graph_types import VertexType
 
 T = TypeVar('T')
 U = TypeVar('U')

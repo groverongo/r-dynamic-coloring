@@ -1,4 +1,4 @@
-from typing import Callable, Tuple, Union
+from typing import Callable, Union
 from numpy import array
 from numpy.typing import NDArray
 from pulp import LpVariable, LpMinimize, LpStatus, LpProblem, lpSum, GLPK
@@ -6,9 +6,9 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
-from graph_constants import AVAILABLE_COLORS, MODEL_METHOD, EDGE_CONDITION
-from graph_details import Coloring_Solution, Graph_Colors, Graph_Details
-from graph_types import EdgeType, VertexType
+from .graph_constants import AVAILABLE_COLORS, MODEL_METHOD, EDGE_CONDITION
+from .graph_details import Coloring_Solution, Graph_Colors, Graph_Details
+from .graph_types import EdgeType, VertexType
         
 class T_Grid_Graph():
     def __init__(self, n: int, r: int, k: int):

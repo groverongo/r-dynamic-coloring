@@ -1,8 +1,8 @@
 
-from typing import Callable, Tuple
+from typing import Callable
 from enum import Enum
 
-from graph_types import VertexType
+from .graph_types import VertexType
 
 MANHATTAN_DISTANCE: Callable[[VertexType.Coordinate, VertexType.Coordinate], int] = lambda tuple_1, tuple_2: abs(tuple_1[0] - tuple_2[0]) + abs(tuple_1[1] - tuple_2[1])
 X_DIFFERENCE: Callable[[VertexType.Coordinate, VertexType.Coordinate], int] = lambda tuple_1, tuple_2: tuple_1[0] - tuple_2[0]
