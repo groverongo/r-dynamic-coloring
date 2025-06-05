@@ -3,6 +3,7 @@ from typing import List, Union
 from graph.graph_coloring import T_Grid_Graph
 from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
 from .star_details import Graph_Stack, Star_Graph_Information
+from loguru import logger
 
 class T_Star_Grid_Graph(T_Grid_Graph):
     def __init__(self, n: int, r: int, k: int):
@@ -26,7 +27,12 @@ class T_Star_Grid_Graph(T_Grid_Graph):
         except ValueError:
             return -1
 
-    def define_new_edges(self):
+    def validate_max_graphs(self, max_graphs: int):
+        if max_graphs == -1:
+            return True
+        return len(self.TOTAL_GRAPHS) < max_graphs
+
+    def define_new_edges(self, max_graphs: int):
         code_adjacency_list = self.details.code.adjacency_list
         border_code = self.details.code.border
         triad_candidates_code = self.details.code.triad_candidates
@@ -42,21 +48,21 @@ class T_Star_Grid_Graph(T_Grid_Graph):
                 triads_history=[]
             ))
 
-        while not STACK.is_empty():
-            print('Current elements:', STACK.heap)
+        while not STACK.is_empty() and self.validate_max_graphs(max_graphs):
+            logger.debug(f'Current elements: {STACK.heap}')
             element = STACK.pop()
 
-            print('Available triads:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads)))
+            logger.debug(f'Available triads: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
             
 
             if len(element.triads) <= 3:
                 self.TOTAL_GRAPHS.append(element)
-                return
+                continue
 
             selected_triad = element.triads[element.triad_index]
             element.triads_history.append(selected_triad)
 
-            print('Selected triad:', list(map(lambda v: code_to_coordinate[v], selected_triad)))
+            logger.debug(f'Selected triad: {list(map(lambda v: code_to_coordinate[v], selected_triad))}')
 
             vertex_1_candidates: List[Star_Triad_Type] = []
             vertex_2_candidates: List[Star_Triad_Type] = []
@@ -68,8 +74,8 @@ class T_Star_Grid_Graph(T_Grid_Graph):
                 elif selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value] in triad:
                     vertex_2_candidates.append(triad)
 
-            print('Vertex 1 candidates:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_1_candidates)))
-            print('Vertex 2 candidates:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_2_candidates)))
+            logger.debug(f'Vertex 1 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_1_candidates))}')
+            logger.debug(f'Vertex 2 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_2_candidates))}')
 
             triad_vertex_1: Star_Triad_Type = [
                 self.obtain_candidate_vertex(selected_triad, vertex_1_candidates, INDEX_ACCESS_TRIAD.VERTEX_1),
@@ -92,7 +98,7 @@ class T_Star_Grid_Graph(T_Grid_Graph):
 
             element.border.remove(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
 
-            print('Result:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads)))
+            logger.debug(f'Result: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
 
             for index_triad in range(len(element.triads)):
                 STACK.push(Graph_Stack.Graph_Stack_Element(
@@ -104,9 +110,9 @@ class T_Star_Grid_Graph(T_Grid_Graph):
                 ))
         
 
-    def define_graph(self):
+    def define_graph(self, max_graphs: int = -1):
         super().define_graph()
-        self.define_new_edges()
-        print('Total graphs:', len(self.TOTAL_GRAPHS))
+        self.define_new_edges(max_graphs)
+        logger.info(f'Total graphs: {len(self.TOTAL_GRAPHS)}')
 
         
