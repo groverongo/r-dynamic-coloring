@@ -1,15 +1,17 @@
 from copy import deepcopy
 from typing import List, Union
 from graph.graph_coloring import T_Grid_Graph
+from .star_update import update_grid
 from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
 from .star_details import Graph_Priority_Queue, Star_Graph_Information
 from loguru import logger
 
-class T_Star_Grid_Graph(T_Grid_Graph):
+class T_Star_Grid_Graphs():
     def __init__(self, n: int, r: int, k: int):
-        super().__init__(n, r, k)
-
-        self.TOTAL_GRAPHS: List[Star_Graph_Information] = []
+        self.BASE_GRAPH: T_Grid_Graph = T_Grid_Graph(n, r, k)
+        # List of T_Grid_Graph is actually T_Star_Graph
+        self.TOTAL_GRAPHS: List[T_Grid_Graph] = []
+        self.TOTAL_GRAPHS_HISTORY: List[List[Star_Triad_Type]] = []
 
     def obtain_candidate_vertex(self, selected_triad: Star_Triad_Type, triad_candidates: List[Star_Triad_Type], terminal_vertex: Union[INDEX_ACCESS_TRIAD.VERTEX_1, INDEX_ACCESS_TRIAD.VERTEX_2]):
         for triad in triad_candidates:
@@ -33,17 +35,14 @@ class T_Star_Grid_Graph(T_Grid_Graph):
         return len(self.TOTAL_GRAPHS) < max_graphs
 
     def define_new_edges(self, max_graphs: int):
-        code_adjacency_list = self.details.code.adjacency_list
-        border_code = self.details.code.border
-        triad_candidates_code = self.details.code.triad_candidates
-        code_to_coordinate = self.details.code.to_other
+        code_to_coordinate = self.BASE_GRAPH.details.code.to_other
 
         PRIORITY_QUEUE = Graph_Priority_Queue()
-        for triad_index in range(len(triad_candidates_code)):
+        for triad_index in range(len(self.BASE_GRAPH.details.code.triad_candidates)):
             PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
-                graph=deepcopy(code_adjacency_list),
-                border=deepcopy(border_code),
-                triads=deepcopy(triad_candidates_code),
+                graph=deepcopy(self.BASE_GRAPH.details.code.adjacency_list),
+                border=deepcopy(self.BASE_GRAPH.details.code.border),
+                triads=deepcopy(self.BASE_GRAPH.details.code.triad_candidates),
                 triad_index=triad_index,
                 triads_history=[]
             ))
@@ -56,7 +55,9 @@ class T_Star_Grid_Graph(T_Grid_Graph):
             
 
             if len(element.triads) <= 3:
-                self.TOTAL_GRAPHS.append(element)
+                t_star_graph = update_grid(element, deepcopy(self.BASE_GRAPH))
+                self.TOTAL_GRAPHS.append(t_star_graph)
+                self.TOTAL_GRAPHS_HISTORY.append(element.triads_history)
                 continue
 
             selected_triad = element.triads[element.triad_index]
@@ -111,7 +112,7 @@ class T_Star_Grid_Graph(T_Grid_Graph):
         
 
     def define_graph(self, max_graphs: int = -1):
-        super().define_graph()
+        self.BASE_GRAPH.define_graph()
         self.define_new_edges(max_graphs)
         logger.info(f'Total graphs: {len(self.TOTAL_GRAPHS)}')
 
