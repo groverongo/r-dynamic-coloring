@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Dict, Set, List, Tuple
+import heapq
 
 @dataclass
 class Star_Graph_Information():
@@ -8,31 +9,38 @@ class Star_Graph_Information():
     triads: List[Tuple[int, int, int]]
     triads_history: List[Tuple[int, int, int]]
 
-@dataclass
 class Graph_Stack():
 
     @dataclass
     class Graph_Stack_Element(Star_Graph_Information):
         triad_index: int
+        
+        def __lt__(self, other):
+            return len(self.triads) < len(other.triads)
     
-    stack: List[Graph_Stack_Element] = []
+    def __init__(self):
+        self.heap = []
 
     def push(self, element: Graph_Stack_Element):
-        self.stack.append(element)
+        heapq.heappush(self.heap, element)
 
     def pop(self):
-        return self.stack.pop()
+        if self.heap:
+            return heapq.heappop(self.heap)
+        raise IndexError("pop from empty heap")
 
     def peek(self):
-        return self.stack[-1]
+        if self.heap:
+            return self.heap[0]
+        raise IndexError("peek at empty heap")
 
     def is_empty(self):
-        return len(self.stack) == 0
+        return len(self.heap) == 0
 
     def __len__(self):
-        return len(self.stack)
+        return len(self.heap)
 
     def to_json(self):
         return {
-            "stack": [element.to_json() for element in self.stack]
+            "stack": [element.to_json() for element in self.heap]
         }
