@@ -1,4 +1,6 @@
+from typing import List, Union
 from graph.graph_coloring import T_Grid_Graph
+from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
 from .star_details import Graph_Priority_Queue
 
 def update_grid(element: Graph_Priority_Queue.Graph_Priority_Queue_Element, graph: T_Grid_Graph):
@@ -13,3 +15,19 @@ def update_grid(element: Graph_Priority_Queue.Graph_Priority_Queue_Element, grap
     graph.details.coordinate.edges = [(graph.details.code.to_other[edge[0]], graph.details.code.to_other[edge[1]]) for edge in graph.details.code.edges]
     
     return graph
+
+def obtain_candidate_vertex(selected_triad: Star_Triad_Type, triad_candidates: List[Star_Triad_Type], terminal_vertex: Union[INDEX_ACCESS_TRIAD.VERTEX_1, INDEX_ACCESS_TRIAD.VERTEX_2]):
+    for triad in triad_candidates:
+        if selected_triad[terminal_vertex.value] == triad[INDEX_ACCESS_TRIAD.MIDDLE.value]:
+            if selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value] == triad[INDEX_ACCESS_TRIAD.VERTEX_1.value]:
+                return triad[INDEX_ACCESS_TRIAD.VERTEX_2.value]
+            else:
+                return triad[INDEX_ACCESS_TRIAD.VERTEX_1.value]
+        else:
+            return triad[INDEX_ACCESS_TRIAD.MIDDLE.value]
+
+def middle_vertex_presence_filter(triad: Star_Triad_Type):
+    try:
+        return triad.index(triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
+    except ValueError:
+        return -1
