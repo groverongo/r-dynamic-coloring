@@ -9,19 +9,19 @@ class Star_Graph_Information():
     triads: List[Tuple[int, int, int]]
     triads_history: List[Tuple[int, int, int]]
 
-class Graph_Stack():
+class Graph_Priority_Queue():
 
     @dataclass
-    class Graph_Stack_Element(Star_Graph_Information):
+    class Graph_Priority_Queue_Element(Star_Graph_Information):
         triad_index: int
         
         def __lt__(self, other):
             return len(self.triads) < len(other.triads)
     
     def __init__(self):
-        self.heap: List[Graph_Stack.Graph_Stack_Element] = []
+        self.heap: List[Graph_Priority_Queue.Graph_Priority_Queue_Element] = []
 
-    def push(self, element: Graph_Stack_Element):
+    def push(self, element: Graph_Priority_Queue_Element):
         heapq.heappush(self.heap, element)
 
     def pop(self):

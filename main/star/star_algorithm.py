@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import List, Union
 from graph.graph_coloring import T_Grid_Graph
 from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
-from .star_details import Graph_Stack, Star_Graph_Information
+from .star_details import Graph_Priority_Queue, Star_Graph_Information
 from loguru import logger
 
 class T_Star_Grid_Graph(T_Grid_Graph):
@@ -38,9 +38,9 @@ class T_Star_Grid_Graph(T_Grid_Graph):
         triad_candidates_code = self.details.code.triad_candidates
         code_to_coordinate = self.details.code.to_other
 
-        STACK = Graph_Stack()
+        PRIORITY_QUEUE = Graph_Priority_Queue()
         for triad_index in range(len(triad_candidates_code)):
-            STACK.push(Graph_Stack.Graph_Stack_Element(
+            PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
                 graph=deepcopy(code_adjacency_list),
                 border=deepcopy(border_code),
                 triads=deepcopy(triad_candidates_code),
@@ -48,9 +48,9 @@ class T_Star_Grid_Graph(T_Grid_Graph):
                 triads_history=[]
             ))
 
-        while not STACK.is_empty() and self.validate_max_graphs(max_graphs):
-            logger.debug(f'Current elements: {STACK.heap}')
-            element = STACK.pop()
+        while not PRIORITY_QUEUE.is_empty() and self.validate_max_graphs(max_graphs):
+            logger.debug(f'Current elements: {PRIORITY_QUEUE.heap}')
+            element = PRIORITY_QUEUE.pop()
 
             logger.debug(f'Available triads: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
             
@@ -101,7 +101,7 @@ class T_Star_Grid_Graph(T_Grid_Graph):
             logger.debug(f'Result: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
 
             for index_triad in range(len(element.triads)):
-                STACK.push(Graph_Stack.Graph_Stack_Element(
+                PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
                     graph=deepcopy(element.graph),
                     border=deepcopy(element.border),
                     triads=deepcopy(element.triads),
