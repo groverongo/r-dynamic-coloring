@@ -19,7 +19,7 @@ class Graph_Stack():
             return len(self.triads) < len(other.triads)
     
     def __init__(self):
-        self.heap = []
+        self.heap: List[Graph_Stack.Graph_Stack_Element] = []
 
     def push(self, element: Graph_Stack_Element):
         heapq.heappush(self.heap, element)

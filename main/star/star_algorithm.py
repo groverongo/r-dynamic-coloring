@@ -1,10 +1,8 @@
 from copy import deepcopy
-from typing import List, Tuple, Union
-from graph.graph_types import VertexType, EdgeType
+from typing import List, Union
 from graph.graph_coloring import T_Grid_Graph
-from graph.graph_constants import MODEL_METHOD
-from main.star.star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
-from star.star_details import Graph_Stack, Star_Graph_Information
+from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
+from .star_details import Graph_Stack, Star_Graph_Information
 
 class T_Star_Grid_Graph(T_Grid_Graph):
     def __init__(self, n: int, r: int, k: int):
@@ -34,37 +32,44 @@ class T_Star_Grid_Graph(T_Grid_Graph):
         triad_candidates_code = self.details.code.triad_candidates
         code_to_coordinate = self.details.code.to_other
 
-        triad_index: int = 0
-        triads_history: List[Tuple[int, int, int]] = []
-
         STACK = Graph_Stack()
-        STACK.push(Graph_Stack.Graph_Stack_Element(
-            graph=deepcopy(code_adjacency_list),
-            border=deepcopy(border_code),
-            triads=deepcopy(triad_candidates_code),
-            triad_index=triad_index,
-            triads_history=triads_history
-        ))
+        for triad_index in range(len(triad_candidates_code)):
+            STACK.push(Graph_Stack.Graph_Stack_Element(
+                graph=deepcopy(code_adjacency_list),
+                border=deepcopy(border_code),
+                triads=deepcopy(triad_candidates_code),
+                triad_index=triad_index,
+                triads_history=[]
+            ))
 
         while not STACK.is_empty():
+            print('Current elements:', STACK.heap)
             element = STACK.pop()
+
+            print('Available triads:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads)))
             
+
             if len(element.triads) <= 3:
                 self.TOTAL_GRAPHS.append(element)
-                continue
+                return
 
             selected_triad = element.triads[element.triad_index]
-            triads_history.append(selected_triad)
+            element.triads_history.append(selected_triad)
 
-            vertex_1_candidates = []
-            vertex_2_candidates = []
+            print('Selected triad:', list(map(lambda v: code_to_coordinate[v], selected_triad)))
+
+            vertex_1_candidates: List[Star_Triad_Type] = []
+            vertex_2_candidates: List[Star_Triad_Type] = []
 
             for triad in element.triads:
                 if triad == selected_triad: continue
-                if triad.includes(selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value]):
+                if selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value] in triad:
                     vertex_1_candidates.append(triad)
-                elif triad.includes(selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value]):
+                elif selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value] in triad:
                     vertex_2_candidates.append(triad)
+
+            print('Vertex 1 candidates:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_1_candidates)))
+            print('Vertex 2 candidates:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_2_candidates)))
 
             triad_vertex_1: Star_Triad_Type = [
                 self.obtain_candidate_vertex(selected_triad, vertex_1_candidates, INDEX_ACCESS_TRIAD.VERTEX_1),
@@ -87,6 +92,8 @@ class T_Star_Grid_Graph(T_Grid_Graph):
 
             element.border.remove(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
 
+            print('Result:', list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads)))
+
             for index_triad in range(len(element.triads)):
                 STACK.push(Graph_Stack.Graph_Stack_Element(
                     graph=deepcopy(element.graph),
@@ -99,5 +106,7 @@ class T_Star_Grid_Graph(T_Grid_Graph):
 
     def define_graph(self):
         super().define_graph()
+        self.define_new_edges()
+        print('Total graphs:', len(self.TOTAL_GRAPHS))
 
         
