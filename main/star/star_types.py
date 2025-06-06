@@ -6,5 +6,5 @@ Border_Type = Set[int]
 
 class INDEX_ACCESS_TRIAD(Enum):
     VERTEX_1 = 0
-    VERTEX_2 = 1
-    MIDDLE = 2
+    MIDDLE = 1
+    VERTEX_2 = 2

@@ -21,9 +21,9 @@ class T_Star_Grid_Graphs():
     def define_new_edges(self, max_graphs: int):
         code_to_coordinate = self.BASE_GRAPH.details.code.to_other
 
-        PRIORITY_QUEUE = Graph_Priority_Queue()
+        self.PRIORITY_QUEUE = Graph_Priority_Queue()
         for triad_index in range(len(self.BASE_GRAPH.details.code.triad_candidates)):
-            PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
+            self.PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
                 graph=deepcopy(self.BASE_GRAPH.details.code.adjacency_list),
                 border=deepcopy(self.BASE_GRAPH.details.code.border),
                 triads=deepcopy(self.BASE_GRAPH.details.code.triad_candidates),
@@ -31,14 +31,15 @@ class T_Star_Grid_Graphs():
                 triads_history=[]
             ))
 
-        while not PRIORITY_QUEUE.is_empty() and self.validate_max_graphs(max_graphs):
-            logger.debug(f'Current elements: {PRIORITY_QUEUE.heap}')
-            element = PRIORITY_QUEUE.pop()
+        while not self.PRIORITY_QUEUE.is_empty() and self.validate_max_graphs(max_graphs):
+            # logger.debug(f'Current elements: {PRIORITY_QUEUE.heap}')
+            element = self.PRIORITY_QUEUE.pop()
 
-            logger.debug(f'Available triads: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
+            # logger.debug(f'Available triads: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
             
 
             if len(element.triads) <= 3:
+                logger.debug(f'Element triads: {element}')
                 t_star_graph = update_grid(element, deepcopy(self.BASE_GRAPH))
                 self.TOTAL_GRAPHS.append(t_star_graph)
                 self.TOTAL_GRAPHS_HISTORY.append(element.triads_history)
@@ -47,7 +48,7 @@ class T_Star_Grid_Graphs():
             selected_triad = element.triads[element.triad_index]
             element.triads_history.append(selected_triad)
 
-            logger.debug(f'Selected triad: {list(map(lambda v: code_to_coordinate[v], selected_triad))}')
+            # logger.debug(f'Selected triad: {list(map(lambda v: code_to_coordinate[v], selected_triad))}')
 
             vertex_1_candidates: List[Star_Triad_Type] = []
             vertex_2_candidates: List[Star_Triad_Type] = []
@@ -59,8 +60,8 @@ class T_Star_Grid_Graphs():
                 elif selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value] in triad:
                     vertex_2_candidates.append(triad)
 
-            logger.debug(f'Vertex 1 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_1_candidates))}')
-            logger.debug(f'Vertex 2 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_2_candidates))}')
+            # logger.debug(f'Vertex 1 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_1_candidates))}')
+            # logger.debug(f'Vertex 2 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_2_candidates))}')
 
             triad_vertex_1: Star_Triad_Type = [
                 obtain_candidate_vertex(selected_triad, vertex_1_candidates, INDEX_ACCESS_TRIAD.VERTEX_1),
@@ -83,10 +84,10 @@ class T_Star_Grid_Graphs():
 
             element.border.remove(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
 
-            logger.debug(f'Result: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
+            # logger.debug(f'Result: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
 
             for index_triad in range(len(element.triads)):
-                PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
+                self.PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
                     graph=deepcopy(element.graph),
                     border=deepcopy(element.border),
                     triads=deepcopy(element.triads),
@@ -97,6 +98,5 @@ class T_Star_Grid_Graphs():
     def define_graph(self, max_graphs: int = -1):
         self.BASE_GRAPH.define_graph()
         self.define_new_edges(max_graphs)
-        logger.info(f'Total graphs: {len(self.TOTAL_GRAPHS)}')
 
         
