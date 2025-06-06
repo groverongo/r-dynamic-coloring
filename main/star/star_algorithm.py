@@ -31,15 +31,17 @@ class T_Star_Grid_Graphs():
                 triads_history=[]
             ))
 
+        self.queue_size_sequence: List[int] = [len(self.PRIORITY_QUEUE.heap)]
+
         while not self.PRIORITY_QUEUE.is_empty() and self.validate_max_graphs(max_graphs):
             # logger.debug(f'Current elements: {PRIORITY_QUEUE.heap}')
             element = self.PRIORITY_QUEUE.pop()
+            self.queue_size_sequence.append(len(self.PRIORITY_QUEUE.heap))
 
             # logger.debug(f'Available triads: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
             
 
             if len(element.triads) <= 3:
-                logger.debug(f'Element triads: {element}')
                 t_star_graph = update_grid(element, deepcopy(self.BASE_GRAPH))
                 self.TOTAL_GRAPHS.append(t_star_graph)
                 self.TOTAL_GRAPHS_HISTORY.append(element.triads_history)
@@ -79,7 +81,7 @@ class T_Star_Grid_Graphs():
             element.graph[selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value]].append(selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value])
 
             element.triads.pop(element.triad_index)
-            element.triads = list(filter(lambda triad: middle_vertex_presence_filter(triad) == -1, element.triads))
+            element.triads = list(filter(lambda triad: middle_vertex_presence_filter(triad, selected_triad) == -1, element.triads))
             element.triads.extend([triad_vertex_1, triad_vertex_2])
 
             element.border.remove(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
@@ -94,6 +96,8 @@ class T_Star_Grid_Graphs():
                     triad_index=index_triad,
                     triads_history=deepcopy(element.triads_history)
                 ))
+        
+        self.queue_size_sequence.append(len(self.PRIORITY_QUEUE.heap))
         
     def define_graph(self, max_graphs: int = -1):
         self.BASE_GRAPH.define_graph()
