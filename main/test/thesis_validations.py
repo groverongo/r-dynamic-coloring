@@ -1,5 +1,5 @@
 
-from RecursiveColoring import T_Grid_Graph
+from graph.graph_coloring import T_Grid_Graph
 import pandas as pd
 
 X_6_function = lambda v: (v[0]+5*v[1])%7
