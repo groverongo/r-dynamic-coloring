@@ -5,18 +5,17 @@ import heapq
 @dataclass
 class Star_Graph_Information():
     graph: Dict[int, List[int]]
-    border: Set[int]
-    triads: List[Tuple[int, int, int]]
-    triads_history: List[Tuple[int, int, int]]
+    border: List[int]
+    border_target_history: List[int]
 
 class Graph_Priority_Queue():
 
     @dataclass
     class Graph_Priority_Queue_Element(Star_Graph_Information):
-        triad_index: int
-        
+        border_target_index: int
+
         def __lt__(self, other):
-            return len(self.triads) < len(other.triads)
+            return len(self.border) < len(other.border)
     
     def __init__(self):
         self.heap: List[Graph_Priority_Queue.Graph_Priority_Queue_Element] = []

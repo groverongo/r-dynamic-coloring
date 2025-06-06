@@ -17,7 +17,6 @@ class Graph_Details:
         adjacency_list: Dict[T, List[T]]
         to_other: Dict[T, U]
         border: List[T]
-        triad_candidates: List[Tuple[T, T, T]]
 
         def to_json(self):
             def tuple_to_str(item):
@@ -31,7 +30,6 @@ class Graph_Details:
                 "adjacency_list": {tuple_to_str(k): v for k, v in self.adjacency_list.items()},
                 "to_other": {tuple_to_str(k): v for k, v in self.to_other.items()},
                 "border": self.border,
-                "triad_candidates": self.triad_candidates
             }
 
     @dataclass

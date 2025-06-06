@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import List
 from graph.graph_coloring import T_Grid_Graph
-from .star_utils import middle_vertex_presence_filter, obtain_candidate_vertex, update_grid
+from .star_utils import update_grid, verify_not_corner
 from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
 from .star_details import Graph_Priority_Queue
 from loguru import logger
@@ -22,13 +22,21 @@ class T_Star_Grid_Graphs():
         code_to_coordinate = self.BASE_GRAPH.details.code.to_other
 
         self.PRIORITY_QUEUE = Graph_Priority_Queue()
-        for triad_index in range(len(self.BASE_GRAPH.details.code.triad_candidates)):
+        for border_target_index in range(len(self.BASE_GRAPH.details.code.border)):
+            evaluation_triad: Star_Triad_Type = [
+                self.BASE_GRAPH.details.code.border[(border_target_index - 1) % len(self.BASE_GRAPH.details.code.border)],
+                self.BASE_GRAPH.details.code.border[border_target_index],
+                self.BASE_GRAPH.details.code.border[(border_target_index + 1) % len(self.BASE_GRAPH.details.code.border)]
+            ]
+
+            if not verify_not_corner(evaluation_triad, code_to_coordinate, self.BASE_GRAPH.n):
+                continue
+
             self.PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
                 graph=deepcopy(self.BASE_GRAPH.details.code.adjacency_list),
                 border=deepcopy(self.BASE_GRAPH.details.code.border),
-                triads=deepcopy(self.BASE_GRAPH.details.code.triad_candidates),
-                triad_index=triad_index,
-                triads_history=[]
+                border_target_index=border_target_index,
+                border_target_history=[]
             ))
 
         self.queue_size_sequence: List[int] = [len(self.PRIORITY_QUEUE.heap)]
@@ -39,62 +47,43 @@ class T_Star_Grid_Graphs():
             self.queue_size_sequence.append(len(self.PRIORITY_QUEUE.heap))
 
             # logger.debug(f'Available triads: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
-            
 
-            if len(element.triads) <= 3:
+            if len(element.border) <= 3:
                 t_star_graph = update_grid(element, deepcopy(self.BASE_GRAPH))
                 self.TOTAL_GRAPHS.append(t_star_graph)
-                self.TOTAL_GRAPHS_HISTORY.append(element.triads_history)
+                self.TOTAL_GRAPHS_HISTORY.append(element.border_target_history)
                 continue
 
-            selected_triad = element.triads[element.triad_index]
-            element.triads_history.append(selected_triad)
-
-            # logger.debug(f'Selected triad: {list(map(lambda v: code_to_coordinate[v], selected_triad))}')
-
-            vertex_1_candidates: List[Star_Triad_Type] = []
-            vertex_2_candidates: List[Star_Triad_Type] = []
-
-            for triad in element.triads:
-                if triad == selected_triad: continue
-                if selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value] in triad:
-                    vertex_1_candidates.append(triad)
-                elif selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value] in triad:
-                    vertex_2_candidates.append(triad)
-
-            # logger.debug(f'Vertex 1 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_1_candidates))}')
-            # logger.debug(f'Vertex 2 candidates: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), vertex_2_candidates))}')
-
-            triad_vertex_1: Star_Triad_Type = [
-                obtain_candidate_vertex(selected_triad, vertex_1_candidates, INDEX_ACCESS_TRIAD.VERTEX_1),
-                selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value],
-                selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value]
+            selected_triad: Star_Triad_Type = [
+                element.border[(element.border_target_index - 1) % len(element.border)],
+                element.border[element.border_target_index],
+                element.border[(element.border_target_index + 1) % len(element.border)]
             ]
 
-            triad_vertex_2: Star_Triad_Type = [
-                selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value],
-                selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value],
-                obtain_candidate_vertex(selected_triad, vertex_2_candidates, INDEX_ACCESS_TRIAD.VERTEX_2)
-            ]
+            element.border_target_history.append(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
 
             element.graph[selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value]].append(selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value])
             element.graph[selected_triad[INDEX_ACCESS_TRIAD.VERTEX_2.value]].append(selected_triad[INDEX_ACCESS_TRIAD.VERTEX_1.value])
-
-            element.triads.pop(element.triad_index)
-            element.triads = list(filter(lambda triad: middle_vertex_presence_filter(triad, selected_triad) == -1, element.triads))
-            element.triads.extend([triad_vertex_1, triad_vertex_2])
-
+            
             element.border.remove(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
 
             # logger.debug(f'Result: {list(map(lambda triad: list(map(lambda v: code_to_coordinate[v], triad)), element.triads))}')
 
-            for index_triad in range(len(element.triads)):
+            for border_target_index in range(len(element.border)):
+                evaluation_triad: Star_Triad_Type = [
+                    element.border[(border_target_index - 1) % len(element.border)],
+                    element.border[border_target_index],
+                    element.border[(border_target_index + 1) % len(element.border)]
+                ]
+
+                if not verify_not_corner(evaluation_triad, code_to_coordinate, self.BASE_GRAPH.n):
+                    continue
+
                 self.PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
                     graph=deepcopy(element.graph),
                     border=deepcopy(element.border),
-                    triads=deepcopy(element.triads),
-                    triad_index=index_triad,
-                    triads_history=deepcopy(element.triads_history)
+                    border_target_history=deepcopy(element.border_target_history),
+                    border_target_index=border_target_index
                 ))
         
         self.queue_size_sequence.append(len(self.PRIORITY_QUEUE.heap))

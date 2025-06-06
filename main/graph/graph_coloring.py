@@ -35,9 +35,6 @@ class T_Grid_Graph():
         border_coordinate = [(0,0)] + [(i, 0) for i in range(1, n+1)] + [(0, i) for i in range(1, n+1)] + [(n-i, i) for i in range(1, n)]
         border_code = [coordinate_to_code[coordinate] for coordinate in border_coordinate]
 
-        triad_candidates_coordinates = [((0, i), (0, i+1), (0, i+2)) for i in range(n-1)] + [((i, 0), (i+1, 0), (i+2, 0)) for i in range(n-1)] + [((n-i, i), (n-i-1, i+1), (n-i-2, i+2)) for i in range(n-1)]
-        triad_candidates_code = [(coordinate_to_code[triad[0]], coordinate_to_code[triad[1]], coordinate_to_code[triad[2]]) for triad in triad_candidates_coordinates]
-
         self.details = Graph_Details(
             misc=Graph_Details.Misc(degree=degrees),
             code=Graph_Details.Graph_Info(
@@ -46,7 +43,6 @@ class T_Grid_Graph():
                 adjacency_list=adjacency_list_code,
                 to_other=code_to_coordinate,
                 border=border_code,
-                triad_candidates=triad_candidates_code
             ),
             coordinate=Graph_Details.Graph_Info(
                 vertices=vertices_coordinate,
@@ -54,7 +50,6 @@ class T_Grid_Graph():
                 adjacency_list=adjacency_list_coordinate,
                 to_other=coordinate_to_code,
                 border=border_coordinate,
-                triad_candidates=triad_candidates_coordinates
             )
         )
 
