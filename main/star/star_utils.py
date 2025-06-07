@@ -4,18 +4,11 @@ from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
 from .star_details import Graph_Priority_Queue
 from graph.graph_types import VertexType
 
-def verify_not_corner(triad: Star_Triad_Type, to_coordinate: Dict[VertexType.Code, VertexType.Coordinate], n: int):
+def verify_not_adjacent(triad: Star_Triad_Type, adjacency_list: Dict[VertexType.Code, List[VertexType.Code]], n: int):
     vertex_1, _, vertex_2 = triad
-    vertex_1_coordinate = to_coordinate[vertex_1]
-    vertex_2_coordinate = to_coordinate[vertex_2]
-    
-    if (vertex_1_coordinate == (0,1) and vertex_2_coordinate == (1,0)) or (vertex_1_coordinate == (1,0) and vertex_2_coordinate == (0,1)):
-        return False
 
-    if (vertex_1_coordinate == (n-1, 0) and vertex_2_coordinate == (n-1, 1)) or (vertex_1_coordinate == (n-1, 1) and vertex_2_coordinate == (n-1, 0)):
-        return False
-
-    if (vertex_1_coordinate == (0, n-1) and vertex_2_coordinate == (1, n-1)) or (vertex_1_coordinate == (1, n-1) and vertex_2_coordinate == (0, n-1)):
+    # Check that vertex_1 and vertex_2 are not adjacent
+    if vertex_2 in adjacency_list[vertex_1]:
         return False
 
     return True

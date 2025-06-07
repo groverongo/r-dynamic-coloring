@@ -71,8 +71,6 @@ class T_Grid_Graph():
     def linear_programming_model(self, model_name: MODEL_METHOD, previous_variables=None):
         if model_name not in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
             raise ValueError(f"model_name must be '{MODEL_METHOD.ACR}', '{MODEL_METHOD.ACR_H}', '{MODEL_METHOD.ACR_R}' or '{MODEL_METHOD.ACR_RH}'")
-        print(f'For n: {self.n}')
-        print(f'For r: {self.r}')
         adjacency_list = self.details.code.adjacency_list
         edges = self.details.code.edges
         degrees = self.details.misc.degree
@@ -128,10 +126,10 @@ class T_Grid_Graph():
                     model += q[v, k_i] >= x[u, k_i]
 
         model.solve(solver=GLPK(msg=False))
-        print(f'Result: {LpStatus[model.status]}')
-
 
         self.coloring_solution = Coloring_Solution(model=model, w=w, x=x, q=q)
+
+        return LpStatus[model.status]
     
 
     def coloring_assignment(self, coloring_function: Union[Callable[VertexType.Coordinate, int], None] = None):
@@ -149,7 +147,9 @@ class T_Grid_Graph():
             coordinate=color_assignment_coordinate,
             used_colors=max(color_assignment_code.values()) + 1
         )
-        print(f"Colors used: {self.graph_colors.used_colors}")
+
+        chromatic_number = self.graph_colors.used_colors
+        return chromatic_number
 
     def graph_image(self, bw=False, label='color', output_file: str = None, output_directory: str=None):
         vertices_coordinate = [str(v) for v in self.details.coordinate.vertices]

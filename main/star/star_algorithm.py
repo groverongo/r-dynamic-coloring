@@ -1,7 +1,7 @@
 from copy import deepcopy
 from typing import List
 from graph.graph_coloring import T_Grid_Graph
-from .star_utils import update_grid, verify_not_corner
+from .star_utils import update_grid, verify_not_adjacent
 from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
 from .star_details import Graph_Priority_Queue
 from loguru import logger
@@ -29,7 +29,7 @@ class T_Star_Grid_Graphs():
                 self.BASE_GRAPH.details.code.border[(border_target_index + 1) % len(self.BASE_GRAPH.details.code.border)]
             ]
 
-            if not verify_not_corner(evaluation_triad, code_to_coordinate, self.BASE_GRAPH.n):
+            if not verify_not_adjacent(evaluation_triad, self.BASE_GRAPH.details.code.adjacency_list, self.BASE_GRAPH.n):
                 continue
 
             self.PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
@@ -59,6 +59,7 @@ class T_Star_Grid_Graphs():
                 element.border[element.border_target_index],
                 element.border[(element.border_target_index + 1) % len(element.border)]
             ]
+            # logger.debug(f'Selected triad: {[code_to_coordinate[v] for v in selected_triad]}')
 
             element.border_target_history.append(selected_triad[INDEX_ACCESS_TRIAD.MIDDLE.value])
 
@@ -76,7 +77,7 @@ class T_Star_Grid_Graphs():
                     element.border[(border_target_index + 1) % len(element.border)]
                 ]
 
-                if not verify_not_corner(evaluation_triad, code_to_coordinate, self.BASE_GRAPH.n):
+                if not verify_not_adjacent(evaluation_triad, element.graph, self.BASE_GRAPH.n):
                     continue
 
                 self.PRIORITY_QUEUE.push(Graph_Priority_Queue.Graph_Priority_Queue_Element(
