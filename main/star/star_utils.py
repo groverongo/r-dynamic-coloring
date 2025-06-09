@@ -22,7 +22,7 @@ def update_grid(element: Graph_Priority_Queue.Graph_Priority_Queue_Element, grap
     graph.details.coordinate.border = [graph.details.code.to_other[border_vertex] for border_vertex in graph.details.code.border]
     graph.details.coordinate.edges = [(graph.details.code.to_other[edge[0]], graph.details.code.to_other[edge[1]]) for edge in graph.details.code.edges]
 
-    graph.details.misc.degree = {vertex: len(graph.details.code.adjacency_list) for vertex in graph.details.code.adjacency_list}
+    graph.details.misc.degree = {vertex: len(graph.details.code.adjacency_list[vertex]) for vertex in graph.details.code.adjacency_list}
     
     return graph
 

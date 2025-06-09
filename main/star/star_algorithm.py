@@ -2,7 +2,7 @@ from copy import deepcopy
 from typing import List
 from graph.graph_coloring import T_Grid_Graph
 from .star_utils import update_grid, verify_not_adjacent
-from .star_types import INDEX_ACCESS_TRIAD, Star_Triad_Type
+from .star_types import INDEX_ACCESS_TRIAD, RESULTANT_GRAPHS, Star_Triad_Type
 from .star_details import Graph_Priority_Queue
 from loguru import logger
 
@@ -18,7 +18,7 @@ class T_Star_Grid_Graphs():
             return True
         return len(self.TOTAL_GRAPHS) < max_graphs
 
-    def define_new_edges(self, max_graphs: int):
+    def define_full_graphs(self, max_graphs: int):
         code_to_coordinate = self.BASE_GRAPH.details.code.to_other
 
         self.PRIORITY_QUEUE = Graph_Priority_Queue()
@@ -88,9 +88,56 @@ class T_Star_Grid_Graphs():
                 ))
         
         self.queue_size_sequence.append(len(self.PRIORITY_QUEUE.heap))
+
+    def define_max_degree_graphs(self):
+
+        GRID: T_Grid_Graph = deepcopy(self.BASE_GRAPH)
+
+        new_edges: list[EdgeType.Coordinate] = []
+        if self.BASE_GRAPH.n == 2:
+            new_edges = [
+                ((0,0), (0,2)),
+                ((0,0), (2,0)),
+                ((0,2), (2,0)),
+            ]
+        elif self.BASE_GRAPH.n == 3:
+            new_edges = [
+                ((0,3), (0,1)),
+                ((1,2), (3,0)),
+                ((1,2), (2,0)),
+                ((1,2), (1,0)),
+                ((1,2), (0,1)),
+                ((1,2), (0,0)),
+            ]
+        elif self.BASE_GRAPH.n >= 4:
+            if self.BASE_GRAPH.n % 2 == 0:
+                origin_connections_coordinate = (self.BASE_GRAPH.n//2, self.BASE_GRAPH.n//2)
+                neighbor_omit_coordinates = [
+                    (origin_connections_coordinate[0] + 1 , origin_connections_coordinate[1] - 1),
+                    (origin_connections_coordinate[0] - 1 , origin_connections_coordinate[1] + 1)
+                ]
+            else:
+                origin_connections_coordinate = (self.BASE_GRAPH.n//2+1, self.BASE_GRAPH.n//2)
+                neighbor_omit_coordinates = [
+                    (origin_connections_coordinate[0] + 1 , origin_connections_coordinate[1] - 1),
+                    (origin_connections_coordinate[0] - 1 , origin_connections_coordinate[1] + 1)
+                ]
+
+            border_vertices_coordinates: list[tuple[int, int]] = list(self.BASE_GRAPH.details.coordinate.border)
+            border_vertices_coordinates.remove(origin_connections_coordinate)
+            border_vertices_coordinates.remove(neighbor_omit_coordinates[0])
+            border_vertices_coordinates.remove(neighbor_omit_coordinates[1])
+
+            new_edges = [(origin_connections_coordinate, v) for v in border_vertices_coordinates]
+
+        GRID.add_edges(new_edges)
+        self.TOTAL_GRAPHS.append(GRID)
         
-    def define_graph(self, max_graphs: int = -1):
+    def define_graph(self, max_graphs: int = -1, resultant_graphs: RESULTANT_GRAPHS = RESULTANT_GRAPHS.FULL_SET):
         self.BASE_GRAPH.define_graph()
-        self.define_new_edges(max_graphs)
+        if resultant_graphs == RESULTANT_GRAPHS.FULL_SET:
+            self.define_full_graphs(max_graphs)
+        elif resultant_graphs == RESULTANT_GRAPHS.MAX_DEGREE:
+            self.define_max_degree_graphs()
 
         

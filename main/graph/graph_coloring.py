@@ -1,5 +1,5 @@
 from typing import Callable, Union
-from numpy import array
+import numpy as np
 from numpy.typing import NDArray
 from pulp import LpVariable, LpMinimize, LpStatus, LpProblem, lpSum, GLPK
 import networkx as nx
@@ -68,7 +68,121 @@ class T_Grid_Graph():
 
         self.details.misc.degree = {vertex: len(self.details.code.adjacency_list[vertex]) for vertex in self.details.code.adjacency_list}
    
-    def linear_programming_model(self, model_name: MODEL_METHOD, previous_variables=None):
+    def check_linear_programming_constraints(
+        self, 
+        x: NDArray[NDArray[int]], 
+        q: NDArray[NDArray[int]], 
+        w: NDArray[int],
+        model_name: MODEL_METHOD,
+        previous_variables: dict[str, LpVariable] = None,
+    ):
+        if model_name not in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
+            raise ValueError(f"model_name must be '{MODEL_METHOD.ACR}', '{MODEL_METHOD.ACR_H}', '{MODEL_METHOD.ACR_R}' or '{MODEL_METHOD.ACR_RH}'")
+        adjacency_list = self.details.code.adjacency_list
+        edges = self.details.code.edges
+        degrees = self.details.misc.degree
+        k = len(w)
+        n = self.n
+        r = self.r
+
+        # Constraint 1
+        for v in adjacency_list.keys():
+            if not (np.sum(x[v]) == 1):
+                return {
+                    "status": "Error",
+                    "constraint": 1,
+                    "expression": f'{np.sum(x[v])} == 1',
+                    "variables": x[v]
+                }
+        
+        # Constraint 2
+        for (u, v) in edges:
+            for k_i in range(k):
+                if model_name in [MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_RH]:
+                    if not (x[u, k_i] + x[v, k_i] <= 1):
+                        return {
+                            "status": "Error",
+                            "constraint": 2,
+                            "expression": f'{x[u, k_i] + x[v, k_i]} <= 1',
+                            "variables": [x[u, k_i], x[v, k_i]]
+                        }
+                else:
+                    if not (x[u, k_i] + x[v, k_i] <= w[k_i]):
+                        return {
+                            "status": "Error",
+                            "constraint": 2,
+                            "expression": f'{x[u, k_i] + x[v, k_i]} <= {w[k_i]}',
+                            "variables": [x[u, k_i], x[v, k_i], w[k_i]]
+                        }
+        
+        # Constraint 3
+        if model_name in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_R]:
+            for k_i  in range(k):
+                if not (w[k_i] <= np.sum(x[:, k_i])):
+                    return {
+                        "status": "Error",
+                        "constraint": 3,
+                        "expression": f'{np.sum(x[:, k_i])} <= {w[k_i]}',
+                        "variables": [np.sum(x[:, k_i]), w[k_i]]
+                    }
+        
+        # Constraint 4
+        if model_name in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_R]:
+            for k_i in range(1, k):
+                if not (w[k_i - 1] >= w[k_i]):
+                    return {
+                        "status": "Error",
+                        "constraint": 4,
+                        "expression": f'{w[k_i - 1]} >= {w[k_i]}',
+                        "variables": [w[k_i - 1], w[k_i]]
+                    }
+        
+        # Constraint 5
+        for v, deg in degrees.items():
+            if not (np.sum(q[v]) >= min(r, deg)):
+                return {
+                    "status": "Error",
+                    "constraint": 5,
+                    "expression": f'{np.sum(q[v])} >= {min(r, deg)}',
+                    "variables": {
+                        "np.sum(q[v])": np.sum(q[v]),
+                        "min(r, deg)": min(r, deg),
+                        "v": v,
+                        "q[v]": q[v],
+                        "deg": deg,
+                        "degrees": self.details.misc.degree
+                    }
+                }
+        
+        # Constraint 6
+        for v, n_v in adjacency_list.items():
+            for k_i in range(k):
+                if not (np.sum(x[n_v, k_i]) >= q[v, k_i]):
+                    return {
+                        "status": "Error",
+                        "constraint": 6,
+                        "expression": f'{np.sum(x[n_v, k_i])} >= {q[v, k_i]}',
+                        "variables": [np.sum(x[n_v, k_i]), q[v, k_i]]
+                    }
+        
+        # Constraint 7
+        for v, n_v in adjacency_list.items():
+            for u in n_v:
+                for k_i in range(k):
+                    if not (q[v, k_i] >= x[u, k_i]):
+                        return {
+                            "status": "Error",
+                            "constraint": 7,
+                            "expression": f'{q[v, k_i]} >= {x[u, k_i]}',
+                            "variables": [q[v, k_i], x[u, k_i]]
+                        }
+        
+        return {
+            "status": "Accepted"
+        }
+        
+
+    def linear_programming_model(self, model_name: MODEL_METHOD, previous_variables=None, write_lp_path: str = None):
         if model_name not in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
             raise ValueError(f"model_name must be '{MODEL_METHOD.ACR}', '{MODEL_METHOD.ACR_H}', '{MODEL_METHOD.ACR_R}' or '{MODEL_METHOD.ACR_RH}'")
         adjacency_list = self.details.code.adjacency_list
@@ -78,13 +192,12 @@ class T_Grid_Graph():
         n = self.n
         r = self.r
 
-        w: NDArray[LpVariable] = array([LpVariable(f"w({k_i})", 0, 1, cat="Binary") for k_i in range(k)])
-        x: NDArray[NDArray[LpVariable]] = array([[LpVariable(name=f"x({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
-        q: NDArray[NDArray[LpVariable]] = array([[LpVariable(name=f"q({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
+        w: NDArray[LpVariable] = np.array([LpVariable(f"w({k_i})", 0, 1, cat="Binary") for k_i in range(k)])
+        x: NDArray[NDArray[LpVariable]] = np.array([[LpVariable(name=f"x({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
+        q: NDArray[NDArray[LpVariable]] = np.array([[LpVariable(name=f"q({v},{k_i})", lowBound=0, upBound=1, cat="Binary") for k_i in range(k)] for v in range(len(adjacency_list)) ])
 
         model = LpProblem(name=f'Coloring_T{n}', sense=LpMinimize)
         model += lpSum(w)
-
 
         if previous_variables and model_name in [MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
             for k_i in range(k):
@@ -124,6 +237,9 @@ class T_Grid_Graph():
             for u in n_v:
                 for k_i in range(k):
                     model += q[v, k_i] >= x[u, k_i]
+
+        if write_lp_path:
+            model.writeLP(write_lp_path)
 
         model.solve(solver=GLPK(msg=False))
 
