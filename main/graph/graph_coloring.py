@@ -8,7 +8,7 @@ import pandas as pd
 import os
 from .graph_constants import AVAILABLE_COLORS, MODEL_METHOD, EDGE_CONDITION
 from .graph_details import Coloring_Solution, Graph_Colors, Graph_Details
-from .graph_types import EdgeType, VertexType
+from .graph_types import EdgeType, SolutionCheckResponse, VertexType
         
 class T_Grid_Graph():
     def __init__(self, n: int, r: int, k: int):
@@ -78,6 +78,10 @@ class T_Grid_Graph():
     ):
         if model_name not in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_R, MODEL_METHOD.ACR_RH]:
             raise ValueError(f"model_name must be '{MODEL_METHOD.ACR}', '{MODEL_METHOD.ACR_H}', '{MODEL_METHOD.ACR_R}' or '{MODEL_METHOD.ACR_RH}'")
+
+        if model_name != MODEL_METHOD.ACR:
+            raise NotImplementedError(f"model_name '{model_name}' is not implemented yet")  
+
         adjacency_list = self.details.code.adjacency_list
         edges = self.details.code.edges
         degrees = self.details.misc.degree
@@ -88,98 +92,135 @@ class T_Grid_Graph():
         # Constraint 1
         for v in adjacency_list.keys():
             if not (np.sum(x[v]) == 1):
-                return {
-                    "status": "Error",
-                    "constraint": 1,
-                    "expression": f'{np.sum(x[v])} == 1',
-                    "variables": x[v]
-                }
+                return SolutionCheckResponse(
+                    success=False,
+                    constraint=1,
+                    expression=f'{np.sum(x[v])} == 1',
+                    variables={
+                        "np.sum(x[v])": np.sum(x[v]),
+                        "v": v,
+                        "x[v]": x[v]
+                    }
+                )
         
         # Constraint 2
         for (u, v) in edges:
             for k_i in range(k):
                 if model_name in [MODEL_METHOD.ACR_H, MODEL_METHOD.ACR_RH]:
                     if not (x[u, k_i] + x[v, k_i] <= 1):
-                        return {
-                            "status": "Error",
-                            "constraint": 2,
-                            "expression": f'{x[u, k_i] + x[v, k_i]} <= 1',
-                            "variables": [x[u, k_i], x[v, k_i]]
-                        }
+                        return SolutionCheckResponse(
+                            success=False,
+                            constraint=2,
+                            expression=f'{x[u, k_i] + x[v, k_i]} <= 1',
+                            variables={
+                                "x[u, k_i]": x[u, k_i],
+                                "x[v, k_i]": x[v, k_i]
+                            }
+                        )
                 else:
                     if not (x[u, k_i] + x[v, k_i] <= w[k_i]):
-                        return {
-                            "status": "Error",
-                            "constraint": 2,
-                            "expression": f'{x[u, k_i] + x[v, k_i]} <= {w[k_i]}',
-                            "variables": [x[u, k_i], x[v, k_i], w[k_i]]
-                        }
+                        return SolutionCheckResponse(
+                            success=False,
+                            constraint=2,
+                            expression=f'{x[u, k_i] + x[v, k_i]} <= {w[k_i]}',
+                            variables={
+                                "x[u, k_i]": x[u, k_i],
+                                "x[v, k_i]": x[v, k_i],
+                                "w[k_i]": w[k_i],
+                                "k_i": k_i,
+                                "u": u,
+                                "v": v
+                            }
+                        )
         
         # Constraint 3
         if model_name in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_R]:
             for k_i  in range(k):
                 if not (w[k_i] <= np.sum(x[:, k_i])):
-                    return {
-                        "status": "Error",
-                        "constraint": 3,
-                        "expression": f'{np.sum(x[:, k_i])} <= {w[k_i]}',
-                        "variables": [np.sum(x[:, k_i]), w[k_i]]
-                    }
+                    return SolutionCheckResponse(
+                        success=False,
+                        constraint=3,
+                        expression=f'{np.sum(x[:, k_i])} <= {w[k_i]}',
+                        variables={
+                            "np.sum(x[:, k_i])": np.sum(x[:, k_i]),
+                            "w[k_i]": w[k_i],
+                            "k_i": k_i,
+                            "x[:, k_i]": x[:, k_i]
+                        }
+                    )
         
         # Constraint 4
         if model_name in [MODEL_METHOD.ACR, MODEL_METHOD.ACR_R]:
             for k_i in range(1, k):
                 if not (w[k_i - 1] >= w[k_i]):
-                    return {
-                        "status": "Error",
-                        "constraint": 4,
-                        "expression": f'{w[k_i - 1]} >= {w[k_i]}',
-                        "variables": [w[k_i - 1], w[k_i]]
-                    }
+                    return SolutionCheckResponse(
+                        success=False,
+                        constraint=4,
+                        expression=f'{w[k_i - 1]} >= {w[k_i]}',
+                        variables={
+                            "w[k_i - 1]": w[k_i - 1],
+                            "w[k_i]": w[k_i],
+                            "k_i": k_i,
+                        }
+                    )
         
         # Constraint 5
         for v, deg in degrees.items():
             if not (np.sum(q[v]) >= min(r, deg)):
-                return {
-                    "status": "Error",
-                    "constraint": 5,
-                    "expression": f'{np.sum(q[v])} >= {min(r, deg)}',
-                    "variables": {
+                return SolutionCheckResponse(
+                    success=False,
+                    constraint=5,
+                    expression=f'{np.sum(q[v])} >= {min(r, deg)}',
+                    variables={
+                        "v": v,
+                        "deg": deg,
                         "np.sum(q[v])": np.sum(q[v]),
                         "min(r, deg)": min(r, deg),
-                        "v": v,
                         "q[v]": q[v],
-                        "deg": deg,
-                        "degrees": self.details.misc.degree
+                        "r": r,
                     }
-                }
+                )
         
         # Constraint 6
         for v, n_v in adjacency_list.items():
             for k_i in range(k):
                 if not (np.sum(x[n_v, k_i]) >= q[v, k_i]):
-                    return {
-                        "status": "Error",
-                        "constraint": 6,
-                        "expression": f'{np.sum(x[n_v, k_i])} >= {q[v, k_i]}',
-                        "variables": [np.sum(x[n_v, k_i]), q[v, k_i]]
-                    }
+                    return SolutionCheckResponse(
+                        success=False,
+                        constraint=6,
+                        expression=f'{np.sum(x[n_v, k_i])} >= {q[v, k_i]}',
+                        variables={
+                            "np.sum(x[n_v, k_i])": np.sum(x[n_v, k_i]),
+                            "q[v, k_i]": q[v, k_i],
+                            "v": v,
+                            "k_i": k_i,
+                            "n_v": n_v,
+                            "x[n_v, k_i]": x[n_v, k_i]
+                        }
+                    )
         
         # Constraint 7
         for v, n_v in adjacency_list.items():
             for u in n_v:
                 for k_i in range(k):
                     if not (q[v, k_i] >= x[u, k_i]):
-                        return {
-                            "status": "Error",
-                            "constraint": 7,
-                            "expression": f'{q[v, k_i]} >= {x[u, k_i]}',
-                            "variables": [q[v, k_i], x[u, k_i]]
-                        }
+                        return SolutionCheckResponse(
+                            success=False,
+                            constraint=7,
+                            expression=f'{q[v, k_i]} >= {x[u, k_i]}',
+                            variables={
+                                "q[v, k_i]": q[v, k_i],
+                                "x[u, k_i]": x[u, k_i],
+                                "v": v,
+                                "u": u,
+                                "k_i": k_i,
+                                "n_v": n_v
+                            }
+                        )
         
-        return {
-            "status": "Accepted"
-        }
+        return SolutionCheckResponse(
+            success=True
+        )
         
 
     def linear_programming_model(self, model_name: MODEL_METHOD, previous_variables=None, write_lp_path: str = None):

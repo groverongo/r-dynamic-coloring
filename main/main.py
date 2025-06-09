@@ -6,10 +6,10 @@ from tqdm import tqdm
 from utils.check_multigraph import has_repeated_edges
 import numpy as np
 
-GRAPH_ORDER = 2
+GRAPH_ORDER = 3
 DYNAMIMC_COLORING_ORDER = 4
 AVAILABLE_COLORS = 15
-MAX_GRAPHS = -1
+MAX_GRAPHS = 200
 RESULTANT = RESULTANT_GRAPHS.FULL_SET
 
 if __name__ == "__main__":
@@ -34,34 +34,12 @@ if __name__ == "__main__":
             previous_variables=None,
             write_lp_path=f"../graphs/Tstar{GRAPH_ORDER}Max-{DYNAMIMC_COLORING_ORDER}.lp"
         )
-        logger.debug(f'Solution status: {solution_status}')
-        if solution_status != "Optimal":
-            print(graph.check_linear_programming_constraints(
-                w=np.array([1,1,1,1,1,1]),
-                x=np.array([
-                    [0,0,0,1,0,0],
-                    [0,1,0,0,0,0],
-                    [0,0,0,0,1,0],
-                    [1,0,0,0,0,0],
-                    [0,0,1,0,0,0],
-                    [0,0,0,0,0,1]
-                ]),
-                q=np.array([
-                    [1,1,0,0,1,0],
-                    [1,0,1,1,1,0],
-                    [1,1,1,1,0,1],
-                    [0,1,1,1,1,1],
-                    [1,1,0,0,1,1],
-                    [1,0,1,0,1,0]
-                ]),
-                model_name=MODEL_METHOD.ACR
-            ))
-            raise ValueError(f'Graph\n{graph.details.coordinate.adjacency_list}\n{graph.details.code.adjacency_list}\n{graph.details.misc.degree} is not optimal {graph.details.coordinate.to_other}')
+        
         colors_used = graph.coloring_assignment(coloring_function=None)
         colors.append(colors_used)
         # logger.info(f'Colors used: {colors_used}')
-        if colors_used == 5:
-            logger.info(f'Five colors: {graph.details.coordinate.adjacency_list}')
-            break
+        # if colors_used == 5:
+        #     logger.info(f'Five colors: {graph.details.coordinate.adjacency_list}')
+            # break
 
-    logger.info(f'Colors used: {colors}')
+    logger.info(f'Colors used: {set(colors)}')
