@@ -4,7 +4,9 @@ type AdjacenyList = map[int][]int
 
 type AssignColoringRequest struct {
 	Graph  AdjacenyList `json:"graph" validate:"required,min=1,dive,keys,min=0,endkeys,required,min=1,dive,min=0"`
-	Method string       `json:"method" validate:"required,oneof=ASR ASR-H ASR-R ASR-RH"`
+	Method string       `json:"method" validate:"required,oneof=ACR ACR-H ACR-R ACR-RH"`
+	K      int          `json:"k" validate:"required,min=1"`
+	R      int          `json:"r" validate:"required,min=1"`
 }
 
 // Validate performs validation on the AdjacenyList

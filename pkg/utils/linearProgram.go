@@ -1,8 +1,12 @@
 package utils
 
+import "os"
+
 const (
-	ASR    = "ASR"
-	ASR_H  = "ASR-H"
-	ASR_R  = "ASR-R"
-	ASR_RH = "ASR-RH"
+	ACR    = "ACR"
+	ACR_H  = "ACR-H"
+	ACR_R  = "ACR-R"
+	ACR_RH = "ACR-RH"
 )
+
+var COLORING_MICROSERVICE_URL string = os.Getenv("COLORING_MICROSERVICE_URL")
