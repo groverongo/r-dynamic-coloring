@@ -15,6 +15,7 @@ func InitRoutes(e *echo.Echo) {
 	api := e.Group("/api/v1")
 	{
 		api.GET("", apiInfo)
+		api.POST("/assign-coloring", AssignColoring)
 	}
 }
 

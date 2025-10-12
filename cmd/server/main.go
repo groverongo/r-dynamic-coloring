@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"r-hued-coloring-service/internal/config"
 	"r-hued-coloring-service/internal/server"
+	"r-hued-coloring-service/internal/validation"
 	"syscall"
 )
 
@@ -21,6 +22,9 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create server: %v", err)
 	}
+
+	// Initialize validation
+	validation.Init()
 
 	// Start server in a goroutine
 	go func() {
