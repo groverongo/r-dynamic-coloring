@@ -28,3 +28,7 @@ func NewDatabase(cfg *config.Config) error {
 
 	return nil
 }
+
+func GetDB() *gorm.DB {
+	return dbInstance
+}

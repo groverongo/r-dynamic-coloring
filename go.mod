@@ -4,7 +4,10 @@ go 1.25.2
 
 require (
 	github.com/go-playground/validator/v10 v10.28.0
+	github.com/google/uuid v1.6.0
 	github.com/labstack/echo/v4 v4.13.4
+	gorm.io/driver/postgres v1.6.0
+	gorm.io/gorm v1.31.0
 )
 
 require (
@@ -30,6 +33,4 @@ require (
 	golang.org/x/sys v0.37.0 // indirect
 	golang.org/x/text v0.30.0 // indirect
 	golang.org/x/time v0.11.0 // indirect
-	gorm.io/driver/postgres v1.6.0 // indirect
-	gorm.io/gorm v1.31.0 // indirect
 )
