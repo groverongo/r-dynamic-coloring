@@ -15,6 +15,13 @@ type Config struct {
 		Version string
 		Env     string
 	}
+	Database struct {
+		Host     string
+		User     string
+		Password string
+		DBName   string
+		Port     int
+	}
 }
 
 // Load loads the configuration from environment variables
@@ -33,7 +40,28 @@ func Load() (*Config, error) {
 	cfg.App.Version = getEnv("APP_VERSION", "0.1.0")
 	cfg.App.Env = getEnv("APP_ENV", "development")
 
+	// Database configuration
+	cfg.Database.Host = getEnv("DATABASE_HOST", "localhost")
+	cfg.Database.User = getEnv("DATABASE_USER", "postgres")
+	cfg.Database.Password = getEnv("DATABASE_PASSWORD", "postgres")
+	cfg.Database.DBName = getEnv("DATABASE_DBNAME", "postgres")
+	port, err = strconv.Atoi(getEnv("DATABASE_PORT", "5432"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid DATABASE_PORT: %v", err)
+	}
+	cfg.Database.Port = port
+
 	return &cfg, nil
+}
+
+func (c *Config) DSN() string {
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%d sslmode=disable",
+		c.Database.Host,
+		c.Database.User,
+		c.Database.Password,
+		c.Database.DBName,
+		c.Database.Port,
+	)
 }
 
 // getEnv gets an environment variable or returns a default value

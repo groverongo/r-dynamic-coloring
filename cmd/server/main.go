@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"r-hued-coloring-service/internal/config"
+	"r-hued-coloring-service/internal/database"
 	"r-hued-coloring-service/internal/server"
 	"r-hued-coloring-service/internal/validation"
 	"syscall"
@@ -25,6 +26,11 @@ func main() {
 
 	// Initialize validation
 	validation.Init()
+
+	err = database.NewDatabase(cfg)
+	if err != nil {
+		log.Fatalf("Failed to create database connection: %v", err)
+	}
 
 	// Start server in a goroutine
 	go func() {
