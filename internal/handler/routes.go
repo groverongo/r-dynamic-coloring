@@ -16,7 +16,9 @@ func InitRoutes(e *echo.Echo) {
 	{
 		api.GET("", apiInfo)
 		api.POST("/assign-coloring", AssignColoring)
-		api.POST("/graph", CreateGraph)
+		api.POST("/graphs", CreateGraph)
+		api.GET("/graphs", GetGraphs)
+		api.GET("/graphs/:id", GetGraph)
 	}
 }
 

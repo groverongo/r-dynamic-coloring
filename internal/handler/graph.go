@@ -9,6 +9,29 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+func GetGraph(c echo.Context) error {
+	id := c.Param("id")
+	graph := models.Graph{}
+	if err := database.GetDB().Model(&models.Graph{}).Where("id = ?", id).Find(&graph).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status": "ERROR",
+			"error":  err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, graph)
+}
+
+func GetGraphs(c echo.Context) error {
+	graphs := []models.Graph{}
+	if err := database.GetDB().Model(&models.Graph{}).Select("id", "name", "createdAt", "updatedAt").Find(&graphs).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
+			"status": "ERROR",
+			"error":  err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, graphs)
+}
+
 func CreateGraph(c echo.Context) error {
 
 	var request validation.CreateGraphRequest
