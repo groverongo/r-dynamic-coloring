@@ -29,7 +29,16 @@ func GetGraphs(c echo.Context) error {
 			"error":  err.Error(),
 		})
 	}
-	return c.JSON(http.StatusOK, graphs)
+	mappedGraphs := []validation.GetGraphsResponse{}
+	for _, graph := range graphs {
+		mappedGraphs = append(mappedGraphs, validation.GetGraphsResponse{
+			Id:        graph.ID,
+			Name:      graph.Name,
+			CreatedAt: graph.CreatedAt.Format("2006-01-02 15:04:05"),
+			UpdatedAt: graph.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+	return c.JSON(http.StatusOK, mappedGraphs)
 }
 
 func CreateGraph(c echo.Context) error {
