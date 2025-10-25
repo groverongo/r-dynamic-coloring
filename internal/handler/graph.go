@@ -23,7 +23,7 @@ func GetGraph(c echo.Context) error {
 
 func GetGraphs(c echo.Context) error {
 	graphs := []models.Graph{}
-	if err := database.GetDB().Model(&models.Graph{}).Select("id", "name", "createdAt", "updatedAt").Find(&graphs).Error; err != nil {
+	if err := database.GetDB().Model(&models.Graph{}).Select("id", "name", "created_at", "updated_at").Find(&graphs).Error; err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status": "ERROR",
 			"error":  err.Error(),
@@ -64,5 +64,5 @@ func CreateGraph(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, graph)
+	return c.JSON(http.StatusOK, validation.CreateGraphResponse{Id: graph.ID})
 }

@@ -1,10 +1,10 @@
 package models
 
 type Assignment struct {
-	Id              uint          `gorm:"primaryKey"`
-	GraphId         uint          `json:"graphId"`
+	ID              uint          `gorm:"primaryKey"`
+	GraphId         string        `json:"graphId"`
 	ConfigurationId uint          `json:"configurationId"`
 	Coloring        string        `json:"coloring"`
-	Configuration   Configuration `gorm:"foreignKey:Id;references:ConfigurationId"`
-	Graph           Graph         `gorm:"foreignKey:Id;references:GraphId"`
+	Configuration   Configuration `gorm:"foreignKey:ConfigurationId;references:ID"`
+	Graph           Graph         `gorm:"foreignKey:GraphId;references:ID"`
 }

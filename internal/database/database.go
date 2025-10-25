@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"r-hued-coloring-service/internal/config"
+	"r-hued-coloring-service/internal/models"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -22,7 +23,10 @@ func NewDatabase(cfg *config.Config) error {
 	// Enable debug mode in development
 	if cfg.App.Env == "development" {
 		db = db.Debug()
+		db.Migrator().DropTable(&models.Assignment{}, &models.Configuration{}, &models.Graph{})
 	}
+
+	db.AutoMigrate(&models.Assignment{}, &models.Configuration{}, &models.Graph{})
 
 	dbInstance = db
 
