@@ -20,8 +20,11 @@ type CreateGraphResponse struct {
 }
 
 type GetGraphsResponse struct {
-	Id        string `json:"id"`
-	Name      string `json:"name"`
-	CreatedAt string `json:"createdAt"`
-	UpdatedAt string `json:"updatedAt"`
+	HasMore bool `json:"hasMore"`
+	Graphs  []struct {
+		Id        string `json:"id"`
+		Name      string `json:"name"`
+		CreatedAt string `json:"createdAt"`
+		UpdatedAt string `json:"updatedAt"`
+	} `json:"graphs"`
 }

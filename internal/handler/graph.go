@@ -29,9 +29,16 @@ func GetGraphs(c echo.Context) error {
 			"error":  err.Error(),
 		})
 	}
-	mappedGraphs := []validation.GetGraphsResponse{}
+	mappedGraphs := validation.GetGraphsResponse{
+		HasMore: false,
+	}
 	for _, graph := range graphs {
-		mappedGraphs = append(mappedGraphs, validation.GetGraphsResponse{
+		mappedGraphs.Graphs = append(mappedGraphs.Graphs, struct {
+			Id        string `json:"id"`
+			Name      string `json:"name"`
+			CreatedAt string `json:"createdAt"`
+			UpdatedAt string `json:"updatedAt"`
+		}{
 			Id:        graph.ID,
 			Name:      graph.Name,
 			CreatedAt: graph.CreatedAt.Format("2006-01-02 15:04:05"),
