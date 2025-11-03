@@ -8,16 +8,16 @@ import (
 )
 
 type Graph struct {
-	ID                 string `gorm:"primaryKey"`
-	Name               string `json:"name"`
-	GraphAdjacencyList string `json:"graphAdjacencyList"`
-	VertexGraph        string `json:"vertexGraph"`
-	EdgeGraph          string `json:"edgeGraph"`
-	LocalColoring      string `json:"localColoring"`
-	LocalR             uint   `json:"localR"`
-	LocalK             uint   `json:"localK"`
-	CreatedAt          time.Time
-	UpdatedAt          time.Time
+	ID                 string    `gorm:"primaryKey" json:"id"`
+	Name               string    `json:"name"`
+	GraphAdjacencyList string    `json:"graphAdjacencyList"`
+	VertexGraph        string    `json:"vertexGraph"`
+	EdgeGraph          string    `json:"edgeGraph"`
+	LocalColoring      string    `json:"localColoring"`
+	LocalR             uint      `json:"localR"`
+	LocalK             uint      `json:"localK"`
+	CreatedAt          time.Time `json:"createdAt"`
+	UpdatedAt          time.Time `json:"updatedAt"`
 }
 
 func (g *Graph) Create(r validation.CreateGraphRequest) error {
