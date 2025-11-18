@@ -1,4 +1,5 @@
 from typing import Callable, Union
+from loguru import logger
 import numpy as np
 from numpy.typing import NDArray
 from pulp import LpVariable, LpMinimize, LpStatus, LpProblem, lpSum, GLPK
