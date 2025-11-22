@@ -8,6 +8,8 @@ from utils.solve_graphs import solve_full_set, solve_max_degree
 from fastapi import FastAPI
 import numpy as np
 from fastapi.middleware.cors import CORSMiddleware
+import concurrent.futures
+from concurrent.futures import ThreadPoolExecutor
 
 GRAPH_ORDER_START = 3 # T_n
 GRAPH_ORDER_END = 3 # T_n
@@ -84,45 +86,48 @@ class AntiprismBatchRequest(BaseModel):
     k: int
     method: Literal['ACR', 'ACR_H', 'ACR_R', 'ACR_RH']
 
+def process_single_case(r: int, n: int, method: str, k: int):
+    """Process a single (r, n) case and return the result or error."""
+    logger.info(f'Processing: r={r}, n={n}')
+    try:
+        adjacency_matrix = create_antiprism_adjacency_matrix(n)
+        adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+        solution = linear_programming_model(adjacency_list=adjacency_list, model_name=method, k=k, r=r)
+        color_assignment_code = {v: [x_vc.varValue for x_vc in x_v].index(1) for v, x_v in enumerate(solution.x)}
+        logger.info(f'Solution for r={r}, n={n}: {color_assignment_code}')
+        
+        return r, n, color_assignment_code, None
+    except Exception as e:
+        logger.error(f'Error: {e} on r={r}, n={n}')
+        return r, n, None, str(e)
+
 @app.post("/batch/circulant/antiprism")
 def antiprism_batch_assignment(request: AntiprismBatchRequest):
-    
     logger.info(f'Antiprism Batch Request: {request}')
-
-    # first key: r, second key: n, value: color_assignment_code
     solutions_object = {}
     
-    for r in range(request.r_range[0], request.r_range[1] + 1):
-        for n in range(request.n_range[0], request.n_range[1] + 1):
-
-            logger.info(f'Antiprism Batch Request: r={r}, n={n}')
-
-            adjacency_matrix = create_antiprism_adjacency_matrix(n)
-            adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
-
-            try:
-                solution = linear_programming_model(adjacency_list=adjacency_list, model_name=request.method, k=request.k, r=r)
-            except Exception as e:
-                logger.error(f'Error: {e}')
-                return f'Error: {e} on r={r}, n={n}'
-
-            color_assignment_code = {v: [x_vc.varValue for x_vc in x_v].index(1) for v, x_v in enumerate(solution.x)}
-
-            solutions_object[r] = solutions_object.get(r, {})
-            solutions_object[r][n] = color_assignment_code
-
-    return solutions_object
-
-# if __name__ == "__main__":
+    r_values = range(request.r_range[0], request.r_range[1] + 1)
+    n_values = range(request.n_range[0], request.n_range[1] + 1)
     
-    # response = solve_full_set(
-    #     dynamic_coloring_order=DYNAMIMC_COLORING_ORDER,
-    #     available_colors=AVAILABLE_COLORS,
-    #     start_order=GRAPH_ORDER_START,
-    #     end_order=GRAPH_ORDER_END,
-    #     max_graphs=MAX_GRAPHS,
-    #     sample_graphs=SAMPLE_GRAPHS,
-    #     output_directory=OUTPUT_DIRECTORY
-    # )
-
-    # logger.info(f'Solutions: {response}')
+    with ThreadPoolExecutor() as executor:
+        futures = []
+        for r in r_values:
+            for n in n_values:
+                futures.append(executor.submit(
+                    process_single_case, 
+                    r=r,
+                    n=n,
+                    method=request.method,
+                    k=request.k
+                ))
+        
+        # Process results as they complete
+        for future in concurrent.futures.as_completed(futures):
+            r, n, result, error = future.result()
+            if error is None:
+                solutions_object.setdefault(r, {})[n] = result
+            else:
+                # Optionally handle errors here, e.g., log them or collect them
+                logger.error(f"Failed to process r={r}, n={n}: {error}")
+    
+    return solutions_object
