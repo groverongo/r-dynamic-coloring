@@ -75,7 +75,6 @@ class ColoringService:
         
         r_values = range(request.r_range[0], request.r_range[1] + 1)
         n_values = range(request.n_range[0], request.n_range[1] + 1)
-        
         with ThreadPoolExecutor() as executor:
             futures = []
             for r in r_values:
