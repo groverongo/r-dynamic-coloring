@@ -14,11 +14,21 @@ func InitRoutes(e *echo.Echo) {
 	// API v1 group
 	api := e.Group("/api/v1")
 	{
+		graph := api.Group("/graphs")
+		{
+			graph.GET("/", GetGraphs)
+			graph.GET("/:id", GetGraph)
+			graph.POST("/", CreateGraph)
+		}
+		conversation := api.Group("/conversation")
+		{
+			conversation.GET("/:id", GetConversation)
+			conversation.POST("/", CreateConversation)
+			conversation.PUT("/:id", UpdateConversation)
+			conversation.DELETE("/:id", DeleteConversation)
+		}
 		api.GET("", apiInfo)
 		api.POST("/assign-coloring", AssignColoring)
-		api.POST("/graphs", CreateGraph)
-		api.GET("/graphs", GetGraphs)
-		api.GET("/graphs/:id", GetGraph)
 	}
 }
 
