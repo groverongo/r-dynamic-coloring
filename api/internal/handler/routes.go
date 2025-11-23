@@ -16,14 +16,14 @@ func InitRoutes(e *echo.Echo) {
 	{
 		graph := api.Group("/graphs")
 		{
-			graph.GET("/", GetGraphs)
+			graph.GET("", GetGraphs)
 			graph.GET("/:id", GetGraph)
-			graph.POST("/", CreateGraph)
+			graph.POST("", CreateGraph)
 		}
 		conversation := api.Group("/conversation")
 		{
 			conversation.GET("/:id", GetConversation)
-			conversation.POST("/", CreateConversation)
+			conversation.POST("", CreateConversation)
 			conversation.PUT("/:id", ContinueConversation)
 			conversation.DELETE("/:id", DeleteConversation)
 		}
