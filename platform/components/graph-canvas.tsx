@@ -12,7 +12,7 @@ import { NODE_G_MODES } from "@/lib/graph-constants";
 import { isIntString } from "@/lib/utilities";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { v4 as uuidv4 } from 'uuid';
-import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
+import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
 import { useElementRef } from "@/lib/refs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -53,6 +53,8 @@ export default function Canvas({id}: {id?: string}) {
   const [edgeGraph, setEdgeGraph] = useAtom(edgeGraphAtom);
   const [graphAdjacencyList, setGraphAdjacencyList] = useAtom(graphAdjacencyListAtom);
 
+  const setGraphName = useSetAtom(graphNameAtom);
+
   const [nodeMode, setNodeMode] = useState<number>(0);
   const [vertexCurrentId, setVertexCurrentId] = useAtom(vertexCurrentIdAtom);
   const [edgeCurrentId, setEdgeCurrentId] = useAtom(edgeCurrentIdAtom);
@@ -79,8 +81,7 @@ export default function Canvas({id}: {id?: string}) {
     refetch().then((response) => {
       if(response.data === undefined) return;
 
-      
-      
+      setGraphName(response.data.name);
       setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(response.data.graphAdjacencyList));
       setVertexGraph(GraphDeserializer.vertexGraphDeserializer(response.data.vertexGraph));
       setEdgeGraph(GraphDeserializer.edgeGraphDeserializer(response.data.edgeGraph));
