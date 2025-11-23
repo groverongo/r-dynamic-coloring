@@ -7,6 +7,13 @@ import (
 	"github.com/google/uuid"
 )
 
+type Message struct {
+	ID        string    `gorm:"primaryKey" json:"id"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
+
 type Conversation struct {
 	ID        string    `gorm:"primaryKey" json:"id"`
 	GraphId   string    `gorm:"foreignKey:GraphId;references:ID"`

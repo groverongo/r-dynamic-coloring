@@ -24,7 +24,7 @@ func InitRoutes(e *echo.Echo) {
 		{
 			conversation.GET("/:id", GetConversation)
 			conversation.POST("/", CreateConversation)
-			conversation.PUT("/:id", UpdateConversation)
+			conversation.PUT("/:id", ContinueConversation)
 			conversation.DELETE("/:id", DeleteConversation)
 		}
 		api.GET("", apiInfo)

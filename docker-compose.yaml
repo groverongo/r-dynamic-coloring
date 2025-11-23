@@ -1,0 +1,36 @@
+version: '3.8'
+services:
+  model:
+    build: ./model
+    ports:
+      - 8000:8000
+    volumes:
+      - ./model:/app
+
+  api:
+    build: ./api
+    ports:
+      - 8080:8080
+    environment:
+      - COLORING_MICROSERVICE_URL=model
+      - DATABASE_HOST=database
+      - DATABASE_USER=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_DBNAME=postgres
+      - DATABASE_PORT=5432
+    
+    depends_on:
+      - database
+
+  database:
+    image: postgres:15-alpine
+    container_name: postgres
+    ports:
+      - "5434:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    

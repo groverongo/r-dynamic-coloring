@@ -16,11 +16,13 @@ type Config struct {
 		Env     string
 	}
 	Database struct {
-		Host     string
-		User     string
-		Password string
-		DBName   string
-		Port     int
+		Host          string
+		User          string
+		Password      string
+		DBName        string
+		Port          int
+		RetryDelayMs  int
+		RetryAttempts int
 	}
 }
 
@@ -50,6 +52,19 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid DATABASE_PORT: %v", err)
 	}
 	cfg.Database.Port = port
+
+	retryAttempts, err := strconv.Atoi(getEnv("DATABASE_RETRY_ATTEMPTS", "10"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid DATABASE_RETRY_ATTEMPTS: %v", err)
+	}
+	cfg.Database.RetryAttempts = retryAttempts
+
+	// Set default retry delay if not specified
+	retryDelay, err := strconv.Atoi(getEnv("DATABASE_RETRY_DELAY_MS", "3000"))
+	if err != nil {
+		return nil, fmt.Errorf("invalid DATABASE_RETRY_DELAY_MS: %v", err)
+	}
+	cfg.Database.RetryDelayMs = retryDelay
 
 	return &cfg, nil
 }

@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 	"r-hued-coloring-service/internal/database"
+	"r-hued-coloring-service/internal/models"
 
 	"github.com/labstack/echo/v4"
 )
