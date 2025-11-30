@@ -1,4 +1,5 @@
 version: '3.8'
+name: r-dynamic-coloring
 services:
   model:
     build: ./model

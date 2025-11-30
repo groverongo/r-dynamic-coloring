@@ -27,6 +27,11 @@ func InitRoutes(e *echo.Echo) {
 			conversation.PUT("/:id", ContinueConversation)
 			conversation.DELETE("/:id", DeleteConversation)
 		}
+		auth := api.Group("/auth")
+		{
+			auth.POST("/register", Register)
+			auth.POST("/login", Login)
+		}
 		api.GET("", apiInfo)
 		api.POST("/assign-coloring", AssignColoring)
 	}

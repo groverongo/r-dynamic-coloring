@@ -39,7 +39,12 @@ func NewDatabase(cfg *config.Config) error {
 		}
 
 		// Migrate the database schema
-		db.AutoMigrate(&models.Assignment{}, &models.Configuration{}, &models.Graph{})
+		db.AutoMigrate(
+			&models.Assignment{},
+			&models.Configuration{},
+			&models.Graph{},
+			&models.User{},
+		)
 
 		dbInstance = db
 		break
