@@ -1,4 +1,4 @@
-from typing import Dict, List, Literal, Tuple, Union
+from typing import Dict, List, Literal, Tuple, Union, Optional
 from pydantic import BaseModel
 
 class BaseColoringRequest(BaseModel):
@@ -8,7 +8,7 @@ class BaseColoringRequest(BaseModel):
 
 class BaseColoringBatchRequest(BaseModel):
     method: Literal['ACR', 'ACR_H', 'ACR_R', 'ACR_RH']
-    k_range: Tuple[int, int]
+    k_range: Optional[Tuple[int, int]] = None
     r_range: Tuple[int, int]
 
 class ColoringGraphRequest(BaseColoringRequest):
