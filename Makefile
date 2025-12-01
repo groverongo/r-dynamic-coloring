@@ -1,5 +1,5 @@
 up:
-	docker compose up -d --build --force-recreate --renew-anon-volumes
+	docker compose --env-file .env up -d --build --force-recreate --renew-anon-volumes
 
 down:
 	docker compose down
