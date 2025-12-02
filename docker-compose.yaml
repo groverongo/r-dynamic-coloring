@@ -30,6 +30,7 @@ services:
       - 8080:8080
     environment:
       - COLORING_MICROSERVICE_URL=model
+      - AGENT_MICROSERVICE_URL=agent
       - DATABASE_HOST=database
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres

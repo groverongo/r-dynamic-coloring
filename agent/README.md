@@ -13,6 +13,46 @@ A powerful LangGraph-based agent for graph theory analysis, powered by Google's 
 - **REST API**: Full-featured FastAPI application for integration
 - **Session Management**: Maintain separate graph states for multiple users
 - **Knowledge Sources**: Upload custom documents for specialized graph theory learning
+- **💬 Chat Interface**: Conversational interface for natural interactions
+
+## Chat Interface 💬
+
+The agent now supports **conversational chat interactions**! Interact naturally through text and the agent will automatically understand your intent.
+
+### Quick Start with Chat
+
+**Option 1: Streamlit Interface (Recommended)**
+
+```bash
+# Terminal 1: Start the API server
+uv run uvicorn api.main:app --reload
+
+# Terminal 2: Start Streamlit
+uv run streamlit run streamlit_app.py
+```
+
+The Streamlit app will open in your browser with:
+- Beautiful gradient UI
+- Real-time chat with the agent
+- Example buttons for quick testing
+- Visualization display in the interface
+- Session management
+
+**Option 2: Terminal Chat**
+
+```bash
+uv run python chat_cli.py
+```
+
+### What You Can Do in Chat
+
+- **Ask questions**: "What is a chromatic number?"
+- **Load graphs**: Paste JSON like `{"A": ["B"], "B": ["A"]}`
+- **Request visualizations**: "Show me the graph"
+- **Get analysis**: "Analyze this graph"
+- **Multi-turn conversations**: The agent remembers context
+
+See [CHAT_USAGE.md](CHAT_USAGE.md) for detailed chat documentation.
 
 ## Architecture
 

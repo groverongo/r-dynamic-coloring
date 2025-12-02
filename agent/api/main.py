@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from config import config
-from api.routers import graph, query, sources
+from api.routers import graph, query, sources, chat
 
 
 @asynccontextmanager
@@ -59,6 +59,7 @@ app.add_middleware(
 app.include_router(graph.router)
 app.include_router(query.router)
 app.include_router(sources.router)
+app.include_router(chat.router)
 
 
 @app.get("/")
@@ -87,6 +88,11 @@ async def root():
                 "list": "GET /sources/list",
                 "delete": "DELETE /sources/{source_id}",
                 "info": "GET /sources/{source_id}",
+            },
+            "chat": {
+                "message": "POST /chat/message",
+                "history": "GET /chat/history/{session_id}",
+                "clear": "DELETE /chat/session/{session_id}",
             },
         },
         "documentation": "/docs",

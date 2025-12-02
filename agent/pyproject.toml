@@ -19,6 +19,8 @@ dependencies = [
     "numpy>=2.1.0",
     "python-multipart>=0.0.12",
     "aiofiles>=24.1.0",
+    "requests>=2.32.0",
+    "streamlit>=1.40.0",
     "poethepoet>=0.38.0",
 ]
 
@@ -56,3 +58,4 @@ executor.type = "uv"
 
 [tool.poe.tasks]
 start = "uvicorn api.main:app --reload"
+ui = "uv run streamlit run streamlit_app.py"
