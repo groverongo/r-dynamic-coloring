@@ -16,7 +16,8 @@ from api.schemas import (
     GraphResponse,
 )
 from agent.graph import run_agent
-from api.routers.graph import sessions
+from api.routers.graph import router as graph_router
+from checkpoint_manager import get_session_state
 from tools.graph_analysis import compute_comprehensive_analysis, compute_basic_properties
 from tools.graph_visualization import generate_graph_visualization
 from config import config
@@ -27,22 +28,19 @@ router = APIRouter(prefix="/query", tags=["query"])
 @router.post("/coloring", response_model=GraphResponse)
 async def set_coloring(data: ColoringInput):
     """Set node/edge coloring for the graph."""
-    if data.session_id not in sessions:
+    state = get_session_state(data.session_id)
+    if not state:
         raise HTTPException(status_code=404, detail="Session not found. Please load a graph first.")
     
-    print(f"DEBUG: sessions keys: {list(sessions.keys())}")
-    state = sessions[data.session_id]
-    print(f"DEBUG: state keys: {list(state.keys())}")
-    
-    if not state.get("graph_data"):
+    if not state.get("graph"):
         raise HTTPException(status_code=400, detail="No graph loaded in this session")
     
-    # Update state with coloring
-    state["coloring"] = data.coloring
-    if data.edge_coloring:
-        state["edge_coloring"] = data.edge_coloring
-    
-    sessions[data.session_id] = state
+    # Run agent to update coloring (it will checkpoint automatically)
+    result = run_agent(
+        coloring=data.coloring,
+        edge_coloring=data.edge_coloring,
+        session_id=data.session_id,
+    )
     
     num_colors = len(set(data.coloring.values()))
     
@@ -50,54 +48,38 @@ async def set_coloring(data: ColoringInput):
         success=True,
         message=f"Coloring applied with {num_colors} colors",
         session_id=data.session_id,
+        num_nodes=result.get("graph").number_of_nodes() if result.get("graph") else 0,
+        num_edges=result.get("graph").number_of_edges() if result.get("graph") else 0,
     )
 
 
 @router.post("/ask", response_model=QueryResponse)
 async def ask_question(data: QueryRequest):
     """Ask a question about the graph."""
-    if data.session_id not in sessions:
-        # Create new session if it doesn't exist
-        sessions[data.session_id] = {}
-    
+    # LangGraph will load state automatically via checkpoint
     try:
-        # Get current state
-        current_state = sessions[data.session_id]
-        
-        # Run agent with query
+        # Run agent with query (checkpoint handles state)
         result = run_agent(
             user_input=data.query,
             session_id=data.session_id,
             state_specific_context=data.state_specific_context,
         )
         
-        print(f"DEBUG: run_agent result keys: {list(result.keys())}")
-        if "graph_data" in result:
-            print(f"DEBUG: run_agent result has graph_data")
-        else:
-            print(f"DEBUG: run_agent result MISSING graph_data")
+        # State is automatically saved to checkpoint
         
-        # Update session
-        sessions[data.session_id] = result
-        
-        if result.get("error"):
-            return QueryResponse(
-                success=False,
-                session_id=data.session_id,
-                error=result["error"],
-            )
-        
-        # Get the last assistant message
+        # Get the response from messages
         messages = result.get("messages", [])
         assistant_messages = [m for m in messages if m.get("role") == "assistant"]
         
-        answer = assistant_messages[-1]["content"] if assistant_messages else "No response generated"
+        if assistant_messages:
+            answer = assistant_messages[-1]["content"]
+        else:
+            answer = "I couldn't generate a response. Please try again."
         
         return QueryResponse(
-            success=True,
             answer=answer,
             session_id=data.session_id,
-            conversation_history=messages,
+            context_used=bool(result.get("graph")),
         )
         
     except Exception as e:
@@ -107,16 +89,15 @@ async def ask_question(data: QueryRequest):
 @router.post("/visualize", response_model=VisualizationResponse)
 async def visualize_graph(data: VisualizationRequest):
     """Generate a visualization of the graph."""
-    if data.session_id not in sessions:
+    state = get_session_state(data.session_id)
+    if not state:
         raise HTTPException(status_code=404, detail="Session not found. Please load a graph first.")
     
-    state = sessions[data.session_id]
-    
-    if not state.get("graph_data"):
+    if not state.get("graph"):
         raise HTTPException(status_code=400, detail="No graph loaded in this session")
     
     try:
-        # Set visualization parameters in state
+        # Set visualization parameters
         viz_params = {
             "layout": data.layout,
             "title": data.title,
@@ -128,9 +109,8 @@ async def visualize_graph(data: VisualizationRequest):
             viz_params["highlight_edges"] = [tuple(edge) for edge in data.highlight_edges]
         
         # Generate visualization
-        graph = nx.node_link_graph(state["graph_data"])
         viz_path = generate_graph_visualization(
-            graph,
+            state["graph"],
             layout=data.layout,
             node_coloring=state.get("coloring"),
             edge_coloring=state.get("edge_coloring"),
@@ -139,15 +119,15 @@ async def visualize_graph(data: VisualizationRequest):
             title=data.title,
         )
         
-        # Update state
-        state["last_visualization_path"] = str(viz_path)
-        state["visualization_params"] = viz_params
-        sessions[data.session_id] = state
+        # Update state via agent (to trigger checkpoint)
+        run_agent(
+            visualization_path=str(viz_path),
+            session_id=data.session_id,
+        )
         
         return VisualizationResponse(
             success=True,
             visualization_path=str(viz_path),
-            message="Visualization generated successfully",
             session_id=data.session_id,
         )
         
@@ -158,10 +138,10 @@ async def visualize_graph(data: VisualizationRequest):
 @router.get("/visualize/{session_id}")
 async def get_visualization(session_id: str):
     """Retrieve the latest visualization for a session."""
-    if session_id not in sessions:
+    state = get_session_state(session_id)
+    if not state:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    state = sessions[session_id]
     viz_path = state.get("last_visualization_path")
     
     if not viz_path or not Path(viz_path).exists():
@@ -173,16 +153,15 @@ async def get_visualization(session_id: str):
 @router.post("/analyze", response_model=AnalysisResponse)
 async def analyze_graph(data: AnalysisRequest):
     """Perform graph analysis."""
-    if data.session_id not in sessions:
+    state = get_session_state(data.session_id)
+    if not state:
         raise HTTPException(status_code=404, detail="Session not found. Please load a graph first.")
     
-    state = sessions[data.session_id]
-    
-    if not state.get("graph_data"):
+    if not state.get("graph"):
         raise HTTPException(status_code=400, detail="No graph loaded in this session")
     
     try:
-        graph = nx.node_link_graph(state["graph_data"])
+        graph = state["graph"]
         
         if data.analysis_type == "comprehensive":
             analysis = compute_comprehensive_analysis(graph)
@@ -192,9 +171,11 @@ async def analyze_graph(data: AnalysisRequest):
             # Can add more specific analysis types
             analysis = compute_comprehensive_analysis(graph)
         
-        # Update state
-        state["analysis_results"] = analysis
-        sessions[data.session_id] = state
+        # Update state via agent to trigger checkpoint
+        run_agent(
+            analysis_results=analysis,
+            session_id=data.session_id,
+        )
         
         # Create summary
         if "basic_properties" in analysis:

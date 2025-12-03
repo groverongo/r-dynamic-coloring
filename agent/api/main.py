@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from config import config
-from api.routers import graph, query, sources, chat
+from api.routers import graph, query, sources, chat, sessions
 
 
 @asynccontextmanager
@@ -60,6 +60,7 @@ app.include_router(graph.router)
 app.include_router(query.router)
 app.include_router(sources.router)
 app.include_router(chat.router)
+app.include_router(sessions.router)
 
 
 @app.get("/")

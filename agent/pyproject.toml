@@ -22,6 +22,7 @@ dependencies = [
     "requests>=2.32.0",
     "streamlit>=1.40.0",
     "poethepoet>=0.38.0",
+    "langgraph-checkpoint-sqlite>=3.0.0",
 ]
 
 [project.optional-dependencies]

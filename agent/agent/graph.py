@@ -1,8 +1,9 @@
 """LangGraph workflow definition for the graph analysis agent."""
 
-from typing import Literal
+from typing import Dict, Any, Optional, Literal
 from langgraph.graph import StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
+from langgraph.checkpoint.sqlite import SqliteSaver
+from pathlib import Path
 
 from state import GraphState, create_initial_state
 from agent.nodes import (
@@ -13,6 +14,12 @@ from agent.nodes import (
     analyze_graph_node,
     route_request_node,
 )
+from config import config
+
+
+# Initialize checkpoint saver
+checkpoint_db_path = config.VISUALIZATION_DIR.parent / "checkpoints.db"
+checkpointer = SqliteSaver.from_conn_string(str(checkpoint_db_path))
 
 
 def should_process_input(state: GraphState) -> Literal["process_input", "route"]:
@@ -94,7 +101,6 @@ def create_graph() -> StateGraph:
     workflow.add_edge("answer", END)
     
     # Compile with checkpointer for state persistence
-    checkpointer = MemorySaver()
     return workflow.compile(checkpointer=checkpointer)
 
 

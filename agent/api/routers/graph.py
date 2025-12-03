@@ -1,3 +1,4 @@
+```python
 """Graph input API endpoints."""
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
@@ -13,11 +14,9 @@ from api.schemas import (
 )
 from agent.graph import run_agent
 from config import config
+from checkpoint_manager import get_session_state
 
 router = APIRouter(prefix="/graph", tags=["graph"])
-
-# In-memory session storage (replace with proper database in production)
-sessions = {}
 
 
 @router.post("/adjacency-list", response_model=GraphResponse)
@@ -30,8 +29,8 @@ async def input_adjacency_list(data: AdjacencyListInput):
             session_id=data.session_id,
         )
         
-        # Store session
-        sessions[data.session_id] = result
+        # LangGraph automatically saves state to checkpoint
+        # No need to manually save
         
         if result.get("error"):
             return GraphResponse(
@@ -74,7 +73,7 @@ async def input_adjacency_matrix(data: AdjacencyMatrixInput):
             session_id=data.session_id,
         )
         
-        sessions[data.session_id] = result
+        # LangGraph checkpoint handles persistence
         
         if result.get("error"):
             return GraphResponse(
@@ -114,7 +113,7 @@ async def input_graph_image(file: UploadFile = File(...), session_id: str = "def
             session_id=session_id,
         )
         
-        sessions[session_id] = result
+        # LangGraph checkpoint handles persistence
         
         if result.get("error"):
             return GraphResponse(
@@ -141,12 +140,11 @@ async def input_graph_image(file: UploadFile = File(...), session_id: str = "def
 @router.get("/info/{session_id}")
 async def get_graph_info(session_id: str):
     """Get information about the current graph in a session."""
-    if session_id not in sessions:
+    state = get_session_state(session_id)
+    if not state:
         raise HTTPException(status_code=404, detail="Session not found")
     
-    state = sessions[session_id]
-    graph_data = state.get("graph_data")
-    graph = nx.node_link_graph(graph_data) if graph_data else None
+    graph = state.get("graph")
     
     if not graph:
         return {"message": "No graph loaded in this session"}

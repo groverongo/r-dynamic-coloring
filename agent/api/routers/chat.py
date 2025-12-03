@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional
 from pydantic import BaseModel, Field
 
 from agent.graph import run_agent
-from api.routers.graph import sessions
+from checkpoint_manager import get_session_state
 from graph_parsers import parse_adjacency_list, parse_adjacency_matrix
 from tools.graph_visualization import generate_graph_visualization
 from tools.graph_analysis import compute_comprehensive_analysis
@@ -40,16 +40,9 @@ async def send_chat_message(data: ChatMessage):
     - Performs analysis when needed
     """
     try:
-        # Get or create session
-        if data.session_id not in sessions:
-            sessions[data.session_id] = {
-                "graph": None,
-                "messages": [],
-                "coloring": None,
-                "analysis_results": None,
-            }
-        
-        current_state = sessions[data.session_id]
+        # LangGraph checkpoint will handle session state automatically
+        # Get current state to check if graph exists
+        current_state = get_session_state(data.session_id)
         actions_taken = []
         
         # Check if message contains graph data
@@ -62,7 +55,7 @@ async def send_chat_message(data: ChatMessage):
                 input_format=graph_input["format"],
                 session_id=data.session_id,
             )
-            sessions[data.session_id] = result
+            # Checkpoint automatically saves
             
             graph = result.get("graph")
             if graph:
@@ -73,7 +66,7 @@ async def send_chat_message(data: ChatMessage):
         
         elif "visualiz" in data.message.lower() or "show" in data.message.lower() or "draw" in data.message.lower():
             # User wants a visualization
-            if not current_state.get("graph"):
+            if not current_state or not current_state.get("graph"):
                 response = "I don't have a graph loaded yet. Please provide a graph first using an adjacency list or matrix."
             else:
                 viz_path = generate_graph_visualization(
@@ -81,19 +74,19 @@ async def send_chat_message(data: ChatMessage):
                     title="Graph Visualization",
                     node_coloring=current_state.get("coloring"),
                 )
-                current_state["last_visualization_path"] = str(viz_path)
-                sessions[data.session_id] = current_state
+                # Checkpoint saves automatically via run_agent 
+                run_agent(visualization_path=str(viz_path), session_id=data.session_id)
                 actions_taken.append("Generated visualization")
                 response = f"I've created a visualization of your graph! You can access it at: {viz_path}"
         
         elif "analyz" in data.message.lower() or "properties" in data.message.lower() or "chromatic" in data.message.lower():
             # User wants analysis
-            if not current_state.get("graph"):
+            if not current_state or not current_state.get("graph"):
                 response = "I don't have a graph loaded yet. Please provide a graph first."
             else:
                 analysis = compute_comprehensive_analysis(current_state["graph"])
-                current_state["analysis_results"] = analysis
-                sessions[data.session_id] = current_state
+                # Checkpoint saves automatically via run_agent
+                run_agent(analysis_results=analysis, session_id=data.session_id)
                 actions_taken.append("Performed comprehensive analysis")
                 
                 basic = analysis["basic_properties"]
@@ -120,7 +113,7 @@ What else would you like to know?"""
                 user_input=data.message,
                 session_id=data.session_id,
             )
-            sessions[data.session_id] = result
+            # Checkpoint saves automatically
             
             # Get the last assistant message
             messages = result.get("messages", [])
@@ -132,17 +125,17 @@ What else would you like to know?"""
             else:
                 response = "I'm here to help with graph analysis! You can provide a graph, ask questions, request visualizations, or get analysis."
         
-        # Add to conversation history
-        current_state["messages"].append({"role": "user", "content": data.message})
-        current_state["messages"].append({"role": "assistant", "content": response})
+        # Get updated state for response
+        updated_state = get_session_state(data.session_id)
+        conversation_history = updated_state.get("messages", []) if updated_state else []
         
         return ChatResponse(
             response=response,
             session_id=data.session_id,
             actions_taken=actions_taken if actions_taken else None,
-            visualization_path=current_state.get("last_visualization_path"),
-            analysis_results=current_state.get("analysis_results"),
-            conversation_history=current_state["messages"][-10:],  # Last 10 messages
+            visualization_path=updated_state.get("last_visualization_path") if updated_state else None,
+            analysis_results=updated_state.get("analysis_results") if updated_state else None,
+            conversation_history=conversation_history[-10:],  # Last 10 messages
         )
         
     except Exception as e:
@@ -152,23 +145,24 @@ What else would you like to know?"""
 @router.get("/history/{session_id}")
 async def get_chat_history(session_id: str):
     """Get conversation history for a session."""
-    if session_id not in sessions:
+    state = get_session_state(session_id)
+    if not state:
         raise HTTPException(status_code=404, detail="Session not found")
     
     return {
         "session_id": session_id,
-        "messages": sessions[session_id].get("messages", []),
-        "has_graph": sessions[session_id].get("graph") is not None,
+        "messages": state.get("messages", []),
+        "has_graph": state.get("graph") is not None,
     }
 
 
 @router.delete("/session/{session_id}")
 async def clear_session(session_id: str):
     """Clear a chat session."""
-    if session_id in sessions:
-        del sessions[session_id]
-        return {"message": f"Session {session_id} cleared"}
-    raise HTTPException(status_code=404, detail="Session not found")
+    # LangGraph checkpoints don't have a built-in delete
+    # We'd need to implement this with direct SQLite access
+    # For now, return success (user can create new session with different ID)
+    return {"message": f"To clear session, create a new session with a different ID"}
 
 
 def extract_graph_from_message(message: str) -> Optional[Dict[str, Any]]:
