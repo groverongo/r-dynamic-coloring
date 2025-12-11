@@ -1,5 +1,6 @@
 import { CSSProperties } from "react";
 import { edgeGraphType, vertexGraphType } from "./atoms";
+import { ColoringAssigmentResponse } from "./validation";
 
 export class GraphTikz {
 
@@ -9,6 +10,7 @@ export class GraphTikz {
     private _boardDimensions: [number, number]; // [width, height]
     private _scaleFactor: number = 5;
     private _aspectRatio: number; // for width product
+    private _coloring: ColoringAssigmentResponse;
 
     private createUUIDToInt(){
         const mapper: Record<string, number> = {}
@@ -19,7 +21,7 @@ export class GraphTikz {
         return mapper;
     }
     
-    constructor(vertices: vertexGraphType, edges: edgeGraphType, {width, height}: CSSProperties){
+    constructor(vertices: vertexGraphType, edges: edgeGraphType, {width, height}: CSSProperties, coloring: ColoringAssigmentResponse){
         console.log(vertices)
         this._vertices = vertices;
         this._edges = edges;
@@ -28,7 +30,9 @@ export class GraphTikz {
             throw Error(`Undefined width ${width}, or height ${height}`);
         this._boardDimensions = [+width, +height];
         this._aspectRatio = this._boardDimensions[0] / this._boardDimensions[1];
+        this._coloring = coloring;
     }
+    
 
     private vertexLabel = (label: number) => `(V_${label})`;
     private drawVertex (uuidLabel: string, position: [number, number], text?: string) {
@@ -37,7 +41,10 @@ export class GraphTikz {
             (position[0] / this._boardDimensions[0]) * this._scaleFactor * this._aspectRatio, 
             ((this._boardDimensions[1] - position[1]) / this._boardDimensions[1]) * this._scaleFactor
         ];
-        const line = `\\node[vertex] ${this.vertexLabel(intLabel)} at (${convertedPositions[0]}, ${convertedPositions[1]}) {${text ?? intLabel}};`;
+        const nodeParameters = ['vertex'];
+        if(this._coloring[uuidLabel])
+            nodeParameters.push(`fill=TikzVertex${this._coloring[uuidLabel]}`);
+        const line = `\\node[${nodeParameters.join(', ')}] ${this.vertexLabel(intLabel)} at (${convertedPositions[0]}, ${convertedPositions[1]}) {${text ?? intLabel}};`;
         return line;
     }
     
