@@ -12,7 +12,7 @@ import { NODE_G_MODES } from "@/lib/graph-constants";
 import { isIntString } from "@/lib/utilities";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { v4 as uuidv4 } from 'uuid';
-import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
+import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
 import { useElementRef } from "@/lib/refs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -20,7 +20,7 @@ import { GetGraphResponse } from "@/lib/validation";
 import { GraphDeserializer } from "@/lib/serializers";
 
 export default function Canvas({id}: {id?: string}) {
-  const [styleProps, setStyleProps] = useState<CSSProperties>({});
+  const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
 
   useEffect(() => {
     console.log(screen.width, screen.height)

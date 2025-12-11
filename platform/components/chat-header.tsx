@@ -15,6 +15,7 @@ import { JSONExport } from "./json-export";
 import { useAtom } from "jotai";
 import { graphNameAtom } from "@/lib/atoms";
 import { ClearGraphCanvas } from "./clear-graph-canvas";
+import { LATEXExport } from "./latex-export";
 
 function PureChatHeader({
   chatId,
@@ -54,6 +55,8 @@ function PureChatHeader({
       <ImageExport download/>
       <JSONExport/>
       <JSONExport download/>
+      <LATEXExport/>
+      <LATEXExport download/>
 
       {!isReadonly && (
         <VisibilitySelector
