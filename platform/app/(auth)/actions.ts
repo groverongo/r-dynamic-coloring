@@ -2,7 +2,7 @@
 
 import { z } from "zod";
 
-import { createUser, getUser } from "@/lib/db/queries";
+import { createUser, getUser } from "@/lib/db-mock/queries";
 
 import { signIn } from "./auth";
 
@@ -43,12 +43,12 @@ export const login = async (
 
 export type RegisterActionState = {
   status:
-    | "idle"
-    | "in_progress"
-    | "success"
-    | "failed"
-    | "user_exists"
-    | "invalid_data";
+  | "idle"
+  | "in_progress"
+  | "success"
+  | "failed"
+  | "user_exists"
+  | "invalid_data";
 };
 
 export const register = async (

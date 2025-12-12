@@ -5,7 +5,7 @@ import { auth } from "@/app/(auth)/auth";
 import { GraphVisualize } from "@/components/chat";
 import { DataStreamHandler } from "@/components/data-stream-handler";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { getMessagesByChatId } from "@/lib/db/queries";
+import { getMessagesByChatId } from "@/lib/db-mock/queries";
 import { convertToUIMessages } from "@/lib/utils";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
@@ -67,7 +67,8 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         id={id}
         initialChatModel={chatModelFromCookie.value}
         initialLastContext={undefined}
-        initialMessages={uiMessages}
+        // initialMessages={uiMessages}
+        initialMessages={[]}
         initialVisibilityType={"public"}
         isReadonly={false}
       />

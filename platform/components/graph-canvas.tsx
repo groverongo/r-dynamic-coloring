@@ -2,22 +2,25 @@ import {
   CSSProperties,
   FocusEventHandler,
   KeyboardEventHandler,
+  LegacyRef,
   useEffect, useState
 } from "react";
-import { Layer, Rect, Stage } from "react-konva";
-import NodeG, { NodeGRef } from "@/components/graphObjects/node";
+import { Layer, Stage } from "react-konva";
+import NodeG from "@/components/graphObjects/node";
 import TemporaryLinkG from "@/components/graphObjects/temporary_link";
-import LinkG, { LinkGRef } from "@/components/graphObjects/link";
+import LinkG from "@/components/graphObjects/link";
 import { NODE_G_MODES } from "@/lib/graph-constants";
 import { isIntString } from "@/lib/utilities";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { v4 as uuidv4 } from 'uuid';
-import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, themeAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
+import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
 import { useElementRef } from "@/lib/refs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { GetGraphResponse } from "@/lib/validation";
 import { GraphDeserializer } from "@/lib/serializers";
+import Konva from "konva";
+import { useTheme } from "next-themes";
 
 export default function Canvas({id}: {id?: string}) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
@@ -75,9 +78,10 @@ export default function Canvas({id}: {id?: string}) {
   const setRFactor = useSetAtom(rFactorAtom);
 
   const [coloring, setColoring] = useAtom(coloringAtom);
-  const theme = useAtomValue(themeAtom);
+  const {theme} = useTheme();
 
   useEffect(() => {
+    console.log("id", id);  
     if (!id) return;
     refetch().then((response) => {
       if(response.data === undefined) return;
@@ -272,7 +276,7 @@ export default function Canvas({id}: {id?: string}) {
         style={styleProps}
         width={styleProps.width as number}
         height={styleProps.height as number}
-        ref={stageRef}
+        ref={stageRef as LegacyRef<Konva.Stage>}
         onDblClick={(e) => {
           if (!keyDownUnblock) return;
 
@@ -379,7 +383,7 @@ export default function Canvas({id}: {id?: string}) {
               ref={(e) => {
                 vertexRefs.current?.set(key, e);
               }}
-              theme={theme}
+              theme={theme as 'light' | 'dark'}
               colorIndexInitial={coloring[key] ?? null}
               x={vertexGraph.get(key)?.x || 0}
               y={vertexGraph.get(key)?.y || 0}

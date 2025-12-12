@@ -51,7 +51,7 @@ export function LATEXExport({download}: {download?: boolean}){
     }, 100);
   }
 
-  const tooltipContent = download ? "Download JSON" : "Copy JSON to clipboard";
+  const tooltipContent = download ? "Download TikZ" : "Copy TikZ to clipboard";
 
   return (
   <>
@@ -70,7 +70,7 @@ export function LATEXExport({download}: {download?: boolean}){
     <Toast.Provider swipeDirection="right">
       
       <Toast.Root className="ToastRoot bg-neutral-50 dark:bg-neutral-900 border border-emerald-200 dark:border-emerald-800" open={open} onOpenChange={setOpen}>
-				<Toast.Title className="ToastTitle text-zinc-900 dark:text-zinc-200">{download ? "JSON downloaded" : "JSON copied to clipboard"} 😄</Toast.Title>
+				<Toast.Title className="ToastTitle text-zinc-900 dark:text-zinc-200">{download ? "TikZ downloaded" : "TikZ copied to clipboard"} 😄</Toast.Title>
 			</Toast.Root>
 			<Toast.Viewport className="ToastViewport" />
     </Toast.Provider>

@@ -5,8 +5,8 @@ import {
   getChatById,
   getMessagesByChatId,
   getStreamIdsByChatId,
-} from "@/lib/db/queries";
-import type { Chat } from "@/lib/db/schema";
+} from "@/lib/db-mock/queries";
+import type { Chat } from "@/lib/types/db-types";
 import { ChatSDKError } from "@/lib/errors";
 import type { ChatMessage } from "@/lib/types";
 import { getStreamContext } from "../../route";
@@ -64,10 +64,10 @@ export async function GET(
 
   const emptyDataStream = createUIMessageStream<ChatMessage>({
     // biome-ignore lint/suspicious/noEmptyBlockStatements: "Needs to exist"
-    execute: () => {},
+    execute: () => { },
   });
 
-  const stream = await streamContext.resumableStream(recentStreamId, () =>
+  const stream = await streamContext.resumableStream(recentStreamId.id, () =>
     emptyDataStream.pipeThrough(new JsonToSseTransformStream())
   );
 

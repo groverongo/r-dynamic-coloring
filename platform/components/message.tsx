@@ -3,7 +3,7 @@ import type { UseChatHelpers } from "@ai-sdk/react";
 import equal from "fast-deep-equal";
 import { motion } from "framer-motion";
 import { memo, useState } from "react";
-import type { Vote } from "@/lib/db/schema";
+import type { Vote } from "@/lib/types/db-types";
 import type { ChatMessage } from "@/lib/types";
 import { cn, sanitizeText } from "@/lib/utils";
 import { useDataStream } from "./data-stream-provider";
@@ -35,7 +35,7 @@ const PurePreviewMessage = ({
   isReadonly,
   requiresScrollPadding,
 }: {
-  chatId: string;
+  chatId?: string;
   message: ChatMessage;
   vote: Vote | undefined;
   isLoading: boolean;
