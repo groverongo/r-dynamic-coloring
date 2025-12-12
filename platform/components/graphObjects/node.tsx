@@ -123,7 +123,7 @@ export default function NodeG({
     return () => {
       setLatex(undefined);
     };
-  }, [text, colorIndex, mode, fontSize]);
+  }, [text, colorIndex, mode, fontSize, theme]);
 
   const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
 

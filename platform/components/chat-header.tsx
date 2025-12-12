@@ -16,6 +16,8 @@ import { useAtom } from "jotai";
 import { graphNameAtom } from "@/lib/atoms";
 import { ClearGraphCanvas } from "./clear-graph-canvas";
 import { LATEXExport } from "./latex-export";
+import { useTheme } from "next-themes";
+import { MoonIcon, SunIcon } from "lucide-react";
 
 function PureChatHeader({
   chatId,
@@ -29,8 +31,8 @@ function PureChatHeader({
   const router = useRouter();
   const [graphName, setGraphName] = useAtom(graphNameAtom);
   const { open } = useSidebar();
-
   const { width: windowWidth } = useWindowSize();
+  const {theme, setTheme} = useTheme();
 
   return (
     <header className="sticky top-0 flex items-center gap-2 bg-background px-4 py-4 md:px-4 border-b-2 border-border">
@@ -82,19 +84,13 @@ function PureChatHeader({
         />
       </div>
 
-      {/* <Button
+      <Button
         asChild
-        className="order-3 hidden bg-zinc-900 px-2 text-zinc-50 hover:bg-zinc-800 md:ml-auto md:flex md:h-fit dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+        onClick={() => setTheme(theme == "dark" ? "light" : "dark")}
+        className="order-3 hidden bg-zinc-900 px-2 text-zinc-50 hover:bg-zinc-800 md:ml-auto md:flex md:h-fit dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-500"
       >
-        <Link
-          href={"https://vercel.com/templates/next.js/nextjs-ai-chatbot"}
-          rel="noreferrer"
-          target="_noblank"
-        >
-          <VercelIcon size={16} />
-          Deploy with Vercel
-        </Link>
-      </Button> */}
+        <p>{theme == "dark" ? <SunIcon size={16} /> : <MoonIcon size={16} />}</p>
+      </Button>
     </header>
   );
 }
