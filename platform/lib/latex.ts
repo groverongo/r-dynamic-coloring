@@ -1,6 +1,7 @@
 import { CSSProperties } from "react";
 import { edgeGraphType, vertexGraphType } from "./atoms";
 import { ColoringAssigmentResponse } from "./validation";
+import { vertexRefsType } from "./refs";
 
 export class GraphTikz {
 
@@ -11,51 +12,55 @@ export class GraphTikz {
     private _scaleFactor: number = 5;
     private _aspectRatio: number; // for width product
     private _coloring: ColoringAssigmentResponse;
+    private _vertexRefs: vertexRefsType;
 
-    private createUUIDToInt(){
+    private createUUIDToInt() {
         const mapper: Record<string, number> = {}
         let index = 0;
-        for(const key of this._vertices.keys()) {
+        for (const key of this._vertices.keys()) {
             mapper[key] = index++;
         }
         return mapper;
     }
-    
-    constructor(vertices: vertexGraphType, edges: edgeGraphType, {width, height}: CSSProperties, coloring: ColoringAssigmentResponse){
-        console.log(vertices)
+
+    constructor(vertices: vertexGraphType, edges: edgeGraphType, { width, height }: CSSProperties, coloring: ColoringAssigmentResponse, vertexRefs: vertexRefsType) {
         this._vertices = vertices;
         this._edges = edges;
+        this._vertexRefs = vertexRefs;
         this._uuidToInt = this.createUUIDToInt();
-        if(!width || !height)
+        if (!width || !height)
             throw Error(`Undefined width ${width}, or height ${height}`);
         this._boardDimensions = [+width, +height];
         this._aspectRatio = this._boardDimensions[0] / this._boardDimensions[1];
         this._coloring = coloring;
     }
-    
+
 
     private vertexLabel = (label: number) => `(V_${label})`;
-    private drawVertex (uuidLabel: string, position: [number, number], text?: string) {
+    private extractVertexText = (uuidLabel: string) => this._vertexRefs.get(uuidLabel)?.text;
+    private drawVertex(uuidLabel: string, position: [number, number]) {
+        const text = this.extractVertexText(uuidLabel);
+        this._vertexRefs.get(uuidLabel)
         const intLabel: number = this._uuidToInt[uuidLabel];
         const convertedPositions: [number, number] = [
-            (position[0] / this._boardDimensions[0]) * this._scaleFactor * this._aspectRatio, 
+            (position[0] / this._boardDimensions[0]) * this._scaleFactor * this._aspectRatio,
             ((this._boardDimensions[1] - position[1]) / this._boardDimensions[1]) * this._scaleFactor
         ];
         const nodeParameters = ['vertex'];
-        if(this._coloring[uuidLabel])
+        if (this._coloring[uuidLabel])
             nodeParameters.push(`fill=TikzVertex${this._coloring[uuidLabel]}`);
-        const line = `\\node[${nodeParameters.join(', ')}] ${this.vertexLabel(intLabel)} at (${convertedPositions[0]}, ${convertedPositions[1]}) {${text ?? intLabel}};`;
+        const line = `\\node[${nodeParameters.join(', ')}] ${this.vertexLabel(intLabel)} at (${convertedPositions[0]}, ${convertedPositions[1]}) {$${text ?? intLabel}$};`;
         return line;
     }
-    
-    private drawEdge (uuidLabels: [string, string]) {
+
+    private drawEdge(uuidLabels: [string, string]) {
         const connectStmt = uuidLabels.map((v) => this.vertexLabel(this._uuidToInt[v])).join(' -- ');
         const line = `\\draw ${connectStmt} -- cycle;`;
         return line;
     }
 
     private format = (
-        vertices: string[], 
+        vertices: string[],
         edges: string[]
     ): string => `\\begin{tikzpicture}[scale=1, shorten >=1pt,->]
     \\tikzstyle{vertex}=[circle,fill=black!25,minimum size=12pt,inner sep=2pt]
@@ -65,13 +70,13 @@ export class GraphTikz {
 
     public Picture() {
         const vertexStmts: string[] = [];
-        for(const [k, v] of this._vertices.entries()) {
+        for (const [k, v] of this._vertices.entries()) {
             const stmt = this.drawVertex(k, [v.xRelative, v.yRelative])
             vertexStmts.push(stmt);
         }
-        
+
         const edgeStmts: string[] = [];
-        for(const e of this._edges.values()) {
+        for (const e of this._edges.values()) {
             const stmt = this.drawEdge([e.from, e.to])
             edgeStmts.push(stmt);
         }

@@ -8,6 +8,7 @@ import { coloringAtom, edgeGraphAtom, graphAdjacencyListAtom, stylePropsAtom, ve
 import { useAtomValue } from "jotai";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { GraphTikz } from "@/lib/latex";
+import { useElementRef } from "@/lib/refs";
 
 
 export function LATEXExport({download}: {download?: boolean}){
@@ -18,10 +19,14 @@ export function LATEXExport({download}: {download?: boolean}){
   const edgeGraph = useAtomValue(edgeGraphAtom);
   const styleProps = useAtomValue(stylePropsAtom);
   const coloring = useAtomValue(coloringAtom);
+
+  const {vertexRefs} = useElementRef();
   
   const saveAsLatex = (e: React.MouseEvent) => {
+    if(!vertexRefs.current)
+      return;
 
-    const latexBuilder = new GraphTikz(vertexGraph, edgeGraph, styleProps, coloring);
+    const latexBuilder = new GraphTikz(vertexGraph, edgeGraph, styleProps, coloring, vertexRefs.current);
     const latexCode = latexBuilder.Picture();
     console.log(latexCode)
     const blob = new Blob([latexCode], {type: 'application/txt'});
