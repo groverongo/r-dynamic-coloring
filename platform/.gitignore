@@ -37,7 +37,7 @@ yarn-error.log*
 .env
 .vercel
 .env*.local
-
+.agent
 # Playwright
 /test-results/
 /playwright-report/
