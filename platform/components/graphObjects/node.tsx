@@ -77,6 +77,8 @@ export default function NodeG({
 
   const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length-2));
   const redfineDimensionEx = (value: number) => (RES_FACTOR*value).toString() + "ex"; 
+
+  const fontSize = useAtomValue(fontSizeAtom);
   
   useEffect(() => {
     const renderSvgToImage = async () => {
@@ -121,15 +123,13 @@ export default function NodeG({
     return () => {
       setLatex(undefined);
     };
-  }, [text, colorIndex, mode]);
+  }, [text, colorIndex, mode, fontSize]);
 
   const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
 
   const GroupRef = useRef<Konva.Group>(null);
 
-
   const nodeRadius = useAtomValue(nodeRadiusAtom);
-  const fontSize = useAtomValue(fontSizeAtom);
 
   const getAbsoluteX = () => {
     return GroupRef.current ? GroupRef.current.x() + x : x;
@@ -206,11 +206,8 @@ export default function NodeG({
       {latex && (
         <Image
           image={latex}
-          x={
-            x -
-            6.5 * (mode === 0 ? text.length : colorIndex?.toString().length || 0)
-          }
-          y={y - 8}
+          x={x - latex.width/2}
+          y={y - latex.height/2}
         />
       )}
       {mode === 1 &&
