@@ -12,7 +12,7 @@ import { NODE_G_MODES } from "@/lib/graph-constants";
 import { isIntString } from "@/lib/utilities";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { v4 as uuidv4 } from 'uuid';
-import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
+import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, themeAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
 import { useElementRef } from "@/lib/refs";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -75,6 +75,7 @@ export default function Canvas({id}: {id?: string}) {
   const setRFactor = useSetAtom(rFactorAtom);
 
   const [coloring, setColoring] = useAtom(coloringAtom);
+  const theme = useAtomValue(themeAtom);
 
   useEffect(() => {
     if (!id) return;
@@ -377,6 +378,7 @@ export default function Canvas({id}: {id?: string}) {
               ref={(e) => {
                 vertexRefs.current?.set(key, e);
               }}
+              theme={theme}
               colorIndexInitial={coloring[key] ?? null}
               x={vertexGraph.get(key)?.x || 0}
               y={vertexGraph.get(key)?.y || 0}
