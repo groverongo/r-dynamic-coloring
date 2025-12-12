@@ -4,7 +4,7 @@ import { CSSProperties } from "react";
 
 export const screenRatioAtom = atom(0);
 
-export const themeAtom = atom<'light' | 'dark'>('light');
+export const themeAtom = atom<'light' | 'dark'>('dark');
 
 export const vertexCurrentIdAtom = atom<string | null>(null);
 
@@ -24,9 +24,9 @@ export const stylePropsAtom = atom<CSSProperties>({});
 export type graphAdjacencyListType = Map<string, Set<[string, string]>>;
 export const graphAdjacencyListAtom = atom<graphAdjacencyListType>(new Map<string, Set<[string, string]>>());
 
-export type vertexGraphType = Map<string, {x: number, y: number, xRelative: number, yRelative: number}>;
-export const vertexGraphAtom = atom<vertexGraphType>(new Map<string, {x: number, y: number, xRelative: number, yRelative: number}>());
+export type vertexGraphType = Map<string, { x: number, y: number, xRelative: number, yRelative: number }>;
+export const vertexGraphAtom = atom<vertexGraphType>(new Map<string, { x: number, y: number, xRelative: number, yRelative: number }>());
 
-export type edgeGraphType = Map<string, {from: string, to: string, fromEntry: [string, string], toEntry: [string, string]}>;
-export const edgeGraphAtom = atom<edgeGraphType>(new Map<string, {from: string, to: string, fromEntry: [string, string], toEntry: [string, string]}>());
+export type edgeGraphType = Map<string, { from: string, to: string, fromEntry: [string, string], toEntry: [string, string] }>;
+export const edgeGraphAtom = atom<edgeGraphType>(new Map<string, { from: string, to: string, fromEntry: [string, string], toEntry: [string, string] }>());
 

@@ -1,3 +1,4 @@
+"use client"
 import { fontSizeAtom, nodeRadiusAtom } from "@/lib/atoms";
 import {
   NODE_G_COLORS,
@@ -6,8 +7,17 @@ import {
 } from "@/lib/graph-constants";
 import { useAtomValue } from "jotai";
 import Konva from "konva";
-import { Ref, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { Circle, Group, Text } from "react-konva";
+import React, {
+  Ref,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
+import { Circle, Group, Text, Image } from "react-konva";
+import { Canvg } from "canvg";
+import TeXToSVG from "tex-to-svg";
+import { parse, stringify } from "svgson";
 
 export type NodeGRef = {
   x: number;
@@ -36,6 +46,7 @@ export type NodeGProps = {
   compromised?: boolean;
   whileDragging?: (x: number, y: number) => void;
   allowedColors?: Set<number>;
+  theme: 'light' | 'dark';
 };
 
 export default function NodeG({
@@ -48,29 +59,86 @@ export default function NodeG({
   whileDragging,
   compromised,
   allowedColors,
-  colorIndexInitial
+  colorIndexInitial,
+  theme,
 }: Readonly<NodeGProps>) {
+
+  const [latex, setLatex] = useState<HTMLImageElement | undefined>();
   const [isSelected, setIsSelected] = useState<boolean>(false);
   const [text, setText] = useState<string>("");
+  const RES_FACTOR = 50;
+  const textColor = theme === "light" ? "black" : "white";
+  const backgroundColor = theme === "light" ? "white" : "black";
+  const borderColor = theme === "light" ? "black" : "white";
+  
+  const [colorIndex, setColorIndex] = useState<number | null>(
+    colorIndexInitial
+  );
+
+  const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length-2));
+  const redfineDimensionEx = (value: number) => (RES_FACTOR*value).toString() + "ex"; 
+  
+  useEffect(() => {
+    const renderSvgToImage = async () => {
+      const canvas = document.createElement("canvas");
+
+      const textToRender = mode === 0 ? text : colorIndex?.toString() || "";
+
+      let svgStr = TeXToSVG(textToRender, {
+          ex: 10,
+      });
+      const parsedSVG = await parse(svgStr);
+      const equationDims = {
+        width: extractDimensionEx(parsedSVG.attributes.width), 
+        height: extractDimensionEx(parsedSVG.attributes.height)
+      };
+
+      parsedSVG.attributes.fill = textColor;
+      parsedSVG.attributes.height = redfineDimensionEx(equationDims.height);
+      parsedSVG.attributes.width = redfineDimensionEx(equationDims.width);
+      parsedSVG.children.forEach(v => {
+        if(v.name !== "g") return;
+        v.attributes.fill = textColor; 
+      })
+
+      svgStr = stringify(parsedSVG)
+
+      const v = Canvg.fromString(canvas.getContext("2d")!, svgStr);
+
+      await v.render()
+
+      const dataUrl = canvas.toDataURL();
+
+      const img = new window.Image(fontSize * equationDims.width/equationDims.height, fontSize);
+      img.onload = () => {
+        setLatex(img);
+      };
+      img.src = dataUrl;
+    };
+
+    renderSvgToImage();
+
+    return () => {
+      setLatex(undefined);
+    };
+  }, [text, colorIndex, mode]);
 
   const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
 
   const GroupRef = useRef<Konva.Group>(null);
 
-  const [colorIndex, setColorIndex] = useState<number | null>(colorIndexInitial);
 
   const nodeRadius = useAtomValue(nodeRadiusAtom);
   const fontSize = useAtomValue(fontSizeAtom);
 
   const getAbsoluteX = () => {
     return GroupRef.current ? GroupRef.current.x() + x : x;
-  }
+  };
 
   const getAbsoluteY = () => {
     return GroupRef.current ? GroupRef.current.y() + y : y;
-  }
+  };
 
-  
   useImperativeHandle(ref, () => ({
     x: getAbsoluteX(),
     y: getAbsoluteY(),
@@ -110,53 +178,56 @@ export default function NodeG({
   }, [isSelected]);
 
   return (
-      <Group
-        ref={GroupRef}
-        onClick={() => {
-          setIsSelected(!isSelected);
-        }}
-        draggable={draggable}
-        onDragStart={() => {
-          setIsSelected(true);
-        }}
-        onDragMove={(e) => {
-          whileDragging?.(getAbsoluteX(), getAbsoluteY());
-        }}
-      >
-        <Circle
-          x={x}
-          y={y}
-          radius={nodeRadius}
-          fill={colorIndex === null ? "black" : NODE_G_COLORS[colorIndex].hex}
-          stroke={
-            isSelected
-              ? NODE_G_MODES_STYLE[NODE_G_MODES[mode]].strokeColor
-              : "white"
+    <Group
+      ref={GroupRef}
+      onClick={() => {
+        setIsSelected(!isSelected);
+      }}
+      draggable={draggable}
+      onDragStart={() => {
+        setIsSelected(true);
+      }}
+      onDragMove={(e) => {
+        whileDragging?.(getAbsoluteX(), getAbsoluteY());
+      }}
+    >
+      <Circle
+        x={x}
+        y={y}
+        radius={nodeRadius}
+        fill={colorIndex === null ? backgroundColor : NODE_G_COLORS[colorIndex].hex}
+        stroke={
+          isSelected
+            ? NODE_G_MODES_STYLE[NODE_G_MODES[mode]].strokeColor
+            : borderColor
+        }
+        dash={compromised ? [5, 5] : []}
+      />
+      {latex && (
+        <Image
+          image={latex}
+          x={
+            x -
+            6.5 * (mode === 0 ? text.length : colorIndex?.toString().length || 0)
           }
-          dash={compromised ? [5, 5] : []}
+          y={y - 8}
         />
-        <Text
-          text={mode === 0 ? text : colorIndex?.toString()}
-          x={x - 5 * (mode === 0 ? text.length : colorIndex?.toString().length || 0)}
-          y={y - 10}
-          fontSize={fontSize}
-          fill="white"
-        />
-      { mode === 1 &&
-        Array.from(allowedColors?.values() ?? []).map((color, index, colors) => {
-          return (
-            <Text
-              key={index}
-              text={color.toString()}
-              x={x + nodeRadius - 15 * (colors.length - index)}
-              y={y + nodeRadius + 5}
-              fontSize={fontSize / 1.3 }
-              fill="white"
-
-            />
-          );
-        })
-      }
+      )}
+      {mode === 1 &&
+        Array.from(allowedColors?.values() ?? []).map(
+          (color, index, colors) => {
+            return (
+              <Text
+                key={index}
+                text={color.toString()}
+                x={x + nodeRadius - 15 * (colors.length - index)}
+                y={y + nodeRadius + 5}
+                fontSize={fontSize / 1.3}
+                fill={textColor}
+              />
+            );
+          }
+        )}
     </Group>
   );
 }

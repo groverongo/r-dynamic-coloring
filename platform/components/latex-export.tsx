@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 
 import "../styles/SaveGraphVersion.css";
 import { Braces, FileJson, FilePen, PenTool } from "lucide-react";
-import { edgeGraphAtom, graphAdjacencyListAtom, stylePropsAtom, vertexGraphAtom } from "@/lib/atoms";
+import { coloringAtom, edgeGraphAtom, graphAdjacencyListAtom, stylePropsAtom, vertexGraphAtom } from "@/lib/atoms";
 import { useAtomValue } from "jotai";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { GraphTikz } from "@/lib/latex";
@@ -17,10 +17,11 @@ export function LATEXExport({download}: {download?: boolean}){
   const vertexGraph = useAtomValue(vertexGraphAtom);
   const edgeGraph = useAtomValue(edgeGraphAtom);
   const styleProps = useAtomValue(stylePropsAtom);
+  const coloring = useAtomValue(coloringAtom);
   
   const saveAsLatex = (e: React.MouseEvent) => {
 
-    const latexBuilder = new GraphTikz(vertexGraph, edgeGraph, styleProps);
+    const latexBuilder = new GraphTikz(vertexGraph, edgeGraph, styleProps, coloring);
     const latexCode = latexBuilder.Picture();
     console.log(latexCode)
     const blob = new Blob([latexCode], {type: 'application/txt'});
