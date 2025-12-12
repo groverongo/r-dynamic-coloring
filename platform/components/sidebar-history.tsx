@@ -23,7 +23,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
-import type { Chat } from "@/lib/db/schema";
+import type { Chat } from "@/lib/types/db-types";
 import { fetcher } from "@/lib/utils";
 import { LoaderIcon } from "./icons";
 import { GraphItem } from "./sidebar-history-item";

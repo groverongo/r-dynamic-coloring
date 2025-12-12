@@ -64,7 +64,7 @@ function PureMultimodalInput({
   onModelChange,
   usage,
 }: {
-  chatId: string;
+  chatId?: string;
   input: string;
   setInput: Dispatch<SetStateAction<string>>;
   status: UseChatHelpers<ChatMessage>["status"];

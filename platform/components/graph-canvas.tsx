@@ -81,6 +81,7 @@ export default function Canvas({id}: {id?: string}) {
   const {theme} = useTheme();
 
   useEffect(() => {
+    console.log("id", id);  
     if (!id) return;
     refetch().then((response) => {
       if(response.data === undefined) return;

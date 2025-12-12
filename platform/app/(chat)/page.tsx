@@ -13,8 +13,6 @@ export default async function Page() {
     redirect("/api/auth/guest");
   }
 
-  const id = generateUUID();
-
   const cookieStore = await cookies();
   const modelIdFromCookie = cookieStore.get("chat-model");
 
@@ -23,12 +21,10 @@ export default async function Page() {
       <>
         <GraphVisualize
           autoResume={false}
-          id={id}
           initialChatModel={DEFAULT_CHAT_MODEL}
           initialMessages={[]}
           initialVisibilityType="private"
           isReadonly={false}
-          key={id}
         />
         <DataStreamHandler />
       </>
@@ -39,12 +35,10 @@ export default async function Page() {
     <>
         <GraphVisualize
           autoResume={false}
-          id={id}
           initialChatModel={modelIdFromCookie.value}
           initialMessages={[]}
           initialVisibilityType="private"
           isReadonly={false}
-          key={id}
         />
         <DataStreamHandler />
     </>

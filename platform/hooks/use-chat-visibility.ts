@@ -49,5 +49,5 @@ export function useChatVisibility({
   //   });
   // };
 
-  return { visibilityType: "public", setVisibilityType: () => {} };
+  return { visibilityType: "public" as VisibilityType, setVisibilityType: (_: VisibilityType) => { } };
 }
