@@ -114,7 +114,8 @@ export default function Canvas({id}: {id?: string}) {
 
       if (ref === null || ref === undefined) return;
 
-      if (e.key.length === 1 && /^[a-zA-Z0-9]$/.test(e.key)) {
+      console.log("key",e.key, e.code);
+      if (e.key.length === 1 && /^[a-zA-Z0-9_\\^{}]$/.test(e.key)) {
         if (NODE_G_MODES[nodeMode] === "Label") {
           ref.appendCharacter(e.key);
         } else if (NODE_G_MODES[nodeMode] === "Color" && isIntString(e.key)) {

@@ -70,16 +70,21 @@ export default function NodeG({
   const textColor = theme === "light" ? "black" : "white";
   const backgroundColor = theme === "light" ? "white" : "black";
   const borderColor = theme === "light" ? "black" : "white";
+  
+  const [colorIndex, setColorIndex] = useState<number | null>(
+    colorIndexInitial
+  );
 
   const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length-2));
   const redfineDimensionEx = (value: number) => (RES_FACTOR*value).toString() + "ex"; 
-
+  
   useEffect(() => {
     const renderSvgToImage = async () => {
       const canvas = document.createElement("canvas");
 
-      console.log(text)
-      let svgStr = TeXToSVG(text, {
+      const textToRender = mode === 0 ? text : colorIndex?.toString() || "";
+
+      let svgStr = TeXToSVG(textToRender, {
           ex: 10,
       });
       const parsedSVG = await parse(svgStr);
@@ -96,10 +101,7 @@ export default function NodeG({
         v.attributes.fill = textColor; 
       })
 
-      console.log(parsedSVG)
-
       svgStr = stringify(parsedSVG)
-      console.log(text, svgStr)
 
       const v = Canvg.fromString(canvas.getContext("2d")!, svgStr);
 
@@ -116,19 +118,15 @@ export default function NodeG({
 
     renderSvgToImage();
 
-    // Cleanup function (optional, but good practice for Konva Image assets)
     return () => {
       setLatex(undefined);
     };
-  }, [text]);
+  }, [text, colorIndex, mode]);
 
   const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
 
   const GroupRef = useRef<Konva.Group>(null);
 
-  const [colorIndex, setColorIndex] = useState<number | null>(
-    colorIndexInitial
-  );
 
   const nodeRadius = useAtomValue(nodeRadiusAtom);
   const fontSize = useAtomValue(fontSizeAtom);
@@ -213,8 +211,6 @@ export default function NodeG({
             6.5 * (mode === 0 ? text.length : colorIndex?.toString().length || 0)
           }
           y={y - 8}
-          // width={}
-          height={fontSize}
         />
       )}
       {mode === 1 &&
