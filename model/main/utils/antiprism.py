@@ -1,4 +1,5 @@
 # Your first line of Python code
+from typing import List
 import numpy as np
 import sys
 
@@ -42,4 +43,19 @@ def create_antiprism_adjacency_matrix(n):
             A[i, j_minus] = 1
             
     # The matrix is now complete, defined by the Ci_(2n)(1,2) structure [1]
+    return A.tolist()
+
+def create_circulant_adjacency_matrix(n: int, *connections: int):
+    A = np.zeros((n, n), dtype=int)
+
+    connection_set = set(filter(lambda x: x <= n//2 and x > 0, connections))
+
+    for i in range(n):
+        for s in connection_set:
+            j_plus = (i + s) % n
+            A[i, j_plus] = 1
+            
+            j_minus = (i - s + n) % n
+            A[i, j_minus] = 1
+    
     return A.tolist()

@@ -15,9 +15,25 @@ class ColoringGraphRequest(BaseColoringRequest):
     graph_type: Literal['adjacency_list', 'adjacency_matrix']
     graph: Union[Dict[int, List[int]], List[List[int]]]
 
+class CirculantRequest(BaseColoringRequest):
+    n: int
+    connections: List[int]
+
+class CirculantBatchRequest(BaseColoringBatchRequest):
+    n_range: Tuple[int, int]
+    connections: List[int]
+    k: int
+
 class AntiprismRequest(BaseColoringRequest):
     n: int
 
 class AntiprismBatchRequest(BaseColoringBatchRequest):
+    n_range: Tuple[int, int]
+    k: int
+
+class Planar3TreeRequest(BaseColoringRequest):
+    n: int
+    
+class Planar3TreeBatchRequest(BaseColoringBatchRequest):
     n_range: Tuple[int, int]
     k: int

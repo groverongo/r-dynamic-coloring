@@ -5,7 +5,7 @@ from loguru import logger
 import numpy as np
 
 from ..coloring.r_dynamic import linear_programming_model
-from ..schemas.requests import AntiprismBatchRequest
+from ..schemas.requests import AntiprismBatchRequest, CirculantBatchRequest
 from ..utils.graph_utils import adjacency_matrix_to_adjacency_list
 from ..utils.antiprism import create_antiprism_adjacency_matrix
 
@@ -59,6 +59,43 @@ class ColoringService:
         except Exception as e:
             logger.error(f'Error: {e} on r={r}, n={n}')
             return r, n, None, str(e)
+
+    @staticmethod
+    def process_circulant_batch(request: CirculantBatchRequest) -> Dict[int, Dict[int, Dict[int, int]]]:
+        """Process a batch of circulant coloring requests.
+        
+        Args:
+            request: Batch request containing parameters for multiple colorings
+            
+        Returns:
+            Nested dictionary of color assignments: {r: {n: color_assignment}}
+        """
+        logger.info(f'Circulant Batch Request: {request}')
+        solutions_object = {}
+        
+        r_values = range(request.r_range[0], request.r_range[1] + 1)
+        n_values = range(request.n_range[0], request.n_range[1] + 1)
+        with ThreadPoolExecutor() as executor:
+            futures = []
+            for r in r_values:
+                for n in n_values:
+                    futures.append(executor.submit(
+                        ColoringService.process_single_case,
+                        r=r,
+                        n=n,
+                        method=request.method,
+                        k=request.k
+                    ))
+            
+            # Process results as they complete
+            for future in concurrent.futures.as_completed(futures):
+                r, n, result, error = future.result()
+                if error is None:
+                    solutions_object.setdefault(r, {})[n] = result
+                else:
+                    logger.error(f"Failed to process r={r}, n={n}: {error}")
+        
+        return solutions_object
     
     @staticmethod
     def process_antiprism_batch(request: AntiprismBatchRequest) -> Dict[int, Dict[int, Dict[int, int]]]:

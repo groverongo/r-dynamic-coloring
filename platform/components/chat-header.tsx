@@ -18,6 +18,7 @@ import { ClearGraphCanvas } from "./clear-graph-canvas";
 import { LATEXExport } from "./latex-export";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon } from "lucide-react";
+import { JSONImport } from "./json-import";
 
 function PureChatHeader({
   chatId,
@@ -65,6 +66,7 @@ function PureChatHeader({
       <JSONExport download/>
       <LATEXExport/>
       <LATEXExport download/>
+      <JSONImport/>
 
       {!isReadonly && chatId && (
         <VisibilitySelector

@@ -4,7 +4,7 @@ export const ColoringAssigmentResponseSchema = z.record(z.string(), z.number());
 
 export type ColoringAssigmentResponse = z.infer<typeof ColoringAssigmentResponseSchema>;
 
-export const GraphsResponseSchema = 
+export const GraphsResponseSchema =
   z.object({
     id: z.string(),
     name: z.string(),
@@ -29,3 +29,12 @@ export const GetGraphResponseSchema = z.object({
 });
 
 export type GetGraphResponse = z.infer<typeof GetGraphResponseSchema>;
+
+export const ImportGraphInputSchema = z.object({
+  graph: z.record(z.string(), z.array(z.string())),
+  coloring: z.record(z.string(), z.number()).default({}),
+  labels: z.record(z.string(), z.string()).default({}),
+  vertexPositions: z.record(z.string(), z.tuple([z.number(), z.number()])).default({}),
+});
+
+export type ImportGraphInput = z.infer<typeof ImportGraphInputSchema>;
