@@ -345,6 +345,7 @@ export default function Canvas({id}: {id?: string}) {
                   y: vertexRefs.current?.get(vertexCurrentId)?.y || 0,
                 }}
                 to={{ x: mouseDownPos.x, y: mouseDownPos.y }}
+                theme={theme as 'light' | 'dark'}
               />
             )}
           {Array.from(edgeGraph.entries()).map(([index, edge]) => {
@@ -366,6 +367,7 @@ export default function Canvas({id}: {id?: string}) {
               }}
               fromId={edge.from}
               toId={edge.to}
+              theme={theme as 'light' | 'dark'}
               from={from}
               to={to}
             />)

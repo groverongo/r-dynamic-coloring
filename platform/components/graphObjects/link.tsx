@@ -18,6 +18,7 @@ type LinkGProps = {
     ref?: Ref<LinkGRef>;
     onSelect?: () => void;
     compromised?: boolean;
+    theme: 'light' | 'dark';
 }
 
 export default function LinkG({
@@ -28,10 +29,11 @@ export default function LinkG({
     ref,
     onSelect,
     compromised,
+    theme
 }: LinkGProps) {
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
-
+    const borderColor = theme === "light" ? "black" : "white";
 
     useImperativeHandle(ref, () => ({
         fromId: fromId,
@@ -50,7 +52,7 @@ export default function LinkG({
     return (
         <Line
             points={[from.x, from.y, to.x, to.y]}
-            stroke={isSelected ? "blue" : "white"}
+            stroke={isSelected ? "blue" : borderColor}
             dash={compromised ? [7, 10] : []}
             strokeWidth={2}
             hitStrokeWidth={40}
