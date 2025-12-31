@@ -4,6 +4,7 @@ WORKDIR /app
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV HOST=0.0.0.0
 
 COPY environment.yml .
 RUN conda env create -f environment.yml
