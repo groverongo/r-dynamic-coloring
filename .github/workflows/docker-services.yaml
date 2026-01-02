@@ -1,0 +1,61 @@
+name: Detect changes and update docker images
+
+on:
+    push:
+        branches:
+            - master
+        paths:
+            - "model/**"
+            - "api/**"
+            - "agent/**"
+            - ".github/workflows/reusable-docker.yaml"
+            - ".github/workflows/docker-services.yaml"
+
+jobs:
+    detect-changes:
+        runs-on: ubuntu-latest
+        outputs:
+            model: ${{ steps.filter.outputs.model }}
+            api: ${{ steps.filter.outputs.api }}
+            agent: ${{ steps.filter.outputs.agent }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Detect changed directories
+              id: filter
+              uses: dorny/paths-filter@v3
+              with:
+                  filters: |
+                      model:
+                      - model/**
+                      api:
+                      - api/**
+                      agent:
+                      - agent/**
+
+    build-model:
+        needs: detect-changes
+        if: ${{ needs.detect-changes.outputs.model == 'true' }}
+        uses: ./.github/workflows/reusable-docker.yaml
+        with:
+            image_name: "coloring-service"
+            context: "./model"
+        secrets: inherit
+
+    build-api:
+        needs: detect-changes
+        if: ${{ needs.detect-changes.outputs.api == 'true' }}
+        uses: ./.github/workflows/reusable-docker.yaml
+        with:
+            image_name: "coloring-api"
+            context: "./api"
+        secrets: inherit
+
+    build-agent:
+        needs: detect-changes
+        if: ${{ needs.detect-changes.outputs.agent == 'true' }}
+        uses: ./.github/workflows/reusable-docker.yaml
+        with:
+            image_name: "coloring-agent"
+            context: "./agent"
+        secrets: inherit
