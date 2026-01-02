@@ -17,19 +17,22 @@ on:
                 default: "Dockerfile"
                 type: string
         secrets:
-            DOCKER_LOGIN_USER:
-                required: true
             DOCKER_LOGIN_TOKEN:
                 required: true
         outputs:
-            image_tag:
-                description: "The tag of the built image"
-                value: ${{ jobs.build.outputs.tag }}
+            image_url:
+                description: "The URL of the built image"
+                value: ${{ jobs.build.outputs.image_url }}
+
+env:
+    REGISTRY_URL: docker.io
 
 jobs:
     build:
         name: Build Docker Image
         runs-on: ubuntu-latest
+        outputs:
+            image_url: ${{ steps.built_image_url.outputs.url }}
 
         steps:
             - uses: actions/checkout@v4
@@ -40,7 +43,7 @@ jobs:
             - name: Docker Login
               uses: docker/login-action@v3.4.0
               with:
-                  username: ${{ secrets.DOCKER_LOGIN_USER }}
+                  username: ${{ vars.DOCKER_LOGIN_USER }}
                   password: ${{ secrets.DOCKER_LOGIN_TOKEN }}
 
             - name: Build and push container image to registry
@@ -48,7 +51,12 @@ jobs:
               with:
                   push: true
                   tags: |
-                      ${{ secrets.DOCKER_LOGIN_USER }}/${{ inputs.image_name }}:${{ github.sha }}
-                      ${{ secrets.DOCKER_LOGIN_USER }}/${{ inputs.image_name }}:latest
+                      ${{ vars.DOCKER_LOGIN_USER }}/${{ inputs.image_name }}:${{ github.sha }}
+                      ${{ vars.DOCKER_LOGIN_USER }}/${{ inputs.image_name }}:latest
                   file: ${{ inputs.context }}/${{ inputs.dockerfile }}
                   context: ${{ inputs.context }}
+
+            - name: Get built image URL
+              id: built_image_url
+              run: |
+                  echo "url=${{ env.REGISTRY_URL }}/${{ vars.DOCKER_LOGIN_USER }}/${{ inputs.image_name }}:${{ github.sha }}" >> $GITHUB_OUTPUT

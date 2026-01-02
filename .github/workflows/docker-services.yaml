@@ -18,6 +18,7 @@ jobs:
             model: ${{ steps.filter.outputs.model }}
             api: ${{ steps.filter.outputs.api }}
             agent: ${{ steps.filter.outputs.agent }}
+            workflows: ${{ steps.filter.outputs.workflows }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -32,30 +33,60 @@ jobs:
                       - api/**
                       agent:
                       - agent/**
+                      workflows:
+                      - .github/workflows/docker-services.yaml
+                      - .github/workflows/reusable-docker.yaml
 
     build-model:
         needs: detect-changes
-        if: ${{ needs.detect-changes.outputs.model == 'true' }}
+        if: needs.detect-changes.outputs.model == 'true' || needs.detect-changes.outputs.workflows == 'true'
         uses: ./.github/workflows/reusable-docker.yaml
         with:
             image_name: "coloring-service"
             context: "./model"
         secrets: inherit
 
+    deploy-model:
+        needs: build-model
+        uses: ./.github/workflows/deploy-render.yaml
+        with:
+            image_url: ${{ needs.build-model.outputs.image_url }}
+            service_id: ${{ vars.RENDER_WEB_SERVICE_ID_MODEL }}
+            environment_variables: "{}"
+        secrets: inherit
+
     build-api:
         needs: detect-changes
-        if: ${{ needs.detect-changes.outputs.api == 'true' }}
+        if: needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.workflows == 'true'
         uses: ./.github/workflows/reusable-docker.yaml
         with:
             image_name: "coloring-api"
             context: "./api"
         secrets: inherit
 
+    deploy-api:
+        needs: build-api
+        uses: ./.github/workflows/deploy-render.yaml
+        with:
+            image_url: ${{ needs.build-api.outputs.image_url }}
+            service_id: ${{ vars.RENDER_WEB_SERVICE_ID_API }}
+            environment_variables: "{}"
+        secrets: inherit
+
     build-agent:
         needs: detect-changes
-        if: ${{ needs.detect-changes.outputs.agent == 'true' }}
+        if: needs.detect-changes.outputs.agent == 'true' || needs.detect-changes.outputs.workflows == 'true'
         uses: ./.github/workflows/reusable-docker.yaml
         with:
             image_name: "coloring-agent"
             context: "./agent"
+        secrets: inherit
+
+    deploy-agent:
+        needs: build-agent
+        uses: ./.github/workflows/deploy-render.yaml
+        with:
+            image_url: ${{ needs.build-agent.outputs.image_url }}
+            service_id: ${{vars.RENDER_WEB_SERVICE_ID_AGENT}}
+            environment_variables: "{}"
         secrets: inherit
