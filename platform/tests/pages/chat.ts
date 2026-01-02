@@ -49,7 +49,7 @@ export class ChatPage {
 
   async isGenerationComplete() {
     const response = await this.page.waitForResponse((currentResponse) =>
-      currentResponse.url().includes("/api/chat")
+      currentResponse.url().includes("/invoke")
     );
 
     await response.finished();
@@ -156,8 +156,8 @@ export class ChatPage {
       .then(async (visible) =>
         visible
           ? await lastMessageElement
-              .getByTestId("message-reasoning")
-              .innerText()
+            .getByTestId("message-reasoning")
+            .innerText()
           : null
       )
       .catch(() => null);

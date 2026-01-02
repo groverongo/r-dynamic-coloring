@@ -36,6 +36,9 @@ import Canvas from "./graph-canvas";
 import { ColoringParameters } from "./coloring-parameters";
 import { LPSolution } from "./linear-programming-solution";
 import { EngineProperties } from "./element-properties";
+import { GraphSerializer } from "@/lib/serializers";
+import { useAtomValue } from "jotai";
+import { graphAdjacencyListAtom } from "@/lib/atoms";
 
 export function GraphVisualize({
   id,
@@ -68,6 +71,8 @@ export function GraphVisualize({
   const [currentModelId, setCurrentModelId] = useState(initialChatModel);
   const currentModelIdRef = useRef(currentModelId);
 
+  const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
+
   useEffect(() => {
     currentModelIdRef.current = currentModelId;
   }, [currentModelId]);
@@ -86,16 +91,31 @@ export function GraphVisualize({
     experimental_throttle: 100,
     generateId: generateUUID,
     transport: new DefaultChatTransport({
-      api: "/api/chat",
+      api: `${process.env.NEXT_PUBLIC_R_HUED_COLORING_AGENT}/invoke`,
       fetch: fetchWithErrorHandlers,
       prepareSendMessagesRequest(request) {
+
+        const messagePart = request.messages.at(-1)?.parts.at(-1);
+
+        if (!messagePart) {
+          throw new Error("No message part found");
+        }
+
+        if (messagePart.type !== "text") {
+          throw new Error("Message part is not text");
+        }
+
+        console.log(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList));
+
         return {
           body: {
-            id: request.id,
-            message: request.messages.at(-1),
-            selectedChatModel: currentModelIdRef.current,
-            selectedVisibilityType: visibilityType,
-            ...request.body,
+            graph: JSON.parse(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList)),
+            prompt: messagePart.text,
+            // id: request.id,
+            // message: request.messages.at(-1),
+            // selectedChatModel: currentModelIdRef.current,
+            // selectedVisibilityType: visibilityType,
+            // ...request.body,
           },
         };
       },
@@ -139,7 +159,7 @@ export function GraphVisualize({
       });
 
       setHasAppendedQuery(true);
-      window.history.replaceState({}, "", `/chat/${id}`);
+      // window.history.replaceState({}, "", `/chat/${id}`);
     }
   }, [query, sendMessage, hasAppendedQuery, id]);
 
