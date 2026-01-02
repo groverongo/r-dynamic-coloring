@@ -36,7 +36,8 @@ def invoke(params: InvokeParameters):
     ]
 
     messages = GRAPH_AGENT.invoke({"messages": messages, "graph": params.graph})
-    for m in messages["messages"]:
-        m.pretty_print()
 
-    return messages
+    agent_answer = messages["messages"][-1].content
+    agent_answer: str = agent_answer.split("</think>")[-1].strip()
+
+    return {"answer": agent_answer}
