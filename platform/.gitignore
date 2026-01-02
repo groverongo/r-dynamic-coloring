@@ -9,7 +9,6 @@ node_modules
 coverage
 .vscode
 *.d.ts
-pnpm-lock.yaml
 # next.js
 .next/
 out/
