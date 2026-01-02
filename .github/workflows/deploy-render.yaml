@@ -33,6 +33,14 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+            - name: Update environment variables
+              if: ${{ inputs.environment_variables != '' }}
+              run: |
+                  curl -X POST ${{ env.RENDER_API_SERVICES_URL }}/${{ inputs.service_id }}/env-vars \ 
+                  -H "Content-Type: application/json" \ 
+                  -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \ 
+                  -d "${{ inputs.environment_variables }}"
+
             - name: Deploy image
               id: image-deployment
               run: |
