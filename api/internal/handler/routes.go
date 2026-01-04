@@ -33,7 +33,10 @@ func InitRoutes(e *echo.Echo) {
 			auth.POST("/login", Login)
 		}
 		api.GET("", apiInfo)
-		api.POST("/assign-coloring", AssignColoring)
+		coloring := api.Group("/coloring")
+		{
+			coloring.POST("/linear-program", AssignColoring)
+		}
 	}
 }
 
