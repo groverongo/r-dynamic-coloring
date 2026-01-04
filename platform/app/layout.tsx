@@ -7,9 +7,9 @@ import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://chat.vercel.ai"),
-  title: "Next.js Chatbot Template",
-  description: "Next.js chatbot template using the AI SDK.",
+  metadataBase: new URL("https://r-hued-coloring-platform.vercel.app"),
+  title: "R-Dynamic Coloring Tool",
+  description: "R-Dynamic Coloring Tool with AI",
 };
 
 export const viewport = {

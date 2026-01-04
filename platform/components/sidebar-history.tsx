@@ -114,6 +114,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       return response.data as GraphsHistory;
     },
     refetchOnMount: false,
+    refetchOnWindowFocus: false,
     retry: false,
   });
 

@@ -7,7 +7,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
 import { graphNameAtom, coloringAtom, edgeGraphAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom, vertexGraphAtom } from "@/lib/atoms";
-import {GraphSerializer} from "@/lib/serializers";
+import { GraphSerializer } from "@/lib/serializers";
 import "../styles/SaveGraphVersion.css";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
@@ -36,7 +36,7 @@ interface CreateGraphResponse {
   id: string;
 }
 
-export function SaveGraphVersion(){
+export function SaveGraphVersion() {
 
   const [open, setOpen] = useState(false);
   const timerRef = useRef<NodeJS.Timeout>();
@@ -68,7 +68,7 @@ export function SaveGraphVersion(){
   });
 
   useEffect(() => {
-    if(isSuccess) {
+    if (isSuccess) {
       setSavedGraphId(data?.id ?? "");
     }
   }, [isSuccess, data]);
@@ -84,25 +84,25 @@ export function SaveGraphVersion(){
   }
 
   return (
-  <>
-    <TooltipHeaderButton tooltipContent="Save graph version">
-      <Button
-        className="order-2 ml-auto h-8 px-2 md:order-1 md:ml-0 md:h-fit md:px-2"
-        variant="outline"
-        onClick={saveGraphVersion}
-      >
-        <Save/>
-        <span className="md:sr-only">Save Graph Version</span>
-      </Button>
-    </TooltipHeaderButton>
-      
-    <Toast.Provider swipeDirection="right">
-      <Toast.Root className="ToastRoot bg-neutral-50 dark:bg-neutral-900 border border-emerald-200 dark:border-emerald-800" open={open} onOpenChange={setOpen}>
-				{ToastConditionComponents[isSuccess ? "success" : "failure"].title}
-				{ToastConditionComponents[isSuccess ? "success" : "failure"].description(isSuccess ? savedGraphId : JSON.stringify(error))}
-			</Toast.Root>
-			<Toast.Viewport className="ToastViewport" />
-    </Toast.Provider>
-  </>
+    <>
+      <TooltipHeaderButton tooltipContent="Save graph version">
+        <Button
+          className="order-2 ml-auto h-8 px-2 md:order-1 md:ml-0 md:h-fit md:px-2"
+          variant="outline"
+          onClick={saveGraphVersion}
+        >
+          <Save />
+          <span className="md:sr-only">Save Graph Version</span>
+        </Button>
+      </TooltipHeaderButton>
+
+      <Toast.Provider swipeDirection="right">
+        <Toast.Root className="ToastRoot bg-neutral-50 dark:bg-neutral-900 border border-emerald-200 dark:border-emerald-800" open={open} onOpenChange={setOpen}>
+          {ToastConditionComponents[isSuccess ? "success" : "failure"].title}
+          {ToastConditionComponents[isSuccess ? "success" : "failure"].description(isSuccess ? savedGraphId : JSON.stringify(error))}
+        </Toast.Root>
+        <Toast.Viewport className="ToastViewport" />
+      </Toast.Provider>
+    </>
   )
 }

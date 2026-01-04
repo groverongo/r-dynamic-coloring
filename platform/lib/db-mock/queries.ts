@@ -9,7 +9,6 @@ import type {
     Suggestion,
     Stream,
 } from "@/lib/types/db-types";
-import type { ArtifactKind } from "@/components/artifact";
 import type { AppUsage } from "@/lib/usage";
 
 /**
@@ -150,13 +149,11 @@ export async function getVotesByChatId({ id }: { id: string }): Promise<Vote[]> 
 export async function saveDocument({
     id,
     title,
-    kind,
     content,
     userId,
 }: {
     id: string;
     title: string;
-    kind: ArtifactKind;
     content: string;
     userId: string;
 }): Promise<void> {

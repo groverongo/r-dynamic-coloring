@@ -25,7 +25,7 @@ export class ArtifactPage {
 
   async isGenerationComplete() {
     const response = await this.page.waitForResponse((currentResponse) =>
-      currentResponse.url().includes("/api/chat")
+      currentResponse.url().includes("/invoke")
     );
 
     await response.finished();
@@ -58,8 +58,8 @@ export class ArtifactPage {
       .then(async (visible) =>
         visible
           ? await lastMessageElement
-              .getByTestId("message-reasoning")
-              .innerText()
+            .getByTestId("message-reasoning")
+            .innerText()
           : null
       )
       .catch(() => null);
