@@ -9,6 +9,7 @@ import axios from "axios";
 import z from "zod";
 import { Bot, Send, User } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
+import ReactMarkdown from 'react-markdown';
 
 interface CustomMessage {
   type: 'request' | 'response';
@@ -28,7 +29,9 @@ export function ChatAgent() {
       <div className="flex items-start gap-3">
         <User className="w-5 h-5 text-neutral-600 dark:text-neutral-400 mt-1" />
         <div className="flex-1">
-          <p className="text-neutral-900 dark:text-neutral-100 font-medium text-sm">{message.data}</p>
+          <div className="prose prose-sm max-w-none text-neutral-900 dark:text-neutral-100 font-medium text-sm ">
+            <ReactMarkdown>{message.data}</ReactMarkdown>
+          </div>
           <div className="mt-2 text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
             <div><span className="font-semibold">Timestamp:</span> {new Date(message.timestamp).toLocaleString()}</div>
           </div>
@@ -42,7 +45,9 @@ export function ChatAgent() {
       <div className="flex items-start gap-3">
         <Bot className="w-5 h-5 text-neutral-700 dark:text-neutral-400 mt-1" />
         <div className="flex-1">
-          <p className="text-neutral-900 dark:text-neutral-100 font-medium text-sm">{message.data}</p>
+          <div className="prose-sm max-w-none text-neutral-900 dark:text-neutral-100 font-medium text-sm ">
+            <ReactMarkdown>{message.data}</ReactMarkdown>
+          </div>
           <div className="mt-2 text-xs text-neutral-600 dark:text-neutral-400 space-y-1">
             <div><span className="font-semibold">Timestamp:</span> {new Date(message.timestamp).toLocaleString()}</div>
           </div>
@@ -70,10 +75,12 @@ export function ChatAgent() {
   });
 
   const callAgent = () => {
+    if (graphAdjacencyList.size === 0) return;
     if (!input.trim()) return;
     setMessages((prev) => [...prev, { type: 'request', data: input, timestamp: new Date().toISOString(), id: uuidv4() }]);
     mutateAsync().then((data) => {
       setMessages((prev) => [...prev, { type: 'response', data: data.answer, timestamp: new Date().toISOString(), id: uuidv4() }]);
+      setInput("");
     }).catch((error) => {
       setMessages((prev) => prev.slice(0, -1));
       console.error(error);
