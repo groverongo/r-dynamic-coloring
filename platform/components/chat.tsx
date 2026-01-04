@@ -103,58 +103,9 @@ export function GraphVisualize({
 
           <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
             <ChatAgent />
-            {/* <Messages
-              chatId={id}
-              isArtifactVisible={isArtifactVisible}
-              isReadonly={isReadonly}
-              messages={messages}
-              regenerate={regenerate}
-              selectedModelId={initialChatModel}
-              setMessages={setMessages}
-              status={status}
-              votes={votes}
-            />
-            <div className="sticky bottom-0 z-1 mx-auto flex w-full max-w-4xl gap-2 border-t-0 bg-background px-2 pb-3 md:px-4 md:pb-4">
-              {!isReadonly && (
-                <MultimodalInput
-                  attachments={attachments}
-                  chatId={id}
-                  input={input}
-                  messages={messages}
-                  onModelChange={setCurrentModelId}
-                  selectedModelId={currentModelId}
-                  selectedVisibilityType={visibilityType}
-                  sendMessage={sendMessage}
-                  setAttachments={setAttachments}
-                  setInput={setInput}
-                  setMessages={setMessages}
-                  status={status}
-                  stop={stop}
-                  usage={usage}
-                />
-              )}
-            </div> */}
           </div>
         </div>
       </div>
-
-      {/* <Artifact
-        attachments={attachments}
-        chatId={id}
-        input={input}
-        isReadonly={isReadonly}
-        messages={messages}
-        regenerate={regenerate}
-        selectedModelId={currentModelId}
-        selectedVisibilityType={visibilityType}
-        sendMessage={sendMessage}
-        setAttachments={setAttachments}
-        setInput={setInput}
-        setMessages={setMessages}
-        status={status}
-        stop={stop}
-        votes={votes}
-      /> */}
 
       <AlertDialog
         onOpenChange={setShowCreditCardAlert}
