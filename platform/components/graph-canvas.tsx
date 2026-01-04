@@ -22,7 +22,7 @@ import { GraphDeserializer } from "@/lib/serializers";
 import Konva from "konva";
 import { useTheme } from "next-themes";
 
-export default function Canvas({id}: {id?: string}) {
+export default function Canvas({ id }: { id?: string }) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
 
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Canvas({id}: {id?: string}) {
     });
   }, []);
 
-  const {refetch, data} = useQuery({
+  const { refetch, data } = useQuery({
     queryKey: ["graph", id],
     queryFn: async () => {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_API}/graphs/${id}`)
@@ -50,7 +50,7 @@ export default function Canvas({id}: {id?: string}) {
   const rFactor = useAtomValue(rFactorAtom);
   const kFactor = useAtomValue(kColorsAtom);
 
-  const {vertexRefs, edgeRefs, stageRef} = useElementRef();
+  const { vertexRefs, edgeRefs, stageRef } = useElementRef();
 
   const [vertexGraph, setVertexGraph] = useAtom(vertexGraphAtom);
   const [edgeGraph, setEdgeGraph] = useAtom(edgeGraphAtom);
@@ -78,13 +78,13 @@ export default function Canvas({id}: {id?: string}) {
   const setRFactor = useSetAtom(rFactorAtom);
 
   const [coloring, setColoring] = useAtom(coloringAtom);
-  const {theme} = useTheme();
+  const { theme } = useTheme();
 
   useEffect(() => {
-    console.log("id", id);  
+    console.log("id", id);
     if (!id) return;
     refetch().then((response) => {
-      if(response.data === undefined) return;
+      if (response.data === undefined) return;
 
       setGraphName(response.data.name);
       setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(response.data.graphAdjacencyList));
@@ -118,16 +118,15 @@ export default function Canvas({id}: {id?: string}) {
 
       if (ref === null || ref === undefined) return;
 
-      console.log("key",e.key, e.code);
       if (e.key.length === 1 && /^[a-zA-Z0-9_\\^{}]$/.test(e.key)) {
         if (NODE_G_MODES[nodeMode] === "Label") {
           ref.appendCharacter(e.key);
         } else if (NODE_G_MODES[nodeMode] === "Color" && isIntString(e.key)) {
-          if(+e.key >= kFactor) return;
+          if (+e.key >= kFactor) return;
           ref.changeColor(+e.key === coloring[vertexCurrentId] ? null : +e.key);
           setColoring((prev) => {
-            const newColoring = {...prev};
-            if(newColoring[vertexCurrentId] === +e.key) {
+            const newColoring = { ...prev };
+            if (newColoring[vertexCurrentId] === +e.key) {
               delete newColoring[vertexCurrentId];
             } else {
               newColoring[vertexCurrentId] = +e.key;
@@ -136,11 +135,11 @@ export default function Canvas({id}: {id?: string}) {
           });
         }
       } else if (e.key === "Backspace") {
-          if (NODE_G_MODES[nodeMode] === "Label") {
-            ref.deleteCharacter();
-          } else if (NODE_G_MODES[nodeMode] === "Color") {
-            ref.changeColor(null);
-          }
+        if (NODE_G_MODES[nodeMode] === "Label") {
+          ref.deleteCharacter();
+        } else if (NODE_G_MODES[nodeMode] === "Color") {
+          ref.changeColor(null);
+        }
       } else if (e.key === "Delete") {
         ref.deselect();
 
@@ -148,10 +147,10 @@ export default function Canvas({id}: {id?: string}) {
 
         setGraphAdjacencyList((prev) => {
           const newMap = new Map(prev);
-          
+
           edgeTuples?.forEach((edgeTuple) => {
             const edge = edgeGraph.get(edgeTuple[1]);
-            if(edge === undefined) return;
+            if (edge === undefined) return;
             newMap.get(edgeTuple[0])?.delete(edge.fromEntry);
           });
           newMap.delete(vertexCurrentId);
@@ -183,7 +182,7 @@ export default function Canvas({id}: {id?: string}) {
         ref.deselect();
         setGraphAdjacencyList((prev) => {
           const edge = edgeGraph.get(edgeCurrentId);
-          if(edge === undefined) return prev;
+          if (edge === undefined) return prev;
           const newMap = new Map(prev);
           newMap.get(edge.from)?.delete(edge.toEntry);
           newMap.get(edge.to)?.delete(edge.fromEntry);
@@ -221,19 +220,16 @@ export default function Canvas({id}: {id?: string}) {
       const neighborColors = new Set<number>();
       for (const [neighborVertex, edgeId] of edges) {
         neighborColors.add(coloring[neighborVertex]);
-        if(coloring[neighborVertex] === sourceVertexColor) {
+        if (coloring[neighborVertex] === sourceVertexColor) {
           compromisedEdgesLocal.add(edgeId);
         }
-      } 
+      }
 
-      if(neighborColors.size < Math.min(rFactor, edges.size)) {
+      if (neighborColors.size < Math.min(rFactor, edges.size)) {
         compromisedVerticesLocal.add(vertex);
       }
     }
 
-    console.log('compromisedVertices', compromisedVerticesLocal);
-    console.log('compromisedEdges', compromisedEdgesLocal);
-    
     setCompromisedVertices(compromisedVerticesLocal);
     setCompromisedEdges(compromisedEdgesLocal);
   }, [coloring]);
@@ -246,7 +242,7 @@ export default function Canvas({id}: {id?: string}) {
 
     if (vertexCurrentId !== null) {
       vertexRefs.current?.get(vertexCurrentId)?.deselect();
-      const [_, ref] = Array.from(vertexRefs?.current ?? [null, null]).at(-1) ?? [null, null]; 
+      const [_, ref] = Array.from(vertexRefs?.current ?? [null, null]).at(-1) ?? [null, null];
       ref?.select();
     }
   }, [vertexGraph.size]);
@@ -259,14 +255,10 @@ export default function Canvas({id}: {id?: string}) {
 
     if (edgeCurrentId !== null) {
       edgeRefs.current?.get(edgeCurrentId)?.deselect();
-      const [_, ref] = Array.from(edgeRefs?.current ?? [null, null]).at(-1) ?? [null, null]; 
+      const [_, ref] = Array.from(edgeRefs?.current ?? [null, null]).at(-1) ?? [null, null];
       ref?.select();
     }
   }, [edgeGraph.size]);
-
-  useEffect(() => {
-    console.log('graphAdjacencyList', graphAdjacencyList)
-  }, [graphAdjacencyList])
 
   return (
     <div onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={onBlur} tabIndex={0}>
@@ -288,7 +280,7 @@ export default function Canvas({id}: {id?: string}) {
           });
           setVertexGraph((prev) => {
             const newMap = new Map(prev);
-            newMap.set(vertexId, {x: e.evt.offsetX, y: e.evt.offsetY, xRelative: e.evt.offsetX, yRelative: e.evt.offsetY});
+            newMap.set(vertexId, { x: e.evt.offsetX, y: e.evt.offsetY, xRelative: e.evt.offsetX, yRelative: e.evt.offsetY });
             return newMap;
           });
         }}
@@ -299,7 +291,7 @@ export default function Canvas({id}: {id?: string}) {
 
             const distance = Math.sqrt(
               Math.pow(ref.x - e.evt.offsetX, 2) +
-                Math.pow(ref.y - e.evt.offsetY, 2)
+              Math.pow(ref.y - e.evt.offsetY, 2)
             );
             if (distance > 60) continue;
             setClosestVertexId(i);
@@ -320,7 +312,7 @@ export default function Canvas({id}: {id?: string}) {
             const toEntry: [string, string] = [closestVertexId, edgeId];
             setEdgeGraph((prev) => {
               const newMap = new Map(prev);
-              newMap.set(edgeId, {from: vertexCurrentId, to: closestVertexId, fromEntry, toEntry});
+              newMap.set(edgeId, { from: vertexCurrentId, to: closestVertexId, fromEntry, toEntry });
               return newMap;
             });
             setGraphAdjacencyList((prev) => {
@@ -334,7 +326,7 @@ export default function Canvas({id}: {id?: string}) {
           setMouseDownPos(null);
         }}
       >
-        <Layer/>
+        <Layer />
         <Layer>
           {shiftPressed &&
             mouseDownPos !== null &&
@@ -353,8 +345,8 @@ export default function Canvas({id}: {id?: string}) {
             const fromRef = vertexGraph.get(edge.from);
             const toRef = vertexGraph.get(edge.to);
 
-            const from = fromRef ? {x: fromRef.xRelative, y: fromRef.yRelative} : {x: 0, y: 0};
-            const to = toRef ? {x: toRef.xRelative, y: toRef.yRelative} : {x: 0, y: 0};
+            const from = fromRef ? { x: fromRef.xRelative, y: fromRef.yRelative } : { x: 0, y: 0 };
+            const to = toRef ? { x: toRef.xRelative, y: toRef.yRelative } : { x: 0, y: 0 };
 
             return (<LinkG
               key={index}
@@ -374,9 +366,9 @@ export default function Canvas({id}: {id?: string}) {
           })}
           {Array.from(graphAdjacencyList.keys()).map((key) => {
 
-            const allowedColors = new Set(Array.from({length: kFactor}, (_, i) => i));
+            const allowedColors = new Set(Array.from({ length: kFactor }, (_, i) => i));
             allowedColors.delete(coloring[key]);
-            for(const [vertex, _] of graphAdjacencyList.get(key) ?? []) {
+            for (const [vertex, _] of graphAdjacencyList.get(key) ?? []) {
               allowedColors.delete(coloring[vertex]);
             }
 
@@ -400,9 +392,9 @@ export default function Canvas({id}: {id?: string}) {
                 setVertexGraph((prev) => {
                   const newMap = new Map(prev);
                   const current = newMap.get(key);
-                  if(current === undefined) return newMap;
+                  if (current === undefined) return newMap;
 
-                  newMap.set(key, {...current, xRelative: x, yRelative: y});
+                  newMap.set(key, { ...current, xRelative: x, yRelative: y });
                   return newMap;
                 });
               }}

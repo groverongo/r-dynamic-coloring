@@ -32,7 +32,7 @@ export type NodeGRef = {
   deselect: () => void;
   appendCharacter: (character: string) => void;
   deleteCharacter: () => void;
-  changeColor: (index: number | null) => void;
+  changeColor: (index: number | null, enforce?: boolean) => void;
 };
 
 export type NodeGProps = {
@@ -70,16 +70,16 @@ export default function NodeG({
   const textColor = theme === "light" ? "black" : "white";
   const backgroundColor = theme === "light" ? "white" : "black";
   const borderColor = theme === "light" ? "black" : "white";
-  
+
   const [colorIndex, setColorIndex] = useState<number | null>(
     colorIndexInitial
   );
 
-  const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length-2));
-  const redfineDimensionEx = (value: number) => (RES_FACTOR*value).toString() + "ex"; 
+  const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length - 2));
+  const redfineDimensionEx = (value: number) => (RES_FACTOR * value).toString() + "ex";
 
   const fontSize = useAtomValue(fontSizeAtom);
-  
+
   useEffect(() => {
     const renderSvgToImage = async () => {
       const canvas = document.createElement("canvas");
@@ -87,11 +87,11 @@ export default function NodeG({
       const textToRender = mode === 0 ? text : colorIndex?.toString() || "";
 
       let svgStr = TeXToSVG(textToRender, {
-          ex: 10,
+        ex: 10,
       });
       const parsedSVG = await parse(svgStr);
       const equationDims = {
-        width: extractDimensionEx(parsedSVG.attributes.width), 
+        width: extractDimensionEx(parsedSVG.attributes.width),
         height: extractDimensionEx(parsedSVG.attributes.height)
       };
 
@@ -99,8 +99,8 @@ export default function NodeG({
       parsedSVG.attributes.height = redfineDimensionEx(equationDims.height);
       parsedSVG.attributes.width = redfineDimensionEx(equationDims.width);
       parsedSVG.children.forEach(v => {
-        if(v.name !== "g") return;
-        v.attributes.fill = textColor; 
+        if (v.name !== "g") return;
+        v.attributes.fill = textColor;
       })
 
       svgStr = stringify(parsedSVG)
@@ -111,7 +111,7 @@ export default function NodeG({
 
       const dataUrl = canvas.toDataURL();
 
-      const img = new window.Image(fontSize * equationDims.width/equationDims.height, fontSize);
+      const img = new window.Image(fontSize * equationDims.width / equationDims.height, fontSize);
       img.onload = () => {
         setLatex(img);
       };
@@ -165,8 +165,8 @@ export default function NodeG({
       if (text.length === 0) return;
       setText((prev) => prev.substring(0, prev.length - 1));
     },
-    changeColor: (index: number | null) => {
-      if (!isSelected) return;
+    changeColor: (index: number | null, enforce: boolean = false) => {
+      if (!isSelected && !enforce) return;
       setColorIndex(index);
     },
   }));
@@ -206,8 +206,8 @@ export default function NodeG({
       {latex && (
         <Image
           image={latex}
-          x={x - latex.width/2}
-          y={y - latex.height/2}
+          x={x - latex.width / 2}
+          y={y - latex.height / 2}
         />
       )}
       {mode === 1 &&
