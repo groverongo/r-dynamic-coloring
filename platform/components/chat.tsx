@@ -41,6 +41,8 @@ import { useAtomValue } from "jotai";
 import { graphAdjacencyListAtom } from "@/lib/atoms";
 import axios from "axios";
 import z from "zod";
+import { Bot, User } from "lucide-react";
+import { ChatAgent } from "./chat-agent";
 
 export function GraphVisualize({
   id,
@@ -79,23 +81,6 @@ export function GraphVisualize({
   }, [currentModelId]);
 
 
-  // const { isSuccess, error, mutate, data, isPending } = useMutation({
-  //   mutationFn: async () => {
-  //     const responseSchema = z.object({
-  //       answer: z.string(),
-  //     });
-
-  //   const response = await axios.post(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_AGENT}/invoke`, {
-  //       graph: JSON.parse(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList)),
-  //       prompt: input,
-  //     });
-
-  //   const data = responseSchema.parse(response.data);
-  //   return data;
-  //   },
-  //   retry: false
-  // });
-
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -108,15 +93,16 @@ export function GraphVisualize({
 
         <div className="flex flex-row items-stretch gap-1 sm:gap-2 flex-1 overflow-hidden">
           <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
-            <Canvas id={id}/>
+            <Canvas id={id} />
             <div className="flex flex-row gap-1 sm:gap-2">
-              <ColoringParameters/>
-              <LPSolution/> 
-              <EngineProperties/>
+              <ColoringParameters />
+              <LPSolution />
+              <EngineProperties />
             </div>
           </div>
 
           <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
+            <ChatAgent />
             {/* <Messages
               chatId={id}
               isArtifactVisible={isArtifactVisible}
