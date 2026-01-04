@@ -30,7 +30,7 @@ import { Messages } from "./messages";
 import { MultimodalInput } from "./multimodal-input";
 import { toast } from "./toast";
 import type { VisibilityType } from "./visibility-selector";
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, useMutation } from '@tanstack/react-query';
 import { queryClient } from "@/lib/queries";
 import Canvas from "./graph-canvas";
 import { ColoringParameters } from "./coloring-parameters";
@@ -39,6 +39,8 @@ import { EngineProperties } from "./element-properties";
 import { GraphSerializer } from "@/lib/serializers";
 import { useAtomValue } from "jotai";
 import { graphAdjacencyListAtom } from "@/lib/atoms";
+import axios from "axios";
+import z from "zod";
 
 export function GraphVisualize({
   id,
@@ -62,7 +64,6 @@ export function GraphVisualize({
     initialVisibilityType,
   });
 
-  const { mutate } = useSWRConfig();
   const { setDataStream } = useDataStream();
 
   const [input, setInput] = useState<string>("");
@@ -77,106 +78,24 @@ export function GraphVisualize({
     currentModelIdRef.current = currentModelId;
   }, [currentModelId]);
 
-  const {
-    messages,
-    setMessages,
-    sendMessage,
-    status,
-    stop,
-    regenerate,
-    resumeStream,
-  } = useChat<ChatMessage>({
-    id,
-    messages: initialMessages,
-    experimental_throttle: 100,
-    generateId: generateUUID,
-    transport: new DefaultChatTransport({
-      api: `${process.env.NEXT_PUBLIC_R_HUED_COLORING_AGENT}/invoke`,
-      fetch: fetchWithErrorHandlers,
-      prepareSendMessagesRequest(request) {
 
-        const messagePart = request.messages.at(-1)?.parts.at(-1);
+  // const { isSuccess, error, mutate, data, isPending } = useMutation({
+  //   mutationFn: async () => {
+  //     const responseSchema = z.object({
+  //       answer: z.string(),
+  //     });
 
-        if (!messagePart) {
-          throw new Error("No message part found");
-        }
+  //   const response = await axios.post(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_AGENT}/invoke`, {
+  //       graph: JSON.parse(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList)),
+  //       prompt: input,
+  //     });
 
-        if (messagePart.type !== "text") {
-          throw new Error("Message part is not text");
-        }
+  //   const data = responseSchema.parse(response.data);
+  //   return data;
+  //   },
+  //   retry: false
+  // });
 
-        console.log(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList));
-
-        return {
-          body: {
-            graph: JSON.parse(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList)),
-            prompt: messagePart.text,
-            // id: request.id,
-            // message: request.messages.at(-1),
-            // selectedChatModel: currentModelIdRef.current,
-            // selectedVisibilityType: visibilityType,
-            // ...request.body,
-          },
-        };
-      },
-    }),
-    onData: (dataPart) => {
-      setDataStream((ds) => (ds ? [...ds, dataPart] : []));
-      if (dataPart.type === "data-usage") {
-        setUsage(dataPart.data);
-      }
-    },
-    onFinish: () => {
-      // mutate(unstable_serialize(getChatHistoryPaginationKey));
-    },
-    onError: (error) => {
-      if (error instanceof ChatSDKError) {
-        // Check if it's a credit card error
-        if (
-          error.message?.includes("AI Gateway requires a valid credit card")
-        ) {
-          setShowCreditCardAlert(true);
-        } else {
-          toast({
-            type: "error",
-            description: error.message,
-          });
-        }
-      }
-    },
-  });
-
-  const searchParams = useSearchParams();
-  const query = searchParams.get("query");
-
-  const [hasAppendedQuery, setHasAppendedQuery] = useState(false);
-
-  useEffect(() => {
-    if (query && !hasAppendedQuery) {
-      sendMessage({
-        role: "user" as const,
-        parts: [{ type: "text", text: query }],
-      });
-
-      setHasAppendedQuery(true);
-      // window.history.replaceState({}, "", `/chat/${id}`);
-    }
-  }, [query, sendMessage, hasAppendedQuery, id]);
-
-  const { data: votes } = useSWR<Vote[]>(
-    messages.length >= 2 ? `/api/vote?chatId=${id}` : null,
-    fetcher
-  );
-
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
-  const isArtifactVisible = useArtifactSelector((state) => state.isVisible);
-
-  useAutoResume({
-    autoResume,
-    initialMessages,
-    resumeStream,
-    setMessages,
-  });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -198,7 +117,7 @@ export function GraphVisualize({
           </div>
 
           <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
-            <Messages
+            {/* <Messages
               chatId={id}
               isArtifactVisible={isArtifactVisible}
               isReadonly={isReadonly}
@@ -228,12 +147,12 @@ export function GraphVisualize({
                   usage={usage}
                 />
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
 
-      <Artifact
+      {/* <Artifact
         attachments={attachments}
         chatId={id}
         input={input}
@@ -249,7 +168,7 @@ export function GraphVisualize({
         status={status}
         stop={stop}
         votes={votes}
-      />
+      /> */}
 
       <AlertDialog
         onOpenChange={setShowCreditCardAlert}

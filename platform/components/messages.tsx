@@ -10,11 +10,19 @@ import { useDataStream } from "./data-stream-provider";
 import { Conversation, ConversationContent } from "./elements/conversation";
 import { PreviewMessage, ThinkingMessage } from "./message";
 
+
+interface CustomMessage {
+  type: 'request' | 'response';
+  data: string;
+  timestamp: string;
+  id: string;
+}
+
 type MessagesProps = {
   chatId?: string;
   status: UseChatHelpers<ChatMessage>["status"];
   votes: Vote[] | undefined;
-  messages: ChatMessage[];
+  messages: CustomMessage[];
   setMessages: UseChatHelpers<ChatMessage>["setMessages"];
   regenerate: UseChatHelpers<ChatMessage>["regenerate"];
   isReadonly: boolean;
