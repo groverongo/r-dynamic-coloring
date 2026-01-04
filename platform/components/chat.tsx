@@ -1,10 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
-import { DefaultChatTransport } from "ai";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import useSWR, { useSWRConfig } from "swr";
 import { ChatHeader } from "@/components/chat-header";
 import {
   AlertDialog,
@@ -16,37 +12,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useArtifactSelector } from "@/hooks/use-artifact";
-import { useAutoResume } from "@/hooks/use-auto-resume";
 import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import type { Vote } from "@/lib/types/db-types";
-import { ChatSDKError } from "@/lib/errors";
-import type { Attachment, ChatMessage } from "@/lib/types";
 import type { AppUsage } from "@/lib/usage";
-import { fetcher, fetchWithErrorHandlers, generateUUID } from "@/lib/utils";
-import { Artifact } from "./artifact";
-import { useDataStream } from "./data-stream-provider";
-import { Messages } from "./messages";
-import { MultimodalInput } from "./multimodal-input";
-import { toast } from "./toast";
+import { generateUUID } from "@/lib/utils";
 import type { VisibilityType } from "./visibility-selector";
-import { QueryClientProvider, useMutation } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from "@/lib/queries";
 import Canvas from "./graph-canvas";
 import { ColoringParameters } from "./coloring-parameters";
 import { LPSolution } from "./linear-programming-solution";
 import { EngineProperties } from "./element-properties";
-import { GraphSerializer } from "@/lib/serializers";
 import { useAtomValue } from "jotai";
 import { graphAdjacencyListAtom } from "@/lib/atoms";
-import axios from "axios";
-import z from "zod";
-import { Bot, User } from "lucide-react";
 import { ChatAgent } from "./chat-agent";
 
 export function GraphVisualize({
   id,
-  initialMessages,
   initialChatModel,
   initialVisibilityType,
   isReadonly,
@@ -54,7 +35,6 @@ export function GraphVisualize({
   initialLastContext,
 }: {
   id?: string;
-  initialMessages: ChatMessage[];
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
@@ -66,7 +46,6 @@ export function GraphVisualize({
     initialVisibilityType,
   });
 
-  const { setDataStream } = useDataStream();
 
   const [input, setInput] = useState<string>("");
   const [usage, setUsage] = useState<AppUsage | undefined>(initialLastContext);

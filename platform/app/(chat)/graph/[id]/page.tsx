@@ -3,10 +3,7 @@ import { redirect } from "next/navigation";
 
 import { auth } from "@/app/(auth)/auth";
 import { GraphVisualize } from "@/components/chat";
-import { DataStreamHandler } from "@/components/data-stream-handler";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { getMessagesByChatId } from "@/lib/db-mock/queries";
-import { convertToUIMessages } from "@/lib/utils";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -51,11 +48,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           initialChatModel={DEFAULT_CHAT_MODEL}
           initialLastContext={undefined}
           // initialMessages={uiMessages}
-          initialMessages={[]}
           initialVisibilityType={"public"}
           isReadonly={false}
         />
-        <DataStreamHandler />
       </>
     );
   }
@@ -68,11 +63,9 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         initialChatModel={chatModelFromCookie.value}
         initialLastContext={undefined}
         // initialMessages={uiMessages}
-        initialMessages={[]}
         initialVisibilityType={"public"}
         isReadonly={false}
       />
-      <DataStreamHandler />
     </>
   );
 }

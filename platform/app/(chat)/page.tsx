@@ -1,9 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { GraphVisualize } from "@/components/chat";
-import { DataStreamHandler } from "@/components/data-stream-handler";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
-import { generateUUID } from "@/lib/utils";
 import { auth } from "../(auth)/auth";
 
 export default async function Page() {
@@ -22,25 +20,21 @@ export default async function Page() {
         <GraphVisualize
           autoResume={false}
           initialChatModel={DEFAULT_CHAT_MODEL}
-          initialMessages={[]}
           initialVisibilityType="private"
           isReadonly={false}
         />
-        <DataStreamHandler />
       </>
     );
   }
 
   return (
     <>
-        <GraphVisualize
-          autoResume={false}
-          initialChatModel={modelIdFromCookie.value}
-          initialMessages={[]}
-          initialVisibilityType="private"
-          isReadonly={false}
-        />
-        <DataStreamHandler />
+      <GraphVisualize
+        autoResume={false}
+        initialChatModel={modelIdFromCookie.value}
+        initialVisibilityType="private"
+        isReadonly={false}
+      />
     </>
   );
 }
