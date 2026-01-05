@@ -7,6 +7,8 @@ services:
       - 8000:8000
     volumes:
       - ./model:/app
+    environment:
+      - C_MODEL_API_KEY=${C_MODEL_API_KEY}
     networks:
       default:
 
@@ -22,6 +24,8 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_DBNAME=postgres
       - DATABASE_PORT=5432
+      - C_MODEL_API_KEY=${C_MODEL_API_KEY}
+      - C_AGENT_API_KEY=${C_AGENT_API_KEY}
     
     depends_on:
       - database
@@ -35,7 +39,7 @@ services:
       - 8001:8000
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
-    
+      - C_AGENT_API_KEY=${C_AGENT_API_KEY}
     depends_on:
       - database
     networks:

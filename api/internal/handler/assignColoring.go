@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"r-hued-coloring-service/internal/validation"
 	"r-hued-coloring-service/pkg/utils"
 
@@ -64,7 +65,11 @@ func AssignColoring(c echo.Context) error {
 
 	// Create a new request with JSON body
 	url := fmt.Sprintf("%s/color/graph", utils.COLORING_MICROSERVICE_URL)
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(jsonData))
+	client := &http.Client{}
+	service, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonData))
+	service.Header.Set("Content-Type", "application/json")
+	service.Header.Set("X-API-Key", os.Getenv("C_MODEL_API_KEY"))
+	resp, err := client.Do(service)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status": "ERROR",
@@ -79,6 +84,10 @@ func AssignColoring(c echo.Context) error {
 			"status": "ERROR",
 			"error":  "Failed to read response body: " + err.Error(),
 		})
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return c.JSONBlob(resp.StatusCode, body)
 	}
 
 	var serviceResponse validation.AssignColoringServiceResponse

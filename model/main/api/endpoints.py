@@ -2,13 +2,14 @@ from fastapi import APIRouter, HTTPException
 from loguru import logger
 from typing import Dict, List
 
+from ..auth.helper import AUTH_DEPENDENCIES
 from ..utils.planar3 import generate_planar_3_tree
 from ..utils.antiprism import create_antiprism_adjacency_matrix, create_circulant_adjacency_matrix
 from ..schemas.requests import ColoringGraphRequest, AntiprismRequest, AntiprismBatchRequest, Planar3TreeRequest, CirculantRequest, CirculantBatchRequest
 from ..services.coloring_service import ColoringService
 from ..utils.graph_utils import adjacency_matrix_to_adjacency_list
 
-router = APIRouter()
+router = APIRouter(dependencies=AUTH_DEPENDENCIES)
 
 @router.post("/color/graph")
 async def assign_colors(request: ColoringGraphRequest) -> Dict[str, Dict[int, int]]:
