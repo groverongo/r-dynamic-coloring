@@ -2,8 +2,10 @@ package handler
 
 import (
 	"net/http"
+	"r-hued-coloring-service/internal/config"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 // InitRoutes initializes all routes
@@ -20,7 +22,13 @@ func InitRoutes(e *echo.Echo) {
 			graph.GET("/:id", GetGraph)
 			graph.POST("", CreateGraph)
 		}
+		agent := api.Group("/agent")
+		agent.Use(middleware.RateLimiterWithConfig(config.RateLimiterConfig))
+		{
+			agent.POST("", AskQuestion)
+		}
 		conversation := api.Group("/conversation")
+		conversation.Use(middleware.RateLimiterWithConfig(config.RateLimiterConfig))
 		{
 			conversation.GET("/:id", GetConversation)
 			conversation.POST("", CreateConversation)
@@ -34,6 +42,7 @@ func InitRoutes(e *echo.Echo) {
 		}
 		api.GET("", apiInfo)
 		coloring := api.Group("/coloring")
+		coloring.Use(middleware.RateLimiterWithConfig(config.RateLimiterConfig))
 		{
 			coloring.POST("/linear-program", AssignColoring)
 		}
