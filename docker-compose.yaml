@@ -2,7 +2,7 @@ name: r-dynamic-coloring
 services:
   model:
     build: ./model
-    image: ${REGISTRY_URL}/coloring-service:${TAG:-latest}
+    image: ${DOCKER_LOGIN_USER}/coloring-service:${TAG:-latest}
     ports:
       - 8000:8000
     volumes:
@@ -14,7 +14,7 @@ services:
 
   api:
     build: ./api
-    image: ${REGISTRY_URL}/coloring-api:${TAG:-latest}
+    image: ${DOCKER_LOGIN_USER}/coloring-api:${TAG:-latest}
     ports:
       - 8080:8080
     environment:
@@ -35,7 +35,7 @@ services:
 
   agent:
     build: ./agent
-    image: ${REGISTRY_URL}/coloring-agent:${TAG:-latest}
+    image: ${DOCKER_LOGIN_USER}/coloring-agent:${TAG:-latest}
     ports:
       - 8001:8000
     environment:
