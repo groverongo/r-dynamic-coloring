@@ -61,12 +61,27 @@ while IFS= read -r line || [ -n "$line" ]; do
     fi
 done < "$TEMPLATE_FILE"
 
-# 2. Iterate over the variables
+# 2. Iterate over the variables and generate YAML files
 groups=$(echo "$JSON_OBJ" | jq -r 'keys[]')
 
+# Ensure the output directory exists
+OUTPUT_DIR="scripts/load_envs"
+mkdir -p "$OUTPUT_DIR"
+
 for group in $groups; do
+    # Clean group name for filename (remove leading dots or slashes)
+    clean_group=$(echo "$group" | sed 's/^[.\/]*//')
+    yaml_file="${OUTPUT_DIR}/config_${clean_group}.yaml"
+    
     echo -e "\n📦 Group: /$group"
     vars=$(echo "$JSON_OBJ" | jq -r ".\"$group\"[]")
+    
+    # Generate YAML file for this group (Always overwrites)
+    echo "environment_variables:" > "$yaml_file"
+    for var in $vars; do
+        echo "  - $var" >> "$yaml_file"
+    done
+    echo "  📄 Generated $yaml_file"
     
     for var in $vars; do
         if exists_in_github "$var"; then
@@ -75,7 +90,6 @@ for group in $groups; do
             echo "  ❌ $var is missing in GitHub."
             
             # Prompt user for value
-            # Using /dev/tty to ensure we can read input even if stdin is redirected
             read -p "     Enter value for $var: " var_value < /dev/tty
             
             # Prompt for secret or variable
@@ -85,15 +99,10 @@ for group in $groups; do
             if [[ "$store_type" =~ ^[Vv] ]]; then
                 echo "     Setting $var as a variable..."
                 gh variable set "$var" --body "$var_value"
+                EXISTING_VARS="$EXISTING_VARS $var"
             else
                 echo "     Setting $var as a secret..."
                 gh secret set "$var" --body "$var_value"
-            fi
-            
-            # Refresh lists to avoid re-prompting for duplicates
-            if [[ "$store_type" =~ ^[Vv] ]]; then
-                EXISTING_VARS="$EXISTING_VARS $var"
-            else
                 EXISTING_SECRETS="$EXISTING_SECRETS $var"
             fi
         fi
