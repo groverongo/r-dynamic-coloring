@@ -1,83 +1,91 @@
-import { kColorsAtom, rFactorAtom } from "@/lib/atoms";
-import { useAtom } from "jotai";
 import { Cpu, Info, Send } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { useState } from "react";
 import { Button } from "./ui/button";
-
-interface ApiResponse {
-    success: boolean;
-    message?: string;
-    data?: any;
-}
+import { useMutation } from "@tanstack/react-query";
+import axios from "axios";
+import { useAtomValue, useSetAtom } from "jotai";
+import { coloringAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom } from "@/lib/atoms";
+import z from "zod";
+import { GraphSerializer } from "@/lib/serializers";
+import { useElementRef } from "@/lib/refs";
 
 export function LPSolution() {
-    const [kColors, setKColors] = useState(2);
-    const [rFactor, setRFactor] = useState(1);
-    const [lpMethod, setLPMethod] = useState<"ACR" | "ACR-H" | "ACR-R" | "ACR-RH">("ACR");
-    const [isLoading, setIsLoading] = useState(false);
-    const [response, setResponse] = useState<ApiResponse | null>(null);
+    const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
+    const setKColors = useSetAtom(kColorsAtom);
+    const setRFactor = useSetAtom(rFactorAtom);
+    const setColoring = useSetAtom(coloringAtom);
 
-    const handleSubmit = async () => {
-        setIsLoading(true);
-        setResponse(null);
-        
-        try {
-            // Replace with your actual API endpoint
-            const response = await fetch('https://your-api-endpoint.com/solve', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    k: kColors,
-                    r: rFactor,
-                }),
+    const { vertexRefs } = useElementRef();
+
+
+    const [kColorsLocal, setKColorsLocal] = useState(2);
+    const [rFactorLocal, setRFactorLocal] = useState(1);
+    const [lpMethod, setLPMethod] = useState<"ACR" | "ACR_H" | "ACR_R" | "ACR_RH">("ACR");
+
+    const { isSuccess, error, mutateAsync, isPending } = useMutation({
+        mutationFn: async () => {
+            const responseSchema = z.object({
+                coloring: z.record(z.string(), z.number()),
             });
 
-            const data = await response.json();
-            setResponse({
-                success: response.ok,
-                message: response.ok ? 'Request successful' : 'Request failed',
-                data
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_API}/coloring/linear-program`, {
+                graph: JSON.parse(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList)),
+                k: kColorsLocal,
+                r: rFactorLocal,
+                method: lpMethod,
             });
-        } catch (error) {
+
+            const data = responseSchema.parse(response.data);
+            return data;
+        },
+        retry: false
+    });
+
+    const handleSubmit = () => {
+        if (graphAdjacencyList.size === 0) return;
+        setKColors(kColorsLocal);
+        setRFactor(rFactorLocal);
+        mutateAsync().then(data => {
+            const refs = vertexRefs.current;
+            if (refs === null) return;
+            Object.entries(data.coloring).forEach(([vertex, color]) => {
+                const ref = refs.get(vertex);
+                if (ref === null || ref === undefined) return;
+                ref.changeColor(color, true);
+            });
+            setColoring(data.coloring);
+        }).catch(error => {
             console.error('Error:', error);
-            setResponse({
-                success: false,
-                message: 'Failed to connect to the server'
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        });
     };
 
     const handleRFactorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = Number.parseInt(e.target.value, 10);
         if (!Number.isNaN(value) && value >= 1) {
-            setRFactor(value);
+            setRFactorLocal(value);
         }
     };
 
     const handleKColorsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = Number.parseInt(e.target.value, 10);
         if (!Number.isNaN(value) && value >= 2) {
-            setKColors(value);
+            setKColorsLocal(value);
         }
     };
 
     const handleLPMethodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setLPMethod(e.target.value as "ACR" | "ACR-H" | "ACR-R" | "ACR-RH");
+        setLPMethod(e.target.value as "ACR" | "ACR_H" | "ACR_R" | "ACR_RH");
     };
 
     return (
         <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-800 p-4 w-full max-w-md">
             <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4 flex items-center">
-                <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm font-mono"><Cpu/></span>
+                <span className="bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 border border-neutral-300 dark:border-neutral-600 rounded-full w-8 h-8 flex items-center justify-center mr-3 text-sm font-mono"><Cpu /></span>
                 Apply LP  Coloring Model
 
             </h3>
-            
+
             <div className="space-y-4">
                 <div className="space-y-1">
                     <div className="flex items-center justify-between">
@@ -102,7 +110,7 @@ export function LPSolution() {
                                 type="number"
                                 min="2"
                                 max="10"
-                                value={kColors}
+                                value={kColorsLocal}
                                 onChange={handleKColorsChange}
                                 className="w-24 px-3 py-1.5 border border-neutral-300 dark:border-neutral-600 rounded-md text-right font-mono text-sm bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
                             />
@@ -132,15 +140,15 @@ export function LPSolution() {
                                 id="r-factor"
                                 type="number"
                                 min="1"
-                                max={kColors - 1}
-                                value={rFactor}
+                                max={kColorsLocal - 1}
+                                value={rFactorLocal}
                                 onChange={handleRFactorChange}
                                 className="w-24 px-3 py-1.5 border border-neutral-300 dark:border-neutral-600 rounded-md text-right font-mono text-sm bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
                             />
                         </div>
                     </div>
                 </div>
-                
+
                 <div className="space-y-1">
                     <div className="flex items-center justify-between">
                         <label htmlFor="lp-method" className="text-sm font-medium text-neutral-800 dark:text-neutral-200 flex items-center">
@@ -172,21 +180,21 @@ export function LPSolution() {
                                 className="w-24 px-3 py-1.5 border border-neutral-300 dark:border-neutral-600 rounded-md text-right font-mono text-sm bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 focus:ring-2 focus:ring-neutral-500 focus:border-transparent transition-all"
                             >
                                 <option value="ACR">ACR</option>
-                                <option value="ACR-H">ACR-H</option>
-                                <option value="ACR-R">ACR-R</option>
-                                <option value="ACR-RH">ACR-RH</option>
+                                <option value="ACR_H">ACR-H</option>
+                                <option value="ACR_R">ACR-R</option>
+                                <option value="ACR_RH">ACR-RH</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
                 <div className="pt-4">
-                    <Button 
+                    <Button
                         onClick={handleSubmit}
-                        disabled={isLoading}
+                        disabled={isPending}
                         className="w-full bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-neutral-800 dark:hover:bg-neutral-700 transition-colors"
                     >
-                        {isLoading ? (
+                        {isPending ? (
                             'Processing...'
                         ) : (
                             <>
@@ -195,14 +203,13 @@ export function LPSolution() {
                             </>
                         )}
                     </Button>
-
+                    {/* 
                     {response && (
-                        <div className={`mt-4 p-3 rounded-md text-sm relative ${
-                            response.success 
-                                ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
-                                : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
-                        }`}>
-                            <button 
+                        <div className={`mt-4 p-3 rounded-md text-sm relative ${response.success
+                            ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800'
+                            : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800'
+                            }`}>
+                            <button
                                 onClick={() => setResponse(null)}
                                 className="absolute top-2 right-2 text-neutral-400 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200"
                                 aria-label="Close message"
@@ -224,7 +231,7 @@ export function LPSolution() {
                                 )}
                             </div>
                         </div>
-                    )}
+                    )} */}
                 </div>
             </div>
         </div>
