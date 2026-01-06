@@ -8,6 +8,9 @@ on:
             - "model/**"
             - "api/**"
             - "agent/**"
+            - "scripts/load_envs/config_model.yaml"
+            - "scripts/load_envs/config_api.yaml"
+            - "scripts/load_envs/config_agent.yaml"
             - ".github/workflows/reusable-docker.yaml"
             - ".github/workflows/docker-services.yaml"
 
@@ -16,8 +19,11 @@ jobs:
         runs-on: ubuntu-latest
         outputs:
             model: ${{ steps.filter.outputs.model }}
+            model_envs: ${{ steps.filter.outputs.model_envs }}
             api: ${{ steps.filter.outputs.api }}
+            api_envs: ${{ steps.filter.outputs.api_envs }}
             agent: ${{ steps.filter.outputs.agent }}
+            agent_envs: ${{ steps.filter.outputs.agent_envs }}
             workflows: ${{ steps.filter.outputs.workflows }}
         steps:
             - name: Checkout
@@ -29,59 +35,113 @@ jobs:
                   filters: |
                       model:
                       - model/**
+                      model_envs:
+                      - scripts/load_envs/config_model.yaml
                       api:
                       - api/**
+                      api_envs:
+                      - scripts/load_envs/config_api.yaml
                       agent:
                       - agent/**
+                      agent_envs:
+                      - scripts/load_envs/config_agent.yaml
                       workflows:
                       - .github/workflows/docker-services.yaml
                       - .github/workflows/reusable-docker.yaml
+                      
+    update-model-envs:
+        needs: detect-changes
+        if: needs.detect-changes.outputs.model_envs == 'true'
+        uses: ./.github/workflows/update-envs.yaml
+        with:
+            config_file: "scripts/load_envs/config_model.yaml"
+            service_id: ${{ vars.RENDER_WEB_SERVICE_ID_MODEL }}
+        secrets: inherit
 
     build-model:
         needs: detect-changes
-        if: needs.detect-changes.outputs.model == 'true' || needs.detect-changes.outputs.workflows == 'true'
         uses: ./.github/workflows/reusable-docker.yaml
         with:
             image_name: "coloring-service"
             context: "./model"
+            requires_build: ${{ needs.detect-changes.outputs.model == 'true' || needs.detect-changes.outputs.workflows == 'true' }}
         secrets: inherit
 
     deploy-model:
-        needs: build-model
+        needs: 
+            - build-model
+            - update-model-envs
+        if: |
+            always() &&
+            (needs.build-model.result == 'success' || needs.build-model.result == 'skipped') &&
+            (needs.update-model-envs.result == 'success' || needs.update-model-envs.result == 'skipped') &&
+            (needs.build-model.result == 'success' || needs.update-model-envs.result == 'success')
         uses: ./.github/workflows/deploy-render.yaml
         with:
             image_url: ${{ needs.build-model.outputs.image_url }}
             service_id: ${{ vars.RENDER_WEB_SERVICE_ID_MODEL }}
         secrets: inherit
 
+    update-api-envs:
+        needs: detect-changes
+        if: needs.detect-changes.outputs.api_envs == 'true'
+        uses: ./.github/workflows/update-envs.yaml
+        with:
+            config_file: "scripts/load_envs/config_api.yaml"
+            service_id: ${{ vars.RENDER_WEB_SERVICE_ID_API }}
+        secrets: inherit
+
     build-api:
         needs: detect-changes
-        if: needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.workflows == 'true'
         uses: ./.github/workflows/reusable-docker.yaml
         with:
             image_name: "coloring-api"
             context: "./api"
+            requires_build: ${{ needs.detect-changes.outputs.api == 'true' || needs.detect-changes.outputs.workflows == 'true' }}
         secrets: inherit
 
     deploy-api:
-        needs: build-api
+        needs: 
+            - build-api
+            - update-api-envs
+        if: |
+            always() &&
+            (needs.build-api.result == 'success' || needs.build-api.result == 'skipped') &&
+            (needs.update-api-envs.result == 'success' || needs.update-api-envs.result == 'skipped') &&
+            (needs.build-api.result == 'success' || needs.update-api-envs.result == 'success')
         uses: ./.github/workflows/deploy-render.yaml
         with:
             image_url: ${{ needs.build-api.outputs.image_url }}
             service_id: ${{ vars.RENDER_WEB_SERVICE_ID_API }}
         secrets: inherit
 
+    update-agent-envs:
+        needs: detect-changes
+        if: needs.detect-changes.outputs.agent_envs == 'true'
+        uses: ./.github/workflows/update-envs.yaml
+        with:
+            config_file: "scripts/load_envs/config_agent.yaml"
+            service_id: ${{ vars.RENDER_WEB_SERVICE_ID_AGENT }}
+        secrets: inherit
+
     build-agent:
         needs: detect-changes
-        if: needs.detect-changes.outputs.agent == 'true' || needs.detect-changes.outputs.workflows == 'true'
         uses: ./.github/workflows/reusable-docker.yaml
         with:
             image_name: "coloring-agent"
             context: "./agent"
+            requires_build: ${{ needs.detect-changes.outputs.agent == 'true' || needs.detect-changes.outputs.workflows == 'true' }}
         secrets: inherit
 
     deploy-agent:
-        needs: build-agent
+        needs: 
+            - build-agent
+            - update-agent-envs
+        if: |
+            always() &&
+            (needs.build-agent.result == 'success' || needs.build-agent.result == 'skipped') &&
+            (needs.update-agent-envs.result == 'success' || needs.update-agent-envs.result == 'skipped') &&
+            (needs.build-agent.result == 'success' || needs.update-agent-envs.result == 'success')
         uses: ./.github/workflows/deploy-render.yaml
         with:
             image_url: ${{ needs.build-agent.outputs.image_url }}

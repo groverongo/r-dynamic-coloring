@@ -1,0 +1,76 @@
+name: Verify and Update Environment Variables
+
+on:
+    workflow_call:
+        inputs:
+            config_file:
+                description: "Path to the config YAML file"
+                required: true
+                type: string
+            service_id:
+                description: "The id of the service to update in Render"
+                required: true
+                type: string
+
+
+env:
+    RENDER_API_SERVICES_URL: https://api.render.com/v1/services
+
+jobs:
+    update-env-vars:
+        name: Update Env Vars
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Read config and map secrets
+              id: map-secrets
+              run: |
+                  echo "Reading config from ${{ inputs.config_file }}"
+                  
+                  # Verify config file exists
+                  if [ ! -f "${{ inputs.config_file }}" ]; then
+                    echo "Error: Config file ${{ inputs.config_file }} not found."
+                    exit 1
+                  fi
+
+                  # Extract the list of variable names from the YAML
+                  # We use yq to get the keys under environment_variables
+                  VARS=$(yq -r '.environment_variables[]' ${{ inputs.config_file }})
+                  
+                  # Create a temporary JSON of all secrets passed to this workflow
+                  # GitHub Actions will automatically mask the values in the file and logs
+                  echo '${{ toJson(secrets) }}' > all_secrets.json
+                  
+                  # Create a list of keys to filter
+                  echo "$VARS" > keys_list.txt
+                  
+                  # Use jq to construct the final JSON body
+                  # We map each key to {key: key, value: secret_value}
+                  # We filter out any keys that don't have a corresponding secret value
+                  jq -n --slurpfile secrets all_secrets.json --rawfile keys keys_list.txt '
+                    $keys | split("\n") | map(select(length > 0)) as $target_keys
+                    | $secrets[0] as $all_secrets
+                    | $target_keys | map({
+                        key: .,
+                        value: $all_secrets[.]
+                      })
+                    | map(select(.value != null))
+                  ' > env_vars_body.json
+                  
+                  echo "Generated JSON body with $(jq 'length' env_vars_body.json) environment variables."
+                  echo "Variables found:"
+                  jq -r '.[].key' env_vars_body.json
+
+            - name: Send to Render API
+              if: inputs.service_id != ''
+              run: |
+                  echo "Sending environment variables to Render service: ${{ inputs.service_id }}"
+                  
+                  curl -X PUT "${{ env.RENDER_API_SERVICES_URL }}/${{ inputs.service_id }}/env-vars" \
+                    -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+                    -H "Content-Type: application/json" \
+                    -d @env_vars_body.json
+                  
+                  echo "Successfully sent update request."

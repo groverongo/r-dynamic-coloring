@@ -9,7 +9,8 @@ on:
                 type: string
             image_url:
                 description: "The url of the image to deploy"
-                required: true
+                required: false
+                default: "latest"
                 type: string
             environment_variables:
                 description: "Multiline string of KEY=VALUE pairs for environment variables"
@@ -41,12 +42,16 @@ jobs:
                   -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \ 
                   -d "${{ inputs.environment_variables }}"
 
-            - name: Deploy image
-              id: image-deployment
+            - name: Deploy
+              id: deploy-step
               run: |
+                  if [ -n "${{ inputs.image_url }}" ]; then
+                    DATA="{\"imageUrl\": \"${{ inputs.image_url }}\"}"
+                  else
+                    DATA="{}"
+                  fi
+                  
                   curl -X POST ${{ env.RENDER_API_SERVICES_URL }}/${{ inputs.service_id }}/deploys \
                   -H "Content-Type: application/json" \
                   -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
-                  -d "{
-                      \"imageUrl\": \"${{ inputs.image_url }}\"
-                  }"
+                  -d "$DATA"
