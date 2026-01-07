@@ -7,6 +7,7 @@ services:
       - 8000:8000
     volumes:
       - ./model:/app
+    cpus: 16
     environment:
       - C_MODEL_API_KEY=${C_MODEL_API_KEY}
     networks:

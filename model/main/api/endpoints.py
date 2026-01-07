@@ -1,3 +1,6 @@
+from fastapi.responses import Response
+from ..schemas.request_plot import CirculantPlotRequest
+from ..utils.network import plot_graph_to_bytes
 from fastapi import APIRouter, HTTPException
 from loguru import logger
 from typing import Dict, List
@@ -66,6 +69,31 @@ async def circulant_assignment(request: CirculantRequest) -> Dict[str, Dict[int,
         return {"coloring": color_assignment}
     except Exception as e:
         logger.error(f"Error in circulant_assignment: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/circulant/plot")
+async def circulant_plot(request: CirculantPlotRequest) -> Dict[str, bytes]:
+    """
+    Plot a circulant graph.
+    
+    Args:
+        request: The circulant plot request
+        
+    Returns:
+        Dictionary mapping vertices to their assigned colors
+    """
+    try:
+        logger.info(f'Circulant Plot Request: {request}')
+        
+        adjacency_matrix = create_circulant_adjacency_matrix(request.n, *request.connections)
+        adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+        logger.info(f'Adjacency List: {adjacency_list}')
+
+        image_bytes = plot_graph_to_bytes(adjacency_list, request.coloring)
+        print("Image Bytes: ",image_bytes)
+        return Response(content=image_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error(f"Error in circulant_plot: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/batch/circulant")
