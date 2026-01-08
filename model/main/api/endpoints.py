@@ -1,5 +1,5 @@
 from fastapi.responses import Response
-from ..schemas.request_plot import CirculantPlotRequest
+from ..schemas.request_plot import CirculantPlotRequest, Planar3TreePlotRequest
 from ..utils.network import plot_graph_to_bytes
 from fastapi import APIRouter, HTTPException
 from loguru import logger
@@ -90,7 +90,6 @@ async def circulant_plot(request: CirculantPlotRequest) -> Dict[str, bytes]:
         logger.info(f'Adjacency List: {adjacency_list}')
 
         image_bytes = plot_graph_to_bytes(adjacency_list, request.coloring)
-        print("Image Bytes: ",image_bytes)
         return Response(content=image_bytes, media_type="image/png")
     except Exception as e:
         logger.error(f"Error in circulant_plot: {str(e)}")
@@ -188,4 +187,28 @@ async def planar3_assignment(request: Planar3TreeRequest) -> Dict[str, Dict[int,
         return {"coloring": color_assignment}
     except Exception as e:
         logger.error(f"Error in planar3_assignment: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/planar3tree/symmetric/plot")
+async def planar3_plot(request: Planar3TreePlotRequest) -> Dict[str, bytes]:
+    """
+    Plot a planar 3-tree graph.
+    
+    Args:
+        request: The planar 3-tree plot request
+        
+    Returns:
+        Dictionary mapping vertices to their assigned colors
+    """
+    try:
+        logger.info(f'Planar 3-tree Plot Request: {request}')
+        
+        adjacency_matrix = generate_planar_3_tree(request.n, output_format='matrix')
+        adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+        logger.info(f'Adjacency List: {adjacency_list}')
+
+        image_bytes = plot_graph_to_bytes(adjacency_list, request.coloring)
+        return Response(content=image_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error(f"Error in planar3_plot: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

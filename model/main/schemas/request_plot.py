@@ -7,3 +7,7 @@ class BasePlotColoringRequest(BaseModel):
 class CirculantPlotRequest(BasePlotColoringRequest):
     n: int
     connections: List[int]
+
+class Planar3TreePlotRequest(BasePlotColoringRequest):
+    n: int
+    
