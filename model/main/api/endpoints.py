@@ -1,14 +1,18 @@
+from fastapi.responses import Response
+from ..schemas.request_plot import CirculantPlotRequest, Planar3TreePlotRequest
+from ..utils.network import plot_graph_to_bytes
 from fastapi import APIRouter, HTTPException
 from loguru import logger
 from typing import Dict, List
 
+from ..auth.helper import AUTH_DEPENDENCIES
 from ..utils.planar3 import generate_planar_3_tree
 from ..utils.antiprism import create_antiprism_adjacency_matrix, create_circulant_adjacency_matrix
 from ..schemas.requests import ColoringGraphRequest, AntiprismRequest, AntiprismBatchRequest, Planar3TreeRequest, CirculantRequest, CirculantBatchRequest
 from ..services.coloring_service import ColoringService
 from ..utils.graph_utils import adjacency_matrix_to_adjacency_list
 
-router = APIRouter()
+router = APIRouter(dependencies=AUTH_DEPENDENCIES)
 
 @router.post("/color/graph")
 async def assign_colors(request: ColoringGraphRequest) -> Dict[str, Dict[int, int]]:
@@ -65,6 +69,30 @@ async def circulant_assignment(request: CirculantRequest) -> Dict[str, Dict[int,
         return {"coloring": color_assignment}
     except Exception as e:
         logger.error(f"Error in circulant_assignment: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/circulant/plot")
+async def circulant_plot(request: CirculantPlotRequest) -> Dict[str, bytes]:
+    """
+    Plot a circulant graph.
+    
+    Args:
+        request: The circulant plot request
+        
+    Returns:
+        Dictionary mapping vertices to their assigned colors
+    """
+    try:
+        logger.info(f'Circulant Plot Request: {request}')
+        
+        adjacency_matrix = create_circulant_adjacency_matrix(request.n, *request.connections)
+        adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+        logger.info(f'Adjacency List: {adjacency_list}')
+
+        image_bytes = plot_graph_to_bytes(adjacency_list, request.coloring)
+        return Response(content=image_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error(f"Error in circulant_plot: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/batch/circulant")
@@ -159,4 +187,28 @@ async def planar3_assignment(request: Planar3TreeRequest) -> Dict[str, Dict[int,
         return {"coloring": color_assignment}
     except Exception as e:
         logger.error(f"Error in planar3_assignment: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/planar3tree/symmetric/plot")
+async def planar3_plot(request: Planar3TreePlotRequest) -> Dict[str, bytes]:
+    """
+    Plot a planar 3-tree graph.
+    
+    Args:
+        request: The planar 3-tree plot request
+        
+    Returns:
+        Dictionary mapping vertices to their assigned colors
+    """
+    try:
+        logger.info(f'Planar 3-tree Plot Request: {request}')
+        
+        adjacency_matrix = generate_planar_3_tree(request.n, output_format='matrix')
+        adjacency_list = adjacency_matrix_to_adjacency_list(adjacency_matrix)
+        logger.info(f'Adjacency List: {adjacency_list}')
+
+        image_bytes = plot_graph_to_bytes(adjacency_list, request.coloring)
+        return Response(content=image_bytes, media_type="image/png")
+    except Exception as e:
+        logger.error(f"Error in planar3_plot: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))

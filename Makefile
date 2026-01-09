@@ -20,3 +20,6 @@ logs:
 	docker compose logs -f
 
 .PHONY: up down build push logs
+
+load-envs:
+	./scripts/load_envs.sh

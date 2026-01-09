@@ -2,26 +2,32 @@ name: r-dynamic-coloring
 services:
   model:
     build: ./model
-    image: ${REGISTRY_URL}/coloring-service:${TAG:-latest}
+    image: ${DOCKER_LOGIN_USER}/coloring-service:${TAG:-latest}
     ports:
       - 8000:8000
     volumes:
       - ./model:/app
+    cpus: 16
+    environment:
+      - C_MODEL_API_KEY=${C_MODEL_API_KEY}
     networks:
       default:
 
   api:
     build: ./api
-    image: ${REGISTRY_URL}/coloring-api:${TAG:-latest}
+    image: ${DOCKER_LOGIN_USER}/coloring-api:${TAG:-latest}
     ports:
       - 8080:8080
     environment:
       - COLORING_MICROSERVICE_URL=${COLORING_MICROSERVICE_URL}
+      - AGENT_MICROSERVICE_URL=${AGENT_MICROSERVICE_URL}
       - DATABASE_HOST=database
       - DATABASE_USER=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_DBNAME=postgres
       - DATABASE_PORT=5432
+      - C_MODEL_API_KEY=${C_MODEL_API_KEY}
+      - C_AGENT_API_KEY=${C_AGENT_API_KEY}
     
     depends_on:
       - database
@@ -30,12 +36,12 @@ services:
 
   agent:
     build: ./agent
-    image: ${REGISTRY_URL}/coloring-agent:${TAG:-latest}
+    image: ${DOCKER_LOGIN_USER}/coloring-agent:${TAG:-latest}
     ports:
       - 8001:8000
     environment:
       - GROQ_API_KEY=${GROQ_API_KEY}
-    
+      - C_AGENT_API_KEY=${C_AGENT_API_KEY}
     depends_on:
       - database
     networks:

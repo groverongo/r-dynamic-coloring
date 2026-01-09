@@ -63,7 +63,7 @@ export function ChatAgent() {
         answer: z.string(),
       });
 
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_AGENT}/invoke`, {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_API}/agent`, {
         graph: JSON.parse(GraphSerializer.simpleGraphAdjacencyListSerializer(graphAdjacencyList)),
         prompt: input,
       });

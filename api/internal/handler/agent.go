@@ -12,49 +12,24 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func AssignColoring(c echo.Context) error {
+func AskQuestion(c echo.Context) error {
 
-	var request validation.AssignColoringRequest
-	if err := c.Bind(&request); err != nil {
+	var req validation.AskQuestionRequest
+	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status": "ERROR",
-			"error":  err.Error(),
+			"message": "Invalid request",
+			"data":    nil,
 		})
 	}
-
-	if err := request.Validate(); err != nil {
+	if err := req.Validate(); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
-			"status": "ERROR",
-			"error":  err.Error(),
+			"message": "Invalid request",
+			"data":    nil,
 		})
-	}
-
-	var (
-		conversionToInt    map[string]int = make(map[string]int, 0)
-		conversionToString map[int]string = make(map[int]string, 0)
-	)
-	for k := range request.Graph {
-		conversionToInt[k] = len(conversionToInt)
-		conversionToString[len(conversionToString)] = k
-	}
-	var isoGraph validation.AdjacenyListService = make(validation.AdjacenyListService, 0)
-	for k, v := range request.Graph {
-		var neighbors []int
-		for _, neighbor := range v {
-			neighbors = append(neighbors, conversionToInt[neighbor])
-		}
-		isoGraph[conversionToInt[k]] = neighbors
-	}
-	var serviceRequest = validation.AssignColoringServiceRequest{
-		GraphType: "adjacency_list",
-		Graph:     isoGraph,
-		Method:    request.Method,
-		K:         request.K,
-		R:         request.R,
 	}
 
 	// Convert request to JSON
-	jsonData, err := json.Marshal(serviceRequest)
+	jsonData, err := json.Marshal(req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status": "ERROR",
@@ -63,8 +38,8 @@ func AssignColoring(c echo.Context) error {
 	}
 
 	// Create a new request with JSON body
-	url := fmt.Sprintf("%s/color/graph", utils.COLORING_MICROSERVICE_URL)
-	resp, err := utils.RequestPostJSONAPIKey(url, jsonData, os.Getenv("C_MODEL_API_KEY"))
+	url := fmt.Sprintf("%s/invoke", utils.AGENT_MICROSERVICE_URL)
+	resp, err := utils.RequestPostJSONAPIKey(url, jsonData, os.Getenv("C_AGENT_API_KEY"))
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status": "ERROR",
@@ -85,7 +60,7 @@ func AssignColoring(c echo.Context) error {
 		return c.JSONBlob(resp.StatusCode, body)
 	}
 
-	var serviceResponse validation.AssignColoringServiceResponse
+	var serviceResponse validation.AskQuestionResponse
 	if err := json.Unmarshal(body, &serviceResponse); err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]interface{}{
 			"status": "ERROR",
@@ -100,10 +75,5 @@ func AssignColoring(c echo.Context) error {
 		})
 	}
 
-	var response *validation.AssignColoringResponse = validation.NewAssignColoringResponse()
-	for k, v := range serviceResponse.Coloring {
-		response.Coloring[conversionToString[k]] = v
-	}
-
-	return c.JSON(http.StatusOK, *response)
+	return c.JSON(http.StatusOK, serviceResponse)
 }

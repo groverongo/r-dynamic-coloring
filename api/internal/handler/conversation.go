@@ -23,6 +23,7 @@ func GetConversation(c echo.Context) error {
 
 // CreateConversation handles POST /conversation
 func CreateConversation(c echo.Context) error {
+
 	return c.JSON(http.StatusCreated, map[string]interface{}{
 		"message": "Conversation created",
 		"data":    nil,

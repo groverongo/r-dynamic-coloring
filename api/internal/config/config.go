@@ -24,6 +24,10 @@ type Config struct {
 		RetryDelayMs  int
 		RetryAttempts int
 	}
+	Microservices struct {
+		Model string
+		Agent string
+	}
 }
 
 // Load loads the configuration from environment variables
@@ -65,6 +69,10 @@ func Load() (*Config, error) {
 		return nil, fmt.Errorf("invalid DATABASE_RETRY_DELAY_MS: %v", err)
 	}
 	cfg.Database.RetryDelayMs = retryDelay
+
+	// Microservices configuration
+	cfg.Microservices.Model = getEnv("C_MODEL_API_KEY", "")
+	cfg.Microservices.Agent = getEnv("C_AGENT_API_KEY", "")
 
 	return &cfg, nil
 }
