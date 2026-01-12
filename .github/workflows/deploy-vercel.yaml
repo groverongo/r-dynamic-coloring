@@ -2,6 +2,7 @@ name: Vercel Production Deployment
 env:
     VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
     VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    VERCEL_TARGET: production
 on:
     push:
         branches:
@@ -9,6 +10,7 @@ on:
 
         paths:
             - "platform/**"
+            - ".github/workflows/deploy-vercel.yaml"
 
     workflow_dispatch:
 jobs:
@@ -24,8 +26,22 @@ jobs:
                   version: 9
             - name: Install Vercel CLI
               run: pnpm install --global vercel@latest
+
+            - name: Add/Update Vercel Environment Variable AUTH_TRUST_HOST
+              run: echo ${{ secrets.AUTH_TRUST_HOST }} | vercel env add AUTH_TRUST_HOST ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Add/Update Vercel Environment Variable AUTH_SECRET
+              run: echo ${{ secrets.AUTH_SECRET }} | vercel env add AUTH_SECRET ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Add/Update Vercel Environment Variable NEXT_PUBLIC_STACK_PROJECT_ID
+              run: echo ${{ secrets.NEXT_PUBLIC_STACK_PROJECT_ID }} | vercel env add NEXT_PUBLIC_STACK_PROJECT_ID ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Add/Update Vercel Environment Variable NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY
+              run: echo ${{ secrets.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY }} | vercel env add NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Add/Update Vercel Environment Variable STACK_SECRET_SERVER_KEY
+              run: echo ${{ secrets.STACK_SECRET_SERVER_KEY }} | vercel env add STACK_SECRET_SERVER_KEY ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
+            - name: Add/Update Vercel Environment Variable NEXT_PUBLIC_R_HUED_COLORING_API
+              run: echo ${{ vars.NEXT_PUBLIC_R_HUED_COLORING_API }} | vercel env add NEXT_PUBLIC_R_HUED_COLORING_API ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
+            
             - name: Pull Vercel Environment Information
-              run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+              run: vercel pull --yes --environment=${{ env.VERCEL_TARGET }} --token=${{ secrets.VERCEL_TOKEN }}
             - name: Build Project Artifacts
               run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
             - name: Deploy Project Artifacts to Vercel
