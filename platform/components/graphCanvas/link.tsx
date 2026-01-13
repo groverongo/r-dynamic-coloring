@@ -13,8 +13,8 @@ export type LinkGRef = {
 type LinkGProps = {
     fromId: string;
     toId: string;
-    from: {x: number, y: number};
-    to: {x: number, y: number};
+    from: { x: number, y: number };
+    to: { x: number, y: number };
     ref?: Ref<LinkGRef>;
     onSelect?: () => void;
     compromised?: boolean;

@@ -1,33 +1,22 @@
 "use client";
 
-import { CSSProperties, useEffect, useRef, useState } from "react";
 import { ChatHeader } from "@/components/chat-header";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import type { AppUsage } from "@/lib/usage";
-import type { VisibilityType } from "./visibility-selector";
-import { QueryClientProvider, useQuery } from '@tanstack/react-query';
-import { queryClient } from "@/lib/queries";
-import Canvas from "./graph-canvas";
-import { ColoringParameters } from "./coloring-parameters";
-import { LPSolution } from "./linear-programming-solution";
-import { EngineProperties } from "./element-properties";
-import { useAtom, useSetAtom } from "jotai";
-import { graphNameAtom, stylePropsAtom } from "@/lib/atoms";
-import { ChatAgent } from "./chat-agent";
-import { GetGraphResponse } from "@/lib/validation";
-import axios from "axios";
-import { GraphDeserializer } from "@/lib/serializers";
+import { fontSizeAtom, graphNameAtom, nodeRadiusAtom, stylePropsAtom } from "@/lib/atoms";
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { GraphCanvasProvider, useGraphCanvasContext } from "./graphCanvas/useContext";
+import { GraphDeserializer } from "@/lib/serializers";
+import type { AppUsage } from "@/lib/usage";
+import { GetGraphResponse } from "@/lib/validation";
+import { useQuery } from '@tanstack/react-query';
+import axios from "axios";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { CSSProperties, useEffect, useRef, useState } from "react";
+import { ChatAgent } from "./chat-agent";
+import { ColoringParameters } from "./coloring-parameters";
+import { EngineProperties } from "./element-properties";
+import Canvas from "./graphCanvas/graph-canvas";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { LPSolution } from "./linear-programming-solution";
+import type { VisibilityType } from "./visibility-selector";
 
 export function GraphVisualize({
   id,
@@ -57,6 +46,8 @@ export function GraphVisualize({
 
 
   const setGraphName = useSetAtom(graphNameAtom);
+  const fontSize = useAtomValue(fontSizeAtom);
+  const nodeRadius = useAtomValue(nodeRadiusAtom);
 
   useEffect(() => {
     console.log(screen.width, screen.height)
@@ -121,6 +112,8 @@ export function GraphVisualize({
               key={id}
               styleProps={styleProps}
               context={MainCanvasContext}
+              fontSize={fontSize}
+              nodeRadius={nodeRadius}
             />
             <div className="flex flex-row gap-1 sm:gap-2">
               <ColoringParameters />

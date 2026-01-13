@@ -1,7 +1,7 @@
 import { MouseEvent } from "react";
 import { GREEK_LETTER_NAMES } from "./graph-constants";
-import { NodeGRef } from "@/components/graphObjects/node";
-import { LinkGRef } from "@/components/graphObjects/link";
+import { LinkGRef } from "@/components/graphCanvas/link";
+import { NodeGRef } from "@/components/graphCanvas/node";
 
 export const uniqueId = () => {
     const dateString = Date.now().toString(36);
@@ -20,11 +20,6 @@ export const obtainAdjacencyList = (nodes: (NodeGRef | null)[], links: (LinkGRef
         adjacencyList[link.toId].push(link.fromId);
     }
     return adjacencyList;
-}
-
-export const isIntString = (str: string): boolean => {
-    const num = Number(str);
-    return !Number.isNaN(num) && Number.isInteger(num);
 }
 
 export function crossBrowserElementPos(e: MouseEvent) {

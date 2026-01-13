@@ -1,10 +1,10 @@
 'use client'
 
-import { Context, createContext, useContext, Dispatch, ReactNode, RefObject, SetStateAction, useRef, useState } from "react";
-import { ContextInterface, coloringType, edgeGraphType, edgeRefsType, graphAdjacencyListType, vertexGraphType, vertexRefsType } from "./context";
 import Konva from "konva";
-import { NodeGRef } from "../graphObjects/node";
-import { LinkGRef } from "../graphObjects/link";
+import { Context, ReactNode, createContext, useContext, useRef, useState } from "react";
+import { ContextInterface, coloringType, edgeGraphType, edgeRefsType, graphAdjacencyListType, vertexGraphType, vertexRefsType } from "./context";
+import { LinkGRef } from "./link";
+import { NodeGRef } from "./node";
 
 
 export const useGraphCanvasContext = (context: Context<ContextInterface | undefined>) => {

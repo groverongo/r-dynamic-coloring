@@ -1,23 +1,21 @@
 "use client"
-import { fontSizeAtom, nodeRadiusAtom } from "@/lib/atoms";
-import {
-  NODE_G_COLORS,
-  NODE_G_MODES,
-  NODE_G_MODES_STYLE,
-} from "@/lib/graph-constants";
-import { useAtomValue } from "jotai";
+import { Canvg } from "canvg";
 import Konva from "konva";
-import React, {
+import {
   Ref,
   useEffect,
   useImperativeHandle,
   useRef,
   useState,
 } from "react";
-import { Circle, Group, Text, Image } from "react-konva";
-import { Canvg } from "canvg";
-import TeXToSVG from "tex-to-svg";
+import { Circle, Group, Image, Text } from "react-konva";
 import { parse, stringify } from "svgson";
+import TeXToSVG from "tex-to-svg";
+import {
+  NODE_G_COLORS,
+  NODE_G_MODES,
+  NODE_G_MODES_STYLE,
+} from "./constant";
 
 export type NodeGRef = {
   x: number;
@@ -47,6 +45,8 @@ export type NodeGProps = {
   whileDragging?: (x: number, y: number) => void;
   allowedColors?: Set<number>;
   theme: 'light' | 'dark';
+  fontSize: number;
+  nodeRadius: number;
 };
 
 export default function NodeG({
@@ -61,6 +61,8 @@ export default function NodeG({
   allowedColors,
   colorIndexInitial,
   theme,
+  fontSize,
+  nodeRadius
 }: Readonly<NodeGProps>) {
 
   const [latex, setLatex] = useState<HTMLImageElement | undefined>();
@@ -78,7 +80,6 @@ export default function NodeG({
   const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length - 2));
   const redfineDimensionEx = (value: number) => (RES_FACTOR * value).toString() + "ex";
 
-  const fontSize = useAtomValue(fontSizeAtom);
 
   useEffect(() => {
     const renderSvgToImage = async () => {
@@ -128,8 +129,6 @@ export default function NodeG({
   const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
 
   const GroupRef = useRef<Konva.Group>(null);
-
-  const nodeRadius = useAtomValue(nodeRadiusAtom);
 
   const getAbsoluteX = () => {
     return GroupRef.current ? GroupRef.current.x() + x : x;

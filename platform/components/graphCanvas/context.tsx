@@ -1,8 +1,8 @@
 import Konva from "konva";
-import { Context, Dispatch, ReactNode, RefObject, SetStateAction, useRef, useState } from "react";
+import { Dispatch, RefObject, SetStateAction } from "react";
 
-import { NodeGRef } from "../graphObjects/node";
-import { LinkGRef } from "../graphObjects/link";
+import { LinkGRef } from "./link";
+import { NodeGRef } from "./node";
 
 export type vertexRefsType = Map<string, NodeGRef | null>;
 export type edgeRefsType = Map<string, LinkGRef | null>;

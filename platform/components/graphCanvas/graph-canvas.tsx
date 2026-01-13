@@ -1,3 +1,5 @@
+import Konva from "konva";
+import { useTheme } from "next-themes";
 import {
   CSSProperties,
   Context,
@@ -7,23 +9,22 @@ import {
   useEffect, useState
 } from "react";
 import { Layer, Stage } from "react-konva";
-import NodeG from "@/components/graphObjects/node";
-import TemporaryLinkG from "@/components/graphObjects/temporary_link";
-import LinkG from "@/components/graphObjects/link";
-import { MainCanvasContext, NODE_G_MODES } from "@/lib/graph-constants";
-import { isIntString } from "@/lib/utilities";
 import { v4 as uuidv4 } from 'uuid';
-import Konva from "konva";
-import { useTheme } from "next-themes";
-import { ContextInterface } from "./graphCanvas/context";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { NODE_G_MODES, isIntString } from "./constant";
+import { ContextInterface } from "./context";
+import LinkG from "./link";
+import NodeG from "./node";
+import TemporaryLinkG from "./temporary_link";
+import { useGraphCanvasContext } from "./useContext";
 
 type CanvasProps = {
   styleProps: CSSProperties;
   context: Context<ContextInterface | undefined>;
+  fontSize: number;
+  nodeRadius: number;
 }
 
-export default function Canvas({ styleProps, context }: CanvasProps) {
+export default function Canvas({ styleProps, context, fontSize, nodeRadius }: CanvasProps) {
 
   const {
     vertexGraph, setVertexGraph,
@@ -333,6 +334,8 @@ export default function Canvas({ styleProps, context }: CanvasProps) {
 
             return (<NodeG
               key={key}
+              fontSize={fontSize}
+              nodeRadius={nodeRadius}
               ref={(e) => {
                 vertexRefs.current?.set(key, e);
               }}
