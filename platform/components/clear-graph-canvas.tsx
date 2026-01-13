@@ -8,7 +8,7 @@ import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import "../styles/ClearGraphDialog.css";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 
 export function ClearGraphCanvas() {
 

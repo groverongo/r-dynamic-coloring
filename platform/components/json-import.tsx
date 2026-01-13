@@ -9,8 +9,8 @@ import { useAtomValue } from "jotai";
 import { Braces, FileJson } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import "../styles/SaveGraphVersion.css";
-import { edgeGraphType, graphAdjacencyListType, vertexGraphType } from "./GraphCanvas/context";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { edgeGraphType, graphAdjacencyListType, vertexGraphType } from "./GraphCanvas/Context/state";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 

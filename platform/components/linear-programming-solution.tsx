@@ -1,12 +1,11 @@
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useElementRef } from "@/lib/refs";
 import { GraphSerializer } from "@/lib/serializers";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Cpu, Info, Send } from "lucide-react";
 import { useState } from "react";
 import z from "zod";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
@@ -16,11 +15,9 @@ export function LPSolution() {
         graphAdjacencyList,
         setKColors,
         setRFactor,
-        setColoring
+        setColoring,
+        vertexRefs
     } = useGraphCanvasContext(MainCanvasContext);
-
-    const { vertexRefs } = useElementRef();
-
 
     const [kColorsLocal, setKColorsLocal] = useState(2);
     const [rFactorLocal, setRFactorLocal] = useState(1);

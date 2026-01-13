@@ -5,11 +5,10 @@ import { Button } from "./ui/button";
 import { stylePropsAtom } from "@/lib/atoms";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphTikz } from "@/lib/latex";
-import { useElementRef } from "@/lib/refs";
 import { useAtomValue } from "jotai";
 import { FilePen, PenTool } from "lucide-react";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 
@@ -21,12 +20,11 @@ export function LATEXExport({ download }: { download?: boolean }) {
   const {
     vertexGraph,
     edgeGraph,
-    coloring
+    coloring,
+    vertexRefs
   } = useGraphCanvasContext(MainCanvasContext);
 
   const styleProps = useAtomValue(stylePropsAtom);
-
-  const { vertexRefs } = useElementRef();
 
   const saveAsLatex = (e: React.MouseEvent) => {
     if (!vertexRefs.current)

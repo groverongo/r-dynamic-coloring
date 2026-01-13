@@ -10,8 +10,8 @@ import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import Canvas from "./GraphCanvas/graph-canvas";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import GraphCanvas from "./GraphCanvas/Canvas/graph-canvas";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { ChatAgent } from "./chat-agent";
 import { ColoringParameters } from "./coloring-parameters";
 import { EngineProperties } from "./element-properties";
@@ -108,7 +108,7 @@ export function GraphVisualize({
 
         <div className="flex flex-row items-stretch gap-1 sm:gap-2 flex-1 overflow-hidden">
           <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
-            <Canvas
+            <GraphCanvas
               key={id}
               styleProps={styleProps}
               context={MainCanvasContext}

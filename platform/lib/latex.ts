@@ -1,7 +1,6 @@
+import { edgeGraphType, vertexGraphType, vertexRefsType } from "@/components/GraphCanvas/Context/state";
 import { CSSProperties } from "react";
-import { edgeGraphType, vertexGraphType } from "./atoms";
 import { ColoringAssigmentResponse } from "./validation";
-import { vertexRefsType } from "./refs";
 
 export class GraphTikz {
 

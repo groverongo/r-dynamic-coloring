@@ -9,7 +9,7 @@ import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { v4 as uuidv4 } from 'uuid';
 import z from "zod";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 
 interface CustomMessage {
   type: 'request' | 'response';

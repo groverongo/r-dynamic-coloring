@@ -6,7 +6,7 @@ import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphSerializer } from "@/lib/serializers";
 import { Braces, FileJson } from "lucide-react";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 

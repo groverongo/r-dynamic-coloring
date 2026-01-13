@@ -10,7 +10,7 @@ import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 const ToastConditionComponents = {
