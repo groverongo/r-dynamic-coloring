@@ -10,7 +10,7 @@ import { Layer, Stage } from "react-konva";
 import NodeG from "@/components/graphObjects/node";
 import TemporaryLinkG from "@/components/graphObjects/temporary_link";
 import LinkG from "@/components/graphObjects/link";
-import { NODE_G_MODES } from "@/lib/graph-constants";
+import { MainCanvasContext, NODE_G_MODES } from "@/lib/graph-constants";
 import { isIntString } from "@/lib/utilities";
 import { v4 as uuidv4 } from 'uuid';
 import Konva from "konva";

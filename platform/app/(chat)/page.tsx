@@ -1,12 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { GraphVisualize } from "@/components/chat";
+import { Structure } from "@/components/structure";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { auth } from "../(auth)/auth";
-import { QueryClientProvider } from "@tanstack/react-query";
-import { queryClient } from "@/lib/queries";
-import { MainCanvasContext } from "@/lib/graph-constants";
-import { GraphCanvasProvider } from "@/components/graphCanvas/useContext";
 
 export default async function Page() {
   const session = await auth();
@@ -20,29 +16,21 @@ export default async function Page() {
 
   if (!modelIdFromCookie) {
     return (
-      <QueryClientProvider client={queryClient}>
-        <GraphCanvasProvider context={MainCanvasContext}>
-          <GraphVisualize
-            autoResume={false}
-            initialChatModel={DEFAULT_CHAT_MODEL}
-            initialVisibilityType="private"
-            isReadonly={false}
-          />
-        </GraphCanvasProvider>
-      </QueryClientProvider>
+      <Structure
+        autoResume={false}
+        initialChatModel={DEFAULT_CHAT_MODEL}
+        initialVisibilityType="private"
+        isReadonly={false}
+      />
     );
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <GraphCanvasProvider context={MainCanvasContext}>
-        <GraphVisualize
-          autoResume={false}
-          initialChatModel={modelIdFromCookie.value}
-          initialVisibilityType="private"
-          isReadonly={false}
-        />
-      </GraphCanvasProvider>
-    </QueryClientProvider>
+    <Structure
+      autoResume={false}
+      initialChatModel={modelIdFromCookie.value}
+      initialVisibilityType="private"
+      isReadonly={false}
+    />
   );
 }
