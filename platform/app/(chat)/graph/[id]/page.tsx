@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { auth } from "@/app/(auth)/auth";
 import { GraphVisualize } from "@/components/chat";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queries";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -41,7 +43,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
 
   if (!chatModelFromCookie) {
     return (
-      <>
+      <QueryClientProvider client={queryClient}>
         <GraphVisualize
           autoResume={true}
           id={id}
@@ -51,12 +53,12 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
           initialVisibilityType={"public"}
           isReadonly={false}
         />
-      </>
+      </QueryClientProvider>
     );
   }
 
   return (
-    <>
+    <QueryClientProvider client={queryClient}>
       <GraphVisualize
         autoResume={true}
         id={id}
@@ -66,6 +68,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
         initialVisibilityType={"public"}
         isReadonly={false}
       />
-    </>
+    </QueryClientProvider>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { ChatHeader } from "@/components/chat-header";
 import {
   AlertDialog,
@@ -12,19 +12,20 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
 import type { AppUsage } from "@/lib/usage";
-import { generateUUID } from "@/lib/utils";
 import type { VisibilityType } from "./visibility-selector";
-import { QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider, useQuery } from '@tanstack/react-query';
 import { queryClient } from "@/lib/queries";
 import Canvas from "./graph-canvas";
 import { ColoringParameters } from "./coloring-parameters";
 import { LPSolution } from "./linear-programming-solution";
 import { EngineProperties } from "./element-properties";
-import { useAtomValue } from "jotai";
-import { graphAdjacencyListAtom } from "@/lib/atoms";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { coloringAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, vertexGraphAtom } from "@/lib/atoms";
 import { ChatAgent } from "./chat-agent";
+import { GetGraphResponse } from "@/lib/validation";
+import axios from "axios";
+import { GraphDeserializer } from "@/lib/serializers";
 
 export function GraphVisualize({
   id,
@@ -41,14 +42,53 @@ export function GraphVisualize({
   autoResume: boolean;
   initialLastContext?: AppUsage;
 }) {
-  const { visibilityType } = useChatVisibility({
-    chatId: id ?? generateUUID(),
-    initialVisibilityType,
+  const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
+
+  const setGraphName = useSetAtom(graphNameAtom);
+  const setVertexGraph = useSetAtom(vertexGraphAtom);
+  const setEdgeGraph = useSetAtom(edgeGraphAtom);
+  const setGraphAdjacencyList = useSetAtom(graphAdjacencyListAtom);
+  const setKColors = useSetAtom(kColorsAtom);
+  const setRFactor = useSetAtom(rFactorAtom);
+  const setColoring = useSetAtom(coloringAtom);
+
+  useEffect(() => {
+    console.log(screen.width, screen.height)
+    setStyleProps({
+      height: screen.height / 1.6,
+      width: (1200 * screen.width) / 2000,
+      border: "3px solid white",
+      borderRadius: "15px",
+    });
+  }, []);
+
+  const { refetch, data } = useQuery({
+    queryKey: ["graph", id],
+    queryFn: async () => {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_R_HUED_COLORING_API}/graphs/${id}`)
+      return response.data as GetGraphResponse;
+    },
+    retryOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
+  useEffect(() => {
+    if (!id) return;
+    refetch().then((response) => {
+      if (response.data === undefined) return;
 
-  const [input, setInput] = useState<string>("");
-  const [usage, setUsage] = useState<AppUsage | undefined>(initialLastContext);
+      setGraphName(response.data.name);
+      setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(response.data.graphAdjacencyList));
+      setVertexGraph(GraphDeserializer.vertexGraphDeserializer(response.data.vertexGraph));
+      setEdgeGraph(GraphDeserializer.edgeGraphDeserializer(response.data.edgeGraph));
+      setColoring(GraphDeserializer.coloringDeserializer(response.data.localColoring));
+      setKColors(response.data.localK);
+      setRFactor(response.data.localR);
+    });
+  }, []);
+
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
   const [currentModelId, setCurrentModelId] = useState(initialChatModel);
   const currentModelIdRef = useRef(currentModelId);
@@ -72,7 +112,7 @@ export function GraphVisualize({
 
         <div className="flex flex-row items-stretch gap-1 sm:gap-2 flex-1 overflow-hidden">
           <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
-            <Canvas id={id} />
+            <Canvas key={id} styleProps={styleProps} />
             <div className="flex flex-row gap-1 sm:gap-2">
               <ColoringParameters />
               <LPSolution />
