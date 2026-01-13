@@ -1,15 +1,14 @@
-import { Cpu, Info, Send } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { useState } from "react";
-import { Button } from "./ui/button";
+import { MainCanvasContext } from "@/lib/graph-constants";
+import { useElementRef } from "@/lib/refs";
+import { GraphSerializer } from "@/lib/serializers";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useAtomValue, useSetAtom } from "jotai";
+import { Cpu, Info, Send } from "lucide-react";
+import { useState } from "react";
 import z from "zod";
-import { GraphSerializer } from "@/lib/serializers";
-import { useElementRef } from "@/lib/refs";
-import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 export function LPSolution() {
 

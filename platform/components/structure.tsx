@@ -15,8 +15,8 @@ import { queryClient } from "@/lib/queries";
 import type { AppUsage } from "@/lib/usage";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from "react";
+import { GraphCanvasProvider } from "./GraphCanvas/useContext";
 import { GraphVisualize } from "./graph-visualize";
-import { GraphCanvasProvider } from "./graphCanvas/useContext";
 import type { VisibilityType } from "./visibility-selector";
 
 export function Structure({

@@ -1,11 +1,11 @@
 import Konva from "konva";
 import { Dispatch, RefObject, SetStateAction } from "react";
 
-import { LinkGRef } from "./link";
-import { NodeGRef } from "./node";
+import EdgeRef from "./Edge/ref";
+import VertexRef from "./Vertex/ref";
 
-export type vertexRefsType = Map<string, NodeGRef | null>;
-export type edgeRefsType = Map<string, LinkGRef | null>;
+export type vertexRefsType = Map<string, VertexRef | null>;
+export type edgeRefsType = Map<string, EdgeRef | null>;
 
 export type graphAdjacencyListType = Map<string, Set<[string, string]>>;
 export type vertexGraphType = Map<string, { x: number, y: number, xRelative: number, yRelative: number }>;

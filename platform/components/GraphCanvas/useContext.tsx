@@ -2,9 +2,9 @@
 
 import Konva from "konva";
 import { Context, ReactNode, createContext, useContext, useRef, useState } from "react";
+import EdgeRef from "./Edge/ref";
+import VertexRef from "./Vertex/ref";
 import { ContextInterface, coloringType, edgeGraphType, edgeRefsType, graphAdjacencyListType, vertexGraphType, vertexRefsType } from "./context";
-import { LinkGRef } from "./link";
-import { NodeGRef } from "./node";
 
 
 export const useGraphCanvasContext = (context: Context<ContextInterface | undefined>) => {
@@ -25,8 +25,8 @@ export const GraphCanvasProvider: React.FC<{
     children?: ReactNode;
 }> = ({ context, children }) => {
     const stageRef = useRef<Konva.Stage | null>(null);
-    const vertexRefs = useRef<vertexRefsType>(new Map<string, NodeGRef | null>());
-    const edgeRefs = useRef<edgeRefsType>(new Map<string, LinkGRef | null>());
+    const vertexRefs = useRef<vertexRefsType>(new Map<string, VertexRef | null>());
+    const edgeRefs = useRef<edgeRefsType>(new Map<string, EdgeRef | null>());
 
     const [rFactor, setRFactor] = useState<number>(1);
     const [kColors, setKColors] = useState<number>(1);

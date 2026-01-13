@@ -1,16 +1,16 @@
-import { Button } from "./ui/button";
 import { Toast } from "radix-ui";
 import { useRef, useState } from "react";
+import { Button } from "./ui/button";
 
-import "../styles/SaveGraphVersion.css";
-import { FilePen, PenTool } from "lucide-react";
 import { stylePropsAtom } from "@/lib/atoms";
-import { useAtomValue } from "jotai";
-import { TooltipHeaderButton } from "./ui/tooltip-header-button";
+import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphTikz } from "@/lib/latex";
 import { useElementRef } from "@/lib/refs";
-import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { useAtomValue } from "jotai";
+import { FilePen, PenTool } from "lucide-react";
+import "../styles/SaveGraphVersion.css";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 
 export function LATEXExport({ download }: { download?: boolean }) {

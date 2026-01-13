@@ -10,11 +10,11 @@ import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { CSSProperties, useEffect, useRef, useState } from "react";
+import Canvas from "./GraphCanvas/graph-canvas";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
 import { ChatAgent } from "./chat-agent";
 import { ColoringParameters } from "./coloring-parameters";
 import { EngineProperties } from "./element-properties";
-import Canvas from "./graphCanvas/graph-canvas";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
 import { LPSolution } from "./linear-programming-solution";
 import type { VisibilityType } from "./visibility-selector";
 

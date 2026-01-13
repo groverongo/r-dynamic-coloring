@@ -1,17 +1,17 @@
-import { Button } from "./ui/button";
 import { Toast } from "radix-ui";
 import { useRef, useState } from "react";
+import { Button } from "./ui/button";
 
-import "../styles/SaveGraphVersion.css";
-import { Braces, FileJson } from "lucide-react";
 import { stylePropsAtom } from "@/lib/atoms";
-import { useAtomValue } from "jotai";
-import { TooltipHeaderButton } from "./ui/tooltip-header-button";
-import { ImportGraphInput, ImportGraphInputSchema } from "@/lib/validation";
-import { v4 as uuidv4 } from 'uuid';
-import { edgeGraphType, graphAdjacencyListType, vertexGraphType } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { ImportGraphInput, ImportGraphInputSchema } from "@/lib/validation";
+import { useAtomValue } from "jotai";
+import { Braces, FileJson } from "lucide-react";
+import { v4 as uuidv4 } from 'uuid';
+import "../styles/SaveGraphVersion.css";
+import { edgeGraphType, graphAdjacencyListType, vertexGraphType } from "./GraphCanvas/context";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 
 export function JSONImport({ upload }: { upload?: boolean }) {

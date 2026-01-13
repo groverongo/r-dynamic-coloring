@@ -1,27 +1,8 @@
-
-import { Ref, useEffect, useImperativeHandle, useState } from "react";
+import { useEffect, useImperativeHandle, useState } from "react";
 import { Line } from "react-konva";
+import EdgeProps from "./props";
 
-export type LinkGRef = {
-    fromId: string;
-    toId: string;
-    isSelected: boolean;
-    select: () => void;
-    deselect: () => void;
-}
-
-type LinkGProps = {
-    fromId: string;
-    toId: string;
-    from: { x: number, y: number };
-    to: { x: number, y: number };
-    ref?: Ref<LinkGRef>;
-    onSelect?: () => void;
-    compromised?: boolean;
-    theme: 'light' | 'dark';
-}
-
-export default function LinkG({
+export default function Edge({
     fromId,
     toId,
     from,
@@ -30,7 +11,7 @@ export default function LinkG({
     onSelect,
     compromised,
     theme
-}: LinkGProps) {
+}: EdgeProps) {
 
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const borderColor = theme === "light" ? "black" : "white";

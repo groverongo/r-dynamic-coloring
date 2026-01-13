@@ -1,7 +1,7 @@
-import { Info, Palette } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { Info, Palette } from "lucide-react";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 export function ColoringParameters() {
     const {

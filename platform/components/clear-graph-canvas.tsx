@@ -1,15 +1,14 @@
-import { Button } from "./ui/button";
 import { Dialog, Toast } from "radix-ui";
 import { MouseEventHandler, useRef, useState } from "react";
+import { Button } from "./ui/button";
 
-import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { Eraser } from "lucide-react";
-import { useElementRef } from "@/lib/refs";
+import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
-import "../styles/SaveGraphVersion.css";
-import "../styles/ClearGraphDialog.css";
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import "../styles/ClearGraphDialog.css";
+import "../styles/SaveGraphVersion.css";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
 
 export function ClearGraphCanvas() {
 

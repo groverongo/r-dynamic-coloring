@@ -10,11 +10,11 @@ import {
 } from "react";
 import { Layer, Stage } from "react-konva";
 import { v4 as uuidv4 } from 'uuid';
+import Edge from "./Edge/element";
+import TemporaryLinkG from "./TemporaryEdge/element";
+import Vertex from "./Vertex/element";
 import { NODE_G_MODES, isIntString } from "./constant";
 import { ContextInterface } from "./context";
-import LinkG from "./link";
-import NodeG from "./node";
-import TemporaryLinkG from "./temporary_link";
 import { useGraphCanvasContext } from "./useContext";
 
 type CanvasProps = {
@@ -308,7 +308,7 @@ export default function Canvas({ styleProps, context, fontSize, nodeRadius }: Ca
             const from = fromRef ? { x: fromRef.xRelative, y: fromRef.yRelative } : { x: 0, y: 0 };
             const to = toRef ? { x: toRef.xRelative, y: toRef.yRelative } : { x: 0, y: 0 };
 
-            return (<LinkG
+            return (<Edge
               key={index}
               ref={(e) => {
                 edgeRefs.current?.set(index, e);
@@ -332,7 +332,7 @@ export default function Canvas({ styleProps, context, fontSize, nodeRadius }: Ca
               allowedColors.delete(coloring[vertex]);
             }
 
-            return (<NodeG
+            return (<Vertex
               key={key}
               fontSize={fontSize}
               nodeRadius={nodeRadius}

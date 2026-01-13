@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation } from '@tanstack/react-query';
-import { GraphSerializer } from "@/lib/serializers";
-import { useAtomValue } from "jotai";
-import axios from "axios";
-import z from "zod";
-import { Bot, Send, User } from "lucide-react";
-import { v4 as uuidv4 } from 'uuid';
-import ReactMarkdown from 'react-markdown';
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/useContext";
+import { GraphSerializer } from "@/lib/serializers";
+import { useMutation } from '@tanstack/react-query';
+import axios from "axios";
+import { Bot, Send, User } from "lucide-react";
+import { useState } from "react";
+import ReactMarkdown from 'react-markdown';
+import { v4 as uuidv4 } from 'uuid';
+import z from "zod";
+import { useGraphCanvasContext } from "./GraphCanvas/useContext";
 
 interface CustomMessage {
   type: 'request' | 'response';

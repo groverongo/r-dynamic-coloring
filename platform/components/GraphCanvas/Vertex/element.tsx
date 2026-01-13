@@ -1,12 +1,10 @@
-"use client"
 import { Canvg } from "canvg";
 import Konva from "konva";
 import {
-  Ref,
   useEffect,
   useImperativeHandle,
   useRef,
-  useState,
+  useState
 } from "react";
 import { Circle, Group, Image, Text } from "react-konva";
 import { parse, stringify } from "svgson";
@@ -15,41 +13,11 @@ import {
   NODE_G_COLORS,
   NODE_G_MODES,
   NODE_G_MODES_STYLE,
-} from "./constant";
+} from "../constant";
+import VertexProps from "./props";
+import VertexRef from "./ref";
 
-export type NodeGRef = {
-  x: number;
-  y: number;
-  text: string;
-  colorIndex: number | null;
-  isSelected: boolean;
-  neighbors: NodeGRef[];
-  addNeighbor: (neighbor: NodeGRef) => void;
-  removeNeighbor: (neighbor: NodeGRef) => void;
-  select: () => void;
-  deselect: () => void;
-  appendCharacter: (character: string) => void;
-  deleteCharacter: () => void;
-  changeColor: (index: number | null, enforce?: boolean) => void;
-};
-
-export type NodeGProps = {
-  ref?: Ref<NodeGRef>;
-  colorIndexInitial: number | null;
-  x: number;
-  y: number;
-  onSelect?: () => void;
-  draggable?: boolean;
-  mode: number;
-  compromised?: boolean;
-  whileDragging?: (x: number, y: number) => void;
-  allowedColors?: Set<number>;
-  theme: 'light' | 'dark';
-  fontSize: number;
-  nodeRadius: number;
-};
-
-export default function NodeG({
+export default function Vertex({
   ref,
   x,
   y,
@@ -63,7 +31,7 @@ export default function NodeG({
   theme,
   fontSize,
   nodeRadius
-}: Readonly<NodeGProps>) {
+}: Readonly<VertexProps>) {
 
   const [latex, setLatex] = useState<HTMLImageElement | undefined>();
   const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -126,7 +94,7 @@ export default function NodeG({
     };
   }, [text, colorIndex, mode, fontSize, theme]);
 
-  const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
+  const [neighbors, setNeighbors] = useState<VertexRef[]>([]);
 
   const GroupRef = useRef<Konva.Group>(null);
 
@@ -145,10 +113,10 @@ export default function NodeG({
     colorIndex: colorIndex,
     isSelected: isSelected,
     neighbors: neighbors,
-    addNeighbor: (neighbor: NodeGRef) => {
+    addNeighbor: (neighbor: VertexRef) => {
       setNeighbors((prev) => [...prev, neighbor]);
     },
-    removeNeighbor: (neighbor: NodeGRef) => {
+    removeNeighbor: (neighbor: VertexRef) => {
       setNeighbors((prev) => prev.filter((n) => n !== neighbor));
     },
     select: () => {
