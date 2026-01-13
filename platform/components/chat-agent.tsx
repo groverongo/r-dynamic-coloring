@@ -9,8 +9,8 @@ import z from "zod";
 import { Bot, Send, User } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import ReactMarkdown from 'react-markdown';
-import { useGraphCanvasContext } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 interface CustomMessage {
   type: 'request' | 'response';

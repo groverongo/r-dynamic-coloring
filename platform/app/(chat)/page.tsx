@@ -5,8 +5,8 @@ import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { auth } from "../(auth)/auth";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queries";
-import { GraphCanvasProvider } from "@/components/graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { GraphCanvasProvider } from "@/components/graphCanvas/useContext";
 
 export default async function Page() {
   const session = await auth();

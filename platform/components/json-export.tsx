@@ -7,7 +7,7 @@ import { Braces, FileJson } from "lucide-react";
 import { GraphSerializer } from "@/lib/serializers";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/context";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 
 export function JSONExport({ download }: { download?: boolean }) {

@@ -9,8 +9,9 @@ import { useAtomValue } from "jotai";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { ImportGraphInput, ImportGraphInputSchema } from "@/lib/validation";
 import { v4 as uuidv4 } from 'uuid';
-import { edgeGraphType, graphAdjacencyListType, useGraphCanvasContext, vertexGraphType } from "./graphCanvas/context";
+import { edgeGraphType, graphAdjacencyListType, vertexGraphType } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 
 export function JSONImport({ upload }: { upload?: boolean }) {

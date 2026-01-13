@@ -6,7 +6,7 @@ import { GraphVisualize } from "@/components/chat";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queries";
-import { GraphCanvasProvider } from "@/components/graphCanvas/context";
+import { GraphCanvasProvider } from "@/components/graphCanvas/useContext";
 import { MainCanvasContext } from "@/lib/graph-constants";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {

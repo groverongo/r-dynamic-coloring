@@ -9,8 +9,8 @@ import { useAtomValue } from "jotai";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 import { GraphTikz } from "@/lib/latex";
 import { useElementRef } from "@/lib/refs";
-import { useGraphCanvasContext } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 
 export function LATEXExport({ download }: { download?: boolean }) {

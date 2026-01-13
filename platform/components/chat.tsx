@@ -27,7 +27,7 @@ import { GetGraphResponse } from "@/lib/validation";
 import axios from "axios";
 import { GraphDeserializer } from "@/lib/serializers";
 import { MainCanvasContext } from "@/lib/graph-constants";
-import { useGraphCanvasContext } from "./graphCanvas/context";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 export function GraphVisualize({
   id,

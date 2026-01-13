@@ -15,7 +15,8 @@ import { isIntString } from "@/lib/utilities";
 import { v4 as uuidv4 } from 'uuid';
 import Konva from "konva";
 import { useTheme } from "next-themes";
-import { ContextInterface, useGraphCanvasContext } from "./graphCanvas/context";
+import { ContextInterface } from "./graphCanvas/context";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 type CanvasProps = {
   styleProps: CSSProperties;

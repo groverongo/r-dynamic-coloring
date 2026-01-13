@@ -10,8 +10,8 @@ import { graphNameAtom } from "@/lib/atoms";
 import { GraphSerializer } from "@/lib/serializers";
 import "../styles/SaveGraphVersion.css";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
-import { useGraphCanvasContext } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 const ToastConditionComponents = {
   success: {

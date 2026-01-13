@@ -8,8 +8,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import z from "zod";
 import { GraphSerializer } from "@/lib/serializers";
 import { useElementRef } from "@/lib/refs";
-import { useGraphCanvasContext } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 export function LPSolution() {
 

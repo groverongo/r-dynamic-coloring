@@ -8,8 +8,8 @@ import { useElementRef } from "@/lib/refs";
 
 import "../styles/SaveGraphVersion.css";
 import "../styles/ClearGraphDialog.css";
-import { useGraphCanvasContext } from "./graphCanvas/context";
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/useContext";
 
 export function ClearGraphCanvas() {
 
