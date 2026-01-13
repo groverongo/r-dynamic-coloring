@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useMutation } from '@tanstack/react-query';
+import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphSerializer } from "@/lib/serializers";
-import { useAtomValue } from "jotai";
-import { graphAdjacencyListAtom } from "@/lib/atoms";
+import { useMutation } from '@tanstack/react-query';
 import axios from "axios";
-import z from "zod";
 import { Bot, Send, User } from "lucide-react";
-import { v4 as uuidv4 } from 'uuid';
+import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
+import { v4 as uuidv4 } from 'uuid';
+import z from "zod";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 
 interface CustomMessage {
   type: 'request' | 'response';
@@ -22,7 +22,9 @@ export function ChatAgent() {
   const [input, setInput] = useState<string>("");
   const [messages, setMessages] = useState<CustomMessage[]>([]);
 
-  const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
+  const {
+    graphAdjacencyList,
+  } = useGraphCanvasContext(MainCanvasContext);
 
   const renderRequest = (message: CustomMessage) => (
     <div className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-4 space-y-2">

@@ -1,23 +1,23 @@
-import { Cpu, Info, Send } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
-import { useState } from "react";
-import { Button } from "./ui/button";
+import { MainCanvasContext } from "@/lib/graph-constants";
+import { GraphSerializer } from "@/lib/serializers";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { useAtomValue, useSetAtom } from "jotai";
-import { coloringAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom } from "@/lib/atoms";
+import { Cpu, Info, Send } from "lucide-react";
+import { useState } from "react";
 import z from "zod";
-import { GraphSerializer } from "@/lib/serializers";
-import { useElementRef } from "@/lib/refs";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
+import { Button } from "./ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 
 export function LPSolution() {
-    const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
-    const setKColors = useSetAtom(kColorsAtom);
-    const setRFactor = useSetAtom(rFactorAtom);
-    const setColoring = useSetAtom(coloringAtom);
 
-    const { vertexRefs } = useElementRef();
-
+    const {
+        graphAdjacencyList,
+        setKColors,
+        setRFactor,
+        setColoring,
+        vertexRefs
+    } = useGraphCanvasContext(MainCanvasContext);
 
     const [kColorsLocal, setKColorsLocal] = useState(2);
     const [rFactorLocal, setRFactorLocal] = useState(1);

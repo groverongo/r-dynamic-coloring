@@ -1,14 +1,16 @@
 import { Save } from "lucide-react";
-import { Button } from "./ui/button";
-import { Toast, Tooltip } from "radix-ui";
+import { Toast } from "radix-ui";
 import { useEffect, useRef, useState } from "react";
+import { Button } from "./ui/button";
 
+import { graphNameAtom } from "@/lib/atoms";
+import { MainCanvasContext } from "@/lib/graph-constants";
+import { GraphSerializer } from "@/lib/serializers";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue } from "jotai";
-import { graphNameAtom, coloringAtom, edgeGraphAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom, vertexGraphAtom } from "@/lib/atoms";
-import { GraphSerializer } from "@/lib/serializers";
 import "../styles/SaveGraphVersion.css";
+import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 const ToastConditionComponents = {
@@ -42,13 +44,16 @@ export function SaveGraphVersion() {
   const timerRef = useRef<NodeJS.Timeout>();
   const [savedGraphId, setSavedGraphId] = useState<string>("");
 
+  const {
+    graphAdjacencyList,
+    coloring,
+    rFactor,
+    vertexGraph,
+    edgeGraph,
+    kColors,
+  } = useGraphCanvasContext(MainCanvasContext);
+
   const graphName = useAtomValue(graphNameAtom);
-  const vertexGraph = useAtomValue(vertexGraphAtom);
-  const edgeGraph = useAtomValue(edgeGraphAtom);
-  const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
-  const coloring = useAtomValue(coloringAtom);
-  const kColors = useAtomValue(kColorsAtom);
-  const rFactor = useAtomValue(rFactorAtom);
 
   const { isSuccess, error, mutate, data } = useMutation({
     mutationFn: async () => {

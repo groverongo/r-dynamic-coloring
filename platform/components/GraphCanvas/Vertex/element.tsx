@@ -1,55 +1,23 @@
-"use client"
-import { fontSizeAtom, nodeRadiusAtom } from "@/lib/atoms";
+import { Canvg } from "canvg";
+import Konva from "konva";
+import {
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState
+} from "react";
+import { Circle, Group, Image, Text } from "react-konva";
+import { parse, stringify } from "svgson";
+import TeXToSVG from "tex-to-svg";
 import {
   NODE_G_COLORS,
   NODE_G_MODES,
   NODE_G_MODES_STYLE,
-} from "@/lib/graph-constants";
-import { useAtomValue } from "jotai";
-import Konva from "konva";
-import React, {
-  Ref,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
-import { Circle, Group, Text, Image } from "react-konva";
-import { Canvg } from "canvg";
-import TeXToSVG from "tex-to-svg";
-import { parse, stringify } from "svgson";
+} from "../constant";
+import VertexProps from "./props";
+import VertexRef from "./ref";
 
-export type NodeGRef = {
-  x: number;
-  y: number;
-  text: string;
-  colorIndex: number | null;
-  isSelected: boolean;
-  neighbors: NodeGRef[];
-  addNeighbor: (neighbor: NodeGRef) => void;
-  removeNeighbor: (neighbor: NodeGRef) => void;
-  select: () => void;
-  deselect: () => void;
-  appendCharacter: (character: string) => void;
-  deleteCharacter: () => void;
-  changeColor: (index: number | null, enforce?: boolean) => void;
-};
-
-export type NodeGProps = {
-  ref?: Ref<NodeGRef>;
-  colorIndexInitial: number | null;
-  x: number;
-  y: number;
-  onSelect?: () => void;
-  draggable?: boolean;
-  mode: number;
-  compromised?: boolean;
-  whileDragging?: (x: number, y: number) => void;
-  allowedColors?: Set<number>;
-  theme: 'light' | 'dark';
-};
-
-export default function NodeG({
+export default function Vertex({
   ref,
   x,
   y,
@@ -61,7 +29,9 @@ export default function NodeG({
   allowedColors,
   colorIndexInitial,
   theme,
-}: Readonly<NodeGProps>) {
+  fontSize,
+  nodeRadius
+}: Readonly<VertexProps>) {
 
   const [latex, setLatex] = useState<HTMLImageElement | undefined>();
   const [isSelected, setIsSelected] = useState<boolean>(false);
@@ -78,7 +48,6 @@ export default function NodeG({
   const extractDimensionEx = (attribute: string) => parseFloat(attribute.slice(0, attribute.length - 2));
   const redfineDimensionEx = (value: number) => (RES_FACTOR * value).toString() + "ex";
 
-  const fontSize = useAtomValue(fontSizeAtom);
 
   useEffect(() => {
     const renderSvgToImage = async () => {
@@ -125,11 +94,9 @@ export default function NodeG({
     };
   }, [text, colorIndex, mode, fontSize, theme]);
 
-  const [neighbors, setNeighbors] = useState<NodeGRef[]>([]);
+  const [neighbors, setNeighbors] = useState<VertexRef[]>([]);
 
   const GroupRef = useRef<Konva.Group>(null);
-
-  const nodeRadius = useAtomValue(nodeRadiusAtom);
 
   const getAbsoluteX = () => {
     return GroupRef.current ? GroupRef.current.x() + x : x;
@@ -146,10 +113,10 @@ export default function NodeG({
     colorIndex: colorIndex,
     isSelected: isSelected,
     neighbors: neighbors,
-    addNeighbor: (neighbor: NodeGRef) => {
+    addNeighbor: (neighbor: VertexRef) => {
       setNeighbors((prev) => [...prev, neighbor]);
     },
-    removeNeighbor: (neighbor: NodeGRef) => {
+    removeNeighbor: (neighbor: VertexRef) => {
       setNeighbors((prev) => prev.filter((n) => n !== neighbor));
     },
     select: () => {
