@@ -1,5 +1,6 @@
 import {
   CSSProperties,
+  Context,
   FocusEventHandler,
   KeyboardEventHandler,
   LegacyRef,
@@ -11,31 +12,33 @@ import TemporaryLinkG from "@/components/graphObjects/temporary_link";
 import LinkG from "@/components/graphObjects/link";
 import { NODE_G_MODES } from "@/lib/graph-constants";
 import { isIntString } from "@/lib/utilities";
-import { useAtom, useAtomValue } from "jotai";
 import { v4 as uuidv4 } from 'uuid';
-import { coloringAtom, edgeCurrentIdAtom, edgeGraphAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom, vertexCurrentIdAtom, vertexGraphAtom } from "@/lib/atoms";
-import { useElementRef } from "@/lib/refs";
 import Konva from "konva";
 import { useTheme } from "next-themes";
+import { ContextInterface, useGraphCanvasContext } from "./graphCanvas/context";
 
 type CanvasProps = {
   styleProps: CSSProperties;
+  context: Context<ContextInterface | undefined>;
 }
 
-export default function Canvas({ styleProps }: CanvasProps) {
+export default function Canvas({ styleProps, context }: CanvasProps) {
 
-  const rFactor = useAtomValue(rFactorAtom);
-  const kFactor = useAtomValue(kColorsAtom);
-
-  const { vertexRefs, edgeRefs, stageRef } = useElementRef();
-
-  const [vertexGraph, setVertexGraph] = useAtom(vertexGraphAtom);
-  const [edgeGraph, setEdgeGraph] = useAtom(edgeGraphAtom);
-  const [graphAdjacencyList, setGraphAdjacencyList] = useAtom(graphAdjacencyListAtom);
+  const {
+    vertexGraph, setVertexGraph,
+    edgeGraph, setEdgeGraph,
+    graphAdjacencyList, setGraphAdjacencyList,
+    coloring, setColoring,
+    rFactor,
+    kColors,
+    vertexCurrentId, setVertexCurrentId,
+    edgeCurrentId, setEdgeCurrentId,
+    stageRef,
+    vertexRefs,
+    edgeRefs
+  } = useGraphCanvasContext(context);
 
   const [nodeMode, setNodeMode] = useState<number>(0);
-  const [vertexCurrentId, setVertexCurrentId] = useAtom(vertexCurrentIdAtom);
-  const [edgeCurrentId, setEdgeCurrentId] = useAtom(edgeCurrentIdAtom);
 
   const [closestVertexId, setClosestVertexId] = useState<string | null>(null);
   const [keyDownUnblock, setKeyDownUnblock] = useState<boolean>(true);
@@ -49,7 +52,6 @@ export default function Canvas({ styleProps }: CanvasProps) {
     y: number;
   } | null>(null);
 
-  const [coloring, setColoring] = useAtom(coloringAtom);
   const { theme } = useTheme();
 
   const onBlur: FocusEventHandler<HTMLDivElement> = (e) => {
@@ -78,7 +80,7 @@ export default function Canvas({ styleProps }: CanvasProps) {
         if (NODE_G_MODES[nodeMode] === "Label") {
           ref.appendCharacter(e.key);
         } else if (NODE_G_MODES[nodeMode] === "Color" && isIntString(e.key)) {
-          if (+e.key >= kFactor) return;
+          if (+e.key >= kColors) return;
           ref.changeColor(+e.key === coloring[vertexCurrentId] ? null : +e.key);
           setColoring((prev) => {
             const newColoring = { ...prev };
@@ -322,7 +324,7 @@ export default function Canvas({ styleProps }: CanvasProps) {
           })}
           {Array.from(graphAdjacencyList.keys()).map((key) => {
 
-            const allowedColors = new Set(Array.from({ length: kFactor }, (_, i) => i));
+            const allowedColors = new Set(Array.from({ length: kColors }, (_, i) => i));
             allowedColors.delete(coloring[key]);
             for (const [vertex, _] of graphAdjacencyList.get(key) ?? []) {
               allowedColors.delete(coloring[vertex]);

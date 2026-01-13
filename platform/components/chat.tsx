@@ -20,12 +20,14 @@ import Canvas from "./graph-canvas";
 import { ColoringParameters } from "./coloring-parameters";
 import { LPSolution } from "./linear-programming-solution";
 import { EngineProperties } from "./element-properties";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { coloringAtom, edgeGraphAtom, graphAdjacencyListAtom, graphNameAtom, kColorsAtom, rFactorAtom, stylePropsAtom, vertexGraphAtom } from "@/lib/atoms";
+import { useAtom, useSetAtom } from "jotai";
+import { graphNameAtom, stylePropsAtom } from "@/lib/atoms";
 import { ChatAgent } from "./chat-agent";
 import { GetGraphResponse } from "@/lib/validation";
 import axios from "axios";
 import { GraphDeserializer } from "@/lib/serializers";
+import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "./graphCanvas/context";
 
 export function GraphVisualize({
   id,
@@ -44,13 +46,17 @@ export function GraphVisualize({
 }) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
 
+  const {
+    setVertexGraph,
+    setEdgeGraph,
+    graphAdjacencyList, setGraphAdjacencyList,
+    setColoring,
+    rFactor, setRFactor,
+    kColors, setKColors,
+  } = useGraphCanvasContext(MainCanvasContext);
+
+
   const setGraphName = useSetAtom(graphNameAtom);
-  const setVertexGraph = useSetAtom(vertexGraphAtom);
-  const setEdgeGraph = useSetAtom(edgeGraphAtom);
-  const setGraphAdjacencyList = useSetAtom(graphAdjacencyListAtom);
-  const setKColors = useSetAtom(kColorsAtom);
-  const setRFactor = useSetAtom(rFactorAtom);
-  const setColoring = useSetAtom(coloringAtom);
 
   useEffect(() => {
     console.log(screen.width, screen.height)
@@ -93,7 +99,6 @@ export function GraphVisualize({
   const [currentModelId, setCurrentModelId] = useState(initialChatModel);
   const currentModelIdRef = useRef(currentModelId);
 
-  const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
 
   useEffect(() => {
     currentModelIdRef.current = currentModelId;
@@ -112,7 +117,7 @@ export function GraphVisualize({
 
         <div className="flex flex-row items-stretch gap-1 sm:gap-2 flex-1 overflow-hidden">
           <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
-            <Canvas key={id} styleProps={styleProps} />
+            <Canvas key={id} styleProps={styleProps} context={MainCanvasContext} />
             <div className="flex flex-row gap-1 sm:gap-2">
               <ColoringParameters />
               <LPSolution />

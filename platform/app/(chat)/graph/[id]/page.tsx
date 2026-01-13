@@ -6,6 +6,8 @@ import { GraphVisualize } from "@/components/chat";
 import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queries";
+import { GraphCanvasProvider } from "@/components/graphCanvas/context";
+import { MainCanvasContext } from "@/lib/graph-constants";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
@@ -44,30 +46,36 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
   if (!chatModelFromCookie) {
     return (
       <QueryClientProvider client={queryClient}>
-        <GraphVisualize
-          autoResume={true}
-          id={id}
-          initialChatModel={DEFAULT_CHAT_MODEL}
-          initialLastContext={undefined}
-          // initialMessages={uiMessages}
-          initialVisibilityType={"public"}
-          isReadonly={false}
-        />
+        <GraphCanvasProvider context={MainCanvasContext}>
+
+          <GraphVisualize
+            autoResume={true}
+            id={id}
+            initialChatModel={DEFAULT_CHAT_MODEL}
+            initialLastContext={undefined}
+            // initialMessages={uiMessages}
+            initialVisibilityType={"public"}
+            isReadonly={false}
+          />
+        </GraphCanvasProvider>
       </QueryClientProvider>
     );
   }
 
   return (
     <QueryClientProvider client={queryClient}>
-      <GraphVisualize
-        autoResume={true}
-        id={id}
-        initialChatModel={chatModelFromCookie.value}
-        initialLastContext={undefined}
-        // initialMessages={uiMessages}
-        initialVisibilityType={"public"}
-        isReadonly={false}
-      />
+      <GraphCanvasProvider context={MainCanvasContext}>
+
+        <GraphVisualize
+          autoResume={true}
+          id={id}
+          initialChatModel={chatModelFromCookie.value}
+          initialLastContext={undefined}
+          // initialMessages={uiMessages}
+          initialVisibilityType={"public"}
+          isReadonly={false}
+        />
+      </GraphCanvasProvider>
     </QueryClientProvider>
   );
 }

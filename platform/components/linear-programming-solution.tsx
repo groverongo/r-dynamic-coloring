@@ -5,16 +5,20 @@ import { Button } from "./ui/button";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useAtomValue, useSetAtom } from "jotai";
-import { coloringAtom, graphAdjacencyListAtom, kColorsAtom, rFactorAtom } from "@/lib/atoms";
 import z from "zod";
 import { GraphSerializer } from "@/lib/serializers";
 import { useElementRef } from "@/lib/refs";
+import { useGraphCanvasContext } from "./graphCanvas/context";
+import { MainCanvasContext } from "@/lib/graph-constants";
 
 export function LPSolution() {
-    const graphAdjacencyList = useAtomValue(graphAdjacencyListAtom);
-    const setKColors = useSetAtom(kColorsAtom);
-    const setRFactor = useSetAtom(rFactorAtom);
-    const setColoring = useSetAtom(coloringAtom);
+
+    const {
+        graphAdjacencyList,
+        setKColors,
+        setRFactor,
+        setColoring
+    } = useGraphCanvasContext(MainCanvasContext);
 
     const { vertexRefs } = useElementRef();
 
