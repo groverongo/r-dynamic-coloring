@@ -8,13 +8,13 @@ import {
 import { Layer, Stage } from "react-konva";
 import { v4 as uuidv4 } from 'uuid';
 import { useGraphCanvasContext } from "../Context/useContext";
-import Edge from "../Edge/element";
-import TemporaryLinkG from "../TemporaryEdge/element";
-import Vertex from "../Vertex/element";
+import { Edge } from "../Edge/element";
+import { TemporaryLinkG } from "../TemporaryEdge/element";
+import { Vertex } from "../Vertex/element";
 import { VERTEX_MODES, isIntString } from "../constant";
-import GraphCanvasProps from "./props";
+import { GraphCanvasProps } from "./props";
 
-export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }: GraphCanvasProps) {
+export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }: GraphCanvasProps) {
 
   const {
     vertexGraph, setVertexGraph,

@@ -1,7 +1,7 @@
 import { Line } from "react-konva";
-import TemporaryLinkGProps from "./props";
+import { TemporaryLinkGProps } from "./props";
 
-export default function TemporaryLinkG({
+export function TemporaryLinkG({
     from,
     to,
     theme

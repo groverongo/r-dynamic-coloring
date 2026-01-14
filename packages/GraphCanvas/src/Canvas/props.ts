@@ -9,4 +9,4 @@ type GraphCanvasProps = {
   theme: string | undefined;
 }
 
-export default GraphCanvasProps;
+export { GraphCanvasProps };

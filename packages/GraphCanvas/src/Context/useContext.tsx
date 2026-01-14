@@ -2,8 +2,8 @@
 
 import Konva from "konva";
 import { Context, ReactNode, createContext, useContext, useRef, useState } from "react";
-import EdgeRef from "../Edge/ref";
-import VertexRef from "../Vertex/ref";
+import { EdgeRef } from "../Edge/ref";
+import { VertexRef } from "../Vertex/ref";
 import { ContextInterface } from "./schema";
 import { coloringType, edgeGraphType, edgeRefsType, graphAdjacencyListType, vertexGraphType, vertexRefsType } from "./state";
 

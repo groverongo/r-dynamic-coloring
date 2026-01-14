@@ -14,10 +14,10 @@ import {
   VERTEX_MODES,
   VERTEX_MODES_STYLE,
 } from "../constant";
-import VertexProps from "./props";
-import VertexRef from "./ref";
+import { VertexProps } from "./props";
+import { VertexRef } from "./ref";
 
-export default function Vertex({
+export function Vertex({
   ref,
   x,
   y,
