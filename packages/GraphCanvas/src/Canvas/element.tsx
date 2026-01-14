@@ -190,6 +190,7 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
 
     if (vertexCurrentId !== null) {
       vertexRefs.current?.get(vertexCurrentId)?.deselect();
+
       const [_, ref] = Array.from(vertexRefs?.current ?? [null, null]).at(-1) ?? [null, null];
       ref?.select();
     }
