@@ -48,6 +48,34 @@ export const GraphCanvasProvider: React.FC<{
         edgeRefs.current?.clear();
     }
 
+    function saveAsImage(download?: boolean) {
+        if (stageRef.current === null) return;
+
+        const stageClone = stageRef.current.clone();
+
+        stageClone.getLayers()[0].add(new Konva.Rect({
+            width: stageRef.current.width(),
+            height: stageRef.current.height(),
+            fill: '#18181b',
+            listening: false
+        }));
+
+        stageClone.toBlob({ mimeType: 'image/png' }).then(blob => {
+            if (download) {
+                const url = URL.createObjectURL(blob as Blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'graph.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } else {
+                navigator.clipboard.write([new ClipboardItem({ 'image/png': blob as Blob })])
+            }
+        })
+    }
+
     return (
         <context.Provider value={{
             rFactor, setRFactor,
@@ -59,7 +87,8 @@ export const GraphCanvasProvider: React.FC<{
             vertexCurrentId, setVertexCurrentId,
             edgeCurrentId, setEdgeCurrentId,
             stageRef, vertexRefs, edgeRefs,
-            clearCanvas
+            clearCanvas,
+            saveAsImage
         }}>
             {children}
         </context.Provider>

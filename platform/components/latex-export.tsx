@@ -5,10 +5,10 @@ import { Button } from "./ui/button";
 import { stylePropsAtom } from "@/lib/atoms";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphTikz } from "@/lib/latex";
+import { useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { useAtomValue } from "jotai";
 import { FilePen, PenTool } from "lucide-react";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 

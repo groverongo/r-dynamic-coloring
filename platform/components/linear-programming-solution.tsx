@@ -1,11 +1,11 @@
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphSerializer } from "@/lib/serializers";
+import { useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { Cpu, Info, Send } from "lucide-react";
 import { useState } from "react";
 import z from "zod";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 

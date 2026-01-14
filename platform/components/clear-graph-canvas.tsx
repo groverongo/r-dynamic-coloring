@@ -6,9 +6,9 @@ import { Eraser } from "lucide-react";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 import { MainCanvasContext } from "@/lib/graph-constants";
+import { useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import "../styles/ClearGraphDialog.css";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 
 export function ClearGraphCanvas() {
 

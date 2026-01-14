@@ -32,4 +32,6 @@ export interface ContextInterface {
     edgeRefs: RefObject<edgeRefsType>,
 
     clearCanvas: () => void,
+
+    saveAsImage: (download?: boolean) => void,
 }

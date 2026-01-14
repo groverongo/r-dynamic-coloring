@@ -2,6 +2,7 @@
 
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphSerializer } from "@/lib/serializers";
+import { useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { useMutation } from '@tanstack/react-query';
 import axios from "axios";
 import { Bot, Send, User } from "lucide-react";
@@ -9,7 +10,6 @@ import { useState } from "react";
 import ReactMarkdown from 'react-markdown';
 import { v4 as uuidv4 } from 'uuid';
 import z from "zod";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 
 interface CustomMessage {
   type: 'request' | 'response';

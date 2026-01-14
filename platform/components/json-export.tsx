@@ -4,9 +4,9 @@ import { Button } from "./ui/button";
 
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphSerializer } from "@/lib/serializers";
+import { useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { Braces, FileJson } from "lucide-react";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 
