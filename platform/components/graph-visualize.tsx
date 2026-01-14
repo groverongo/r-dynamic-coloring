@@ -9,6 +9,7 @@ import { GetGraphResponse } from "@/lib/validation";
 import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useTheme } from "next-themes";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import GraphCanvas from "./GraphCanvas/Canvas/graph-canvas";
 import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
@@ -34,6 +35,7 @@ export function GraphVisualize({
   initialLastContext?: AppUsage;
 }) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
+  const { theme } = useTheme();
 
   const {
     setVertexGraph,
@@ -114,6 +116,7 @@ export function GraphVisualize({
               context={MainCanvasContext}
               fontSize={fontSize}
               nodeRadius={nodeRadius}
+              theme={theme}
             />
             <div className="flex flex-row gap-1 sm:gap-2">
               <ColoringParameters />
