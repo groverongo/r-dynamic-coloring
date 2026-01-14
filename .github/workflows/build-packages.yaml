@@ -1,0 +1,39 @@
+name: Build & Publish Packages
+
+on:
+    push:
+        tags:
+            - 'v*'
+        branches:
+            - main
+        
+        paths:
+            - "packages/GraphCanvas/**"
+            - ".github/workflows/build-packages.yaml"
+
+    workflow_dispatch:
+
+permissions:
+  id-token: write  # Required for OIDC
+  contents: read
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        defaults:
+            run:
+                working-directory: packages/GraphCanvas
+        steps:
+            - uses: actions/checkout@v4
+            - uses: pnpm/action-setup@v4
+              with:
+                  version: 9
+
+            - name: Install Dependencies
+              run: pnpm install
+              
+            - name: Build
+              run: pnpm run build
+              
+            - name: Publish
+              run: pnpm publish --access public

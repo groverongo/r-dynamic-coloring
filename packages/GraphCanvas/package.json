@@ -1,7 +1,7 @@
 {
   "name": "@r-dynamic-coloring/graph-canvas",
-  "version": "1.0.0",
-  "description": "A dynamic graph rendering component",
+  "version": "0.1.1",
+  "description": "A react component to understand r-dynamic coloring on graphs.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -27,7 +27,7 @@
     "canvas",
     "dynamic-coloring"
   ],
-  "author": "",
+  "author": "groverongo",
   "license": "ISC",
   "peerDependencies": {
     "react": ">=18",
