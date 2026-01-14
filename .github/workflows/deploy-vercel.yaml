@@ -10,6 +10,7 @@ on:
 
         paths:
             - "platform/**"
+            - "packages/**"
             - ".github/workflows/deploy-vercel.yaml"
 
     workflow_dispatch:
@@ -26,6 +27,13 @@ jobs:
                   version: 9
             - name: Install Vercel CLI
               run: pnpm install --global vercel@latest
+
+            - name: Install dependencies and build shared packages
+              run: |
+                  cd ../packages/GraphCanvas
+                  pnpm install
+                  pnpm run build
+                  cd ../../platform
 
             - name: Add/Update Vercel Environment Variable AUTH_TRUST_HOST
               run: echo ${{ secrets.AUTH_TRUST_HOST }} | vercel env add AUTH_TRUST_HOST ${{ env.VERCEL_TARGET }} --force --token=${{ secrets.VERCEL_TOKEN }}
