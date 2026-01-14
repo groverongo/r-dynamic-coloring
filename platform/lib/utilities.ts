@@ -1,7 +1,6 @@
+import { EdgeRef, VertexRef } from "@r-dynamic-coloring/graph-canvas";
 import { MouseEvent } from "react";
 import { GREEK_LETTER_NAMES } from "./graph-constants";
-import VertexRef from "@/components/GraphCanvas/Vertex/ref";
-import EdgeRef from "@/components/GraphCanvas/Edge/ref";
 
 export const uniqueId = () => {
     const dateString = Date.now().toString(36);
