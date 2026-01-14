@@ -1,5 +1,5 @@
 import { Ref } from "react";
-import VertexRef from "./ref";
+import { VertexRef } from "./ref";
 
 type VertexProps = {
   ref?: Ref<VertexRef>;
@@ -17,4 +17,4 @@ type VertexProps = {
   nodeRadius: number;
 };
 
-export default VertexProps;
+export { VertexProps };

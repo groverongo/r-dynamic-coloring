@@ -4,4 +4,4 @@ type TemporaryLinkGProps = {
     theme: 'light' | 'dark';
 }
 
-export default TemporaryLinkGProps;
+export { TemporaryLinkGProps };

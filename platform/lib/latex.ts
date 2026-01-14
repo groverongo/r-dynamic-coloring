@@ -1,4 +1,4 @@
-import { edgeGraphType, vertexGraphType, vertexRefsType } from "@/components/GraphCanvas/Context/state";
+import { edgeGraphType, vertexGraphType, vertexRefsType } from "@r-dynamic-coloring/graph-canvas";
 import { CSSProperties } from "react";
 import { ColoringAssigmentResponse } from "./validation";
 

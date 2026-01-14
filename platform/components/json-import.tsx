@@ -5,12 +5,11 @@ import { Button } from "./ui/button";
 import { stylePropsAtom } from "@/lib/atoms";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { ImportGraphInput, ImportGraphInputSchema } from "@/lib/validation";
+import { edgeGraphType, graphAdjacencyListType, useGraphCanvasContext, vertexGraphType } from "@r-dynamic-coloring/graph-canvas";
 import { useAtomValue } from "jotai";
 import { Braces, FileJson } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 import "../styles/SaveGraphVersion.css";
-import { edgeGraphType, graphAdjacencyListType, vertexGraphType } from "./GraphCanvas/Context/state";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 

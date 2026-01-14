@@ -1,8 +1,5 @@
 import Konva from "konva";
-import { useTheme } from "next-themes";
 import {
-  CSSProperties,
-  Context,
   FocusEventHandler,
   KeyboardEventHandler,
   LegacyRef,
@@ -10,21 +7,14 @@ import {
 } from "react";
 import { Layer, Stage } from "react-konva";
 import { v4 as uuidv4 } from 'uuid';
-import { ContextInterface } from "../Context/schema";
 import { useGraphCanvasContext } from "../Context/useContext";
-import Edge from "../Edge/element";
-import TemporaryLinkG from "../TemporaryEdge/element";
-import Vertex from "../Vertex/element";
-import { NODE_G_MODES, isIntString } from "../constant";
+import { Edge } from "../Edge/element";
+import { TemporaryLinkG } from "../TemporaryEdge/element";
+import { Vertex } from "../Vertex/element";
+import { VERTEX_MODES, isIntString } from "../constant";
+import { GraphCanvasProps } from "./props";
 
-type GraphCanvasProps = {
-  styleProps: CSSProperties;
-  context: Context<ContextInterface | undefined>;
-  fontSize: number;
-  nodeRadius: number;
-}
-
-export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius }: GraphCanvasProps) {
+export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }: GraphCanvasProps) {
 
   const {
     vertexGraph, setVertexGraph,
@@ -54,8 +44,6 @@ export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius 
     y: number;
   } | null>(null);
 
-  const { theme } = useTheme();
-
   const onBlur: FocusEventHandler<HTMLDivElement> = (e) => {
     setKeyDownUnblock(true);
     setShiftPressed(false);
@@ -79,9 +67,9 @@ export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius 
       if (ref === null || ref === undefined) return;
 
       if (e.key.length === 1 && /^[a-zA-Z0-9_\\^{}]$/.test(e.key)) {
-        if (NODE_G_MODES[nodeMode] === "Label") {
+        if (VERTEX_MODES[nodeMode] === "Label") {
           ref.appendCharacter(e.key);
-        } else if (NODE_G_MODES[nodeMode] === "Color" && isIntString(e.key)) {
+        } else if (VERTEX_MODES[nodeMode] === "Color" && isIntString(e.key)) {
           if (+e.key >= kColors) return;
           ref.changeColor(+e.key === coloring[vertexCurrentId] ? null : +e.key);
           setColoring((prev) => {
@@ -95,9 +83,9 @@ export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius 
           });
         }
       } else if (e.key === "Backspace") {
-        if (NODE_G_MODES[nodeMode] === "Label") {
+        if (VERTEX_MODES[nodeMode] === "Label") {
           ref.deleteCharacter();
-        } else if (NODE_G_MODES[nodeMode] === "Color") {
+        } else if (VERTEX_MODES[nodeMode] === "Color") {
           ref.changeColor(null);
         }
       } else if (e.key === "Delete") {
@@ -131,7 +119,7 @@ export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius 
         });
         setVertexCurrentId(null);
       } else if (e.key === "Control") {
-        setNodeMode((prev) => (prev + 1) % NODE_G_MODES.length);
+        setNodeMode((prev) => (prev + 1) % VERTEX_MODES.length);
       }
     } else if (edgeCurrentId !== null) {
       const ref = edgeRefs.current?.get(edgeCurrentId);
@@ -202,6 +190,7 @@ export default function GraphCanvas({ styleProps, context, fontSize, nodeRadius 
 
     if (vertexCurrentId !== null) {
       vertexRefs.current?.get(vertexCurrentId)?.deselect();
+
       const [_, ref] = Array.from(vertexRefs?.current ?? [null, null]).at(-1) ?? [null, null];
       ref?.select();
     }

@@ -1,5 +1,5 @@
 import { Ref } from "react";
-import EdgeRef from "./ref";
+import { EdgeRef } from "./ref";
 
 type EdgeProps = {
     fromId: string;
@@ -12,4 +12,4 @@ type EdgeProps = {
     theme: 'light' | 'dark';
 }
 
-export default EdgeProps;
+export { EdgeProps };

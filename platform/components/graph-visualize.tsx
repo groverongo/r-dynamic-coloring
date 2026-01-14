@@ -6,12 +6,12 @@ import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphDeserializer } from "@/lib/serializers";
 import type { AppUsage } from "@/lib/usage";
 import { GetGraphResponse } from "@/lib/validation";
+import { GraphCanvas, useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useTheme } from "next-themes";
 import { CSSProperties, useEffect, useRef, useState } from "react";
-import GraphCanvas from "./GraphCanvas/Canvas/graph-canvas";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { ChatAgent } from "./chat-agent";
 import { ColoringParameters } from "./coloring-parameters";
 import { EngineProperties } from "./element-properties";
@@ -34,6 +34,7 @@ export function GraphVisualize({
   initialLastContext?: AppUsage;
 }) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
+  const { theme } = useTheme();
 
   const {
     setVertexGraph,
@@ -114,6 +115,7 @@ export function GraphVisualize({
               context={MainCanvasContext}
               fontSize={fontSize}
               nodeRadius={nodeRadius}
+              theme={theme}
             />
             <div className="flex flex-row gap-1 sm:gap-2">
               <ColoringParameters />

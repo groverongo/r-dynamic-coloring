@@ -1,8 +1,8 @@
 import { useEffect, useImperativeHandle, useState } from "react";
 import { Line } from "react-konva";
-import EdgeProps from "./props";
+import { EdgeProps } from "./props";
 
-export default function Edge({
+export function Edge({
     fromId,
     toId,
     from,

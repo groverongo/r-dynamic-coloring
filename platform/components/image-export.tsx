@@ -3,10 +3,9 @@ import { useRef, useState } from "react";
 import { Button } from "./ui/button";
 
 import { MainCanvasContext } from "@/lib/graph-constants";
-import Konva from "konva";
+import { useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { Image, ImageDown } from "lucide-react";
 import "../styles/SaveGraphVersion.css";
-import { useGraphCanvasContext } from "./GraphCanvas/Context/useContext";
 import { TooltipHeaderButton } from "./ui/tooltip-header-button";
 
 
@@ -14,37 +13,11 @@ export function ImageExport({ download }: { download?: boolean }) {
 
   const [open, setOpen] = useState(false);
   const timerRef = useRef<NodeJS.Timeout>();
-  const [savedGraphId, setSavedGraphId] = useState<string>("");
 
-  const { stageRef } = useGraphCanvasContext(MainCanvasContext);
-
+  const { saveAsImage } = useGraphCanvasContext(MainCanvasContext);
 
   const saveAsPNG = (e: React.MouseEvent) => {
-    if (stageRef.current === null) return;
-
-    const stageClone = stageRef.current.clone();
-
-    stageClone.getLayers()[0].add(new Konva.Rect({
-      width: stageRef.current.width(),
-      height: stageRef.current.height(),
-      fill: '#18181b',
-      listening: false
-    }));
-
-    stageClone.toBlob({ mimeType: 'image/png' }).then(blob => {
-      if (download) {
-        const url = URL.createObjectURL(blob as Blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'graph.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-      } else {
-        navigator.clipboard.write([new ClipboardItem({ 'image/png': blob as Blob })])
-      }
-    })
+    saveAsImage(download);
 
     setOpen(false);
     globalThis.clearTimeout(timerRef.current);

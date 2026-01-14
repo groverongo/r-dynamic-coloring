@@ -1,6 +1,6 @@
 
-import EdgeRef from "../Edge/ref";
-import VertexRef from "../Vertex/ref";
+import { EdgeRef } from "../Edge/ref";
+import { VertexRef } from "../Vertex/ref";
 
 export type vertexRefsType = Map<string, VertexRef | null>;
 

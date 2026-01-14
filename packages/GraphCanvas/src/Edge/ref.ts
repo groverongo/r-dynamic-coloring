@@ -6,4 +6,4 @@ type EdgeRef = {
     deselect: () => void;
 }
 
-export default EdgeRef;
+export { EdgeRef };

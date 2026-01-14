@@ -1,6 +1,6 @@
-export const NODE_G_MODES = ["Label", "Color"];
+export const VERTEX_MODES = ["Label", "Color"];
 
-export const NODE_G_MODES_STYLE: Record<string, {strokeColor: string}> = {
+export const VERTEX_MODES_STYLE: Record<string, {strokeColor: string}> = {
     "Label": {
         strokeColor: "blue"
     },
@@ -9,7 +9,7 @@ export const NODE_G_MODES_STYLE: Record<string, {strokeColor: string}> = {
     }
 }
 
-export const NODE_G_COLORS = [
+export const VERTEX_COLORS = [
     { name: 'White', hex: '#ec706b' },
     { name: 'Light Yellow', hex: '#f09033' },
     { name: 'Light Blue', hex: '#f7d453' },

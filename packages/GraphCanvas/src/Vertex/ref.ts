@@ -14,4 +14,4 @@ type VertexRef = {
   changeColor: (index: number | null, enforce?: boolean) => void;
 };
 
-export default VertexRef;
+export { VertexRef };

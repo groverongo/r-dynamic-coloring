@@ -10,14 +10,14 @@ import { Circle, Group, Image, Text } from "react-konva";
 import { parse, stringify } from "svgson";
 import TeXToSVG from "tex-to-svg";
 import {
-  NODE_G_COLORS,
-  NODE_G_MODES,
-  NODE_G_MODES_STYLE,
+  VERTEX_COLORS,
+  VERTEX_MODES,
+  VERTEX_MODES_STYLE,
 } from "../constant";
-import VertexProps from "./props";
-import VertexRef from "./ref";
+import { VertexProps } from "./props";
+import { VertexRef } from "./ref";
 
-export default function Vertex({
+export function Vertex({
   ref,
   x,
   y,
@@ -162,10 +162,10 @@ export default function Vertex({
         x={x}
         y={y}
         radius={nodeRadius}
-        fill={colorIndex === null ? backgroundColor : NODE_G_COLORS[colorIndex].hex}
+        fill={colorIndex === null ? backgroundColor : VERTEX_COLORS[colorIndex].hex}
         stroke={
           isSelected
-            ? NODE_G_MODES_STYLE[NODE_G_MODES[mode]].strokeColor
+            ? VERTEX_MODES_STYLE[VERTEX_MODES[mode]].strokeColor
             : borderColor
         }
         dash={compromised ? [5, 5] : []}

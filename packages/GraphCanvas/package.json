@@ -1,0 +1,53 @@
+{
+  "name": "@r-dynamic-coloring/graph-canvas",
+  "version": "1.0.0",
+  "description": "A dynamic graph rendering component",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "lint": "tsc --noEmit",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "react",
+    "graph",
+    "canvas",
+    "dynamic-coloring"
+  ],
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.8",
+    "@types/react-dom": "^19.2.3",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "canvg": "^4.0.3",
+    "konva": "^10.0.12",
+    "react-konva": "^19.2.1",
+    "react-konva-utils": "^2.0.0",
+    "svgson": "^5.3.1",
+    "tex-to-svg": "^0.2.0",
+    "uuid": "^13.0.0"
+  }
+}

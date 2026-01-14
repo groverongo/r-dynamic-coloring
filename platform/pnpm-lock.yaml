@@ -44,6 +44,9 @@ importers:
       '@opentelemetry/api-logs':
         specifier: ^0.200.0
         version: 0.200.0
+      '@r-dynamic-coloring/graph-canvas':
+        specifier: file:../packages/GraphCanvas
+        version: file:../packages/GraphCanvas(@types/react@18.3.26)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@radix-ui/colors':
         specifier: ^3.0.0
         version: 3.0.0
@@ -1098,6 +1101,12 @@ packages:
     resolution: {integrity: sha512-vSMYtL/zOcFpvJCW71Q/OEGQb7KYBPAdKh35WNSkaZA75JlAO8ED8UN6GUNTm3drWomcbcqRPFqQbLae8yBTdg==}
     engines: {node: '>=18'}
     hasBin: true
+
+  '@r-dynamic-coloring/graph-canvas@file:../packages/GraphCanvas':
+    resolution: {directory: ../packages/GraphCanvas, type: directory}
+    peerDependencies:
+      react: '>=18'
+      react-dom: '>=18'
 
   '@radix-ui/colors@3.0.0':
     resolution: {integrity: sha512-FUOsGBkHrYJwCSEtWRCIfQbZG7q1e6DgxCIOe1SUQzDe/7rXXeA47s8yCn6fuTNQAj1Zq4oTFi9Yjp3wzElcxg==}
@@ -2513,6 +2522,11 @@ packages:
     peerDependencies:
       '@types/react': '*'
 
+  '@types/react-reconciler@0.32.3':
+    resolution: {integrity: sha512-cMi5ZrLG7UtbL7LTK6hq9w/EZIRk4Mf1Z5qHoI+qBh7/WkYkFXQ7gOto2yfUvPzF5ERMAhaXS5eTQ2SAnHjLzA==}
+    peerDependencies:
+      '@types/react': '*'
+
   '@types/react-syntax-highlighter@15.5.13':
     resolution: {integrity: sha512-uLGJ87j6Sz8UaBAooU0T6lWJ0dBmjZgN1PZTrj05TNql2/XpC6+4HhMT5syIdFUUt+FASfCeLLv4kBygNU+8qA==}
 
@@ -3560,6 +3574,9 @@ packages:
   konva@10.0.7:
     resolution: {integrity: sha512-j+xfmCcZtoPFnM7j1OBAuNHaivdjScDNW6YbfZhmoWfDArays/3l9+uFeh6nNoIdRBH60BdSYv12UJaqn0Yv6g==}
 
+  konva@10.1.0:
+    resolution: {integrity: sha512-tW/WvPpGqewXMhjHKEQ2HgrRmUvNpgbTHIrbfTpdpOjfnf7LsrOPvVRjiGWS4FhjDesbrtby6e9XK7u2dtgbwg==}
+
   langium@3.3.1:
     resolution: {integrity: sha512-QJv/h939gDpvT+9SiLVlY7tZC3xB2qK57v0J04Sh9wpMb6MP1q8gB21L3WIo8T5P1MSMg3Ep14L7KkDCFG3y4w==}
     engines: {node: '>=16.0.0'}
@@ -4218,6 +4235,13 @@ packages:
 
   react-konva@19.2.0:
     resolution: {integrity: sha512-Ofifq/rdNvff50+Lj8x86WSfoeQDvdysOlsXMMrpD2uWmDxUPrEYSRLt27iCfdovQZL6xinKRpX9VaL9xDwXDQ==}
+    peerDependencies:
+      konva: ^8.0.1 || ^7.2.5 || ^9.0.0 || ^10.0.0
+      react: ^19.2.0
+      react-dom: ^19.2.0
+
+  react-konva@19.2.1:
+    resolution: {integrity: sha512-sqZWCzQGpdMrU5aeunR0oxUY8UeCPbU8gnAYxMtAn6BT4coeSpiATKOctsoxRu6F56TAcF+s0c6Lul9ansNqQA==}
     peerDependencies:
       konva: ^8.0.1 || ^7.2.5 || ^9.0.0 || ^10.0.0
       react: ^19.2.0
@@ -5857,6 +5881,20 @@ snapshots:
     dependencies:
       playwright: 1.56.1
 
+  '@r-dynamic-coloring/graph-canvas@file:../packages/GraphCanvas(@types/react@18.3.26)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+    dependencies:
+      canvg: 4.0.3
+      konva: 10.1.0
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      react-konva: 19.2.1(@types/react@18.3.26)(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      react-konva-utils: 2.0.0(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react-konva@19.2.1(@types/react@18.3.26)(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
+      svgson: 5.3.1
+      tex-to-svg: 0.2.0
+      uuid: 13.0.0
+    transitivePeerDependencies:
+      - '@types/react'
+
   '@radix-ui/colors@3.0.0': {}
 
   '@radix-ui/number@1.1.1': {}
@@ -7452,6 +7490,10 @@ snapshots:
     dependencies:
       '@types/react': 18.3.26
 
+  '@types/react-reconciler@0.32.3(@types/react@18.3.26)':
+    dependencies:
+      '@types/react': 18.3.26
+
   '@types/react-syntax-highlighter@15.5.13':
     dependencies:
       '@types/react': 18.3.26
@@ -8511,6 +8553,8 @@ snapshots:
 
   konva@10.0.7: {}
 
+  konva@10.1.0: {}
+
   langium@3.3.1:
     dependencies:
       chevrotain: 11.0.3
@@ -9472,11 +9516,31 @@ snapshots:
       react-konva: 19.2.0(@types/react@18.3.26)(konva@10.0.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       use-image: 1.1.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
 
+  react-konva-utils@2.0.0(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react-konva@19.2.1(@types/react@18.3.26)(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3):
+    dependencies:
+      konva: 10.1.0
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      react-konva: 19.2.1(@types/react@18.3.26)(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+      use-image: 1.1.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+
   react-konva@19.2.0(@types/react@18.3.26)(konva@10.0.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
     dependencies:
       '@types/react-reconciler': 0.32.2(@types/react@18.3.26)
       its-fine: 2.0.0(@types/react@18.3.26)(react@19.2.3)
       konva: 10.0.7
+      react: 19.2.3
+      react-dom: 19.2.3(react@19.2.3)
+      react-reconciler: 0.33.0(react@19.2.3)
+      scheduler: 0.27.0
+    transitivePeerDependencies:
+      - '@types/react'
+
+  react-konva@19.2.1(@types/react@18.3.26)(konva@10.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3):
+    dependencies:
+      '@types/react-reconciler': 0.32.3(@types/react@18.3.26)
+      its-fine: 2.0.0(@types/react@18.3.26)(react@19.2.3)
+      konva: 10.1.0
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
       react-reconciler: 0.33.0(react@19.2.3)

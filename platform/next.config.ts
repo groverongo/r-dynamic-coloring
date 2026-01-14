@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  transpilePackages: ["@r-dynamic-coloring/graph-canvas"],
 };
 
 export default nextConfig;
