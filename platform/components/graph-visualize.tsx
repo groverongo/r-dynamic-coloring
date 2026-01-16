@@ -70,6 +70,7 @@ export function GraphVisualize({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    enabled: id !== undefined,
   });
 
   useEffect(() => {
