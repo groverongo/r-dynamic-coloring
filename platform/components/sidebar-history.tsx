@@ -1,12 +1,5 @@
 "use client";
 
-import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
-import { motion } from "framer-motion";
-import { useParams, useRouter } from "next/navigation";
-import type { User } from "next-auth";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
-import useSWRInfinite from "swr/infinite";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,14 +16,17 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
-import type { Chat } from "@/lib/types/db-types";
-import { fetcher } from "@/lib/utils";
-import { LoaderIcon } from "./icons";
-import { GraphItem } from "./sidebar-history-item";
+import { GraphsResponse } from "@/lib/validation";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { GraphsResponse } from "@/lib/validation";
+import { isToday, isYesterday, subMonths, subWeeks } from "date-fns";
+import type { User } from "next-auth";
+import { useParams, useRouter } from "next/navigation";
 import { Toast } from "radix-ui";
+import { useRef, useState } from "react";
+import { toast } from "sonner";
+import { LoaderIcon } from "./icons";
+import { GraphItem } from "./sidebar-history-item";
 
 import "../styles/SaveGraphVersion.css";
 
@@ -107,7 +103,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_R_HUED_COLORING_API}/graphs?limit=${PAGE_SIZE}`
       );
-      if(response.data?.graphs === null) 
+      if (response.data?.graphs === null)
         response.data.graphs = [];
 
       console.log("Processed graphs:", response.data);
@@ -118,7 +114,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     retry: false,
   });
 
-  const {mutate: deleteGraph, isSuccess: deleteGraphSuccess, error: deleteGraphError} = useMutation({
+  const { mutate: deleteGraph, isSuccess: deleteGraphSuccess, error: deleteGraphError } = useMutation({
     mutationFn: async () => {
       const response = await axios.delete(
         `${process.env.NEXT_PUBLIC_R_HUED_COLORING_API}/graphs/${id}`
@@ -127,8 +123,8 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
     },
     retry: false,
     onSuccess: () => {
-      if(id === deleteId)
-          router.push("/");
+      if (id === deleteId)
+        router.push("/");
     },
     onError: () => {
       toast("Failed to delete graph");
@@ -144,7 +140,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
       setOpen(true);
     }, 100);
   }
-  
+
   const router = useRouter();
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -336,7 +332,7 @@ export function SidebarHistory({ user }: { user: User | undefined }) {
 
           {hasReachedEnd ? (
             <div className="mt-8 flex w-full flex-row items-center justify-center gap-2 px-2 text-sm text-zinc-500">
-              You have reached the end of your chat history.
+              You have reached the end of your created graphs history.
             </div>
           ) : (
             <div className="mt-8 flex flex-row items-center gap-2 p-2 text-zinc-500 dark:text-zinc-400">
