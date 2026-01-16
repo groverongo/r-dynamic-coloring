@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { queryClient } from "@/lib/queries";
-import type { AppUsage } from "@/lib/usage";
 import { GraphCanvasProvider } from "@r-dynamic-coloring/graph-canvas";
 import { QueryClientProvider } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from "react";
@@ -24,15 +23,11 @@ export function Structure({
   initialChatModel,
   initialVisibilityType,
   isReadonly,
-  autoResume,
-  initialLastContext,
 }: {
   id?: string;
   initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
-  autoResume: boolean;
-  initialLastContext?: AppUsage;
 }) {
 
   const [currentModelId, setCurrentModelId] = useState(initialChatModel);
@@ -53,9 +48,6 @@ export function Structure({
           id={id}
           isReadonly={isReadonly}
           initialVisibilityType={initialVisibilityType}
-          autoResume={autoResume}
-          initialLastContext={initialLastContext}
-          initialChatModel={initialChatModel}
         />
         <AlertDialog
           onOpenChange={setShowCreditCardAlert}

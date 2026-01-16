@@ -4,14 +4,13 @@ import { ChatHeader } from "@/components/chat-header";
 import { fontSizeAtom, graphNameAtom, nodeRadiusAtom, stylePropsAtom } from "@/lib/atoms";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphDeserializer } from "@/lib/serializers";
-import type { AppUsage } from "@/lib/usage";
 import { GetGraphResponse } from "@/lib/validation";
 import { GraphCanvas, useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTheme } from "next-themes";
-import { CSSProperties, useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect } from "react";
 import { ChatAgent } from "./chat-agent";
 import { ColoringParameters } from "./coloring-parameters";
 import { EngineProperties } from "./element-properties";
@@ -20,18 +19,12 @@ import type { VisibilityType } from "./visibility-selector";
 
 export function GraphVisualize({
   id,
-  initialChatModel,
   initialVisibilityType,
   isReadonly,
-  autoResume,
-  initialLastContext,
 }: {
   id?: string;
-  initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
-  autoResume: boolean;
-  initialLastContext?: AppUsage;
 }) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
   const { theme } = useTheme();
@@ -87,17 +80,6 @@ export function GraphVisualize({
       setRFactor(response.data.localR);
     });
   }, []);
-
-  const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
-  const [currentModelId, setCurrentModelId] = useState(initialChatModel);
-  const currentModelIdRef = useRef(currentModelId);
-
-
-  useEffect(() => {
-    currentModelIdRef.current = currentModelId;
-  }, [currentModelId]);
-
-
 
   return (
     <>
