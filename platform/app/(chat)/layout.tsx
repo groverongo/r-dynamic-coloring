@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { ChatAgentSidebar } from "@/components/app-sidebar copy";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Script from "next/script";
 
@@ -19,6 +20,7 @@ export default async function Layout({
       <SidebarProvider defaultOpen={true}>
         <AppSidebar user={{ email: "guest", id: "guest", image: "", name: "Guest" }} />
         <SidebarInset>{children}</SidebarInset>
+        <ChatAgentSidebar user={{ email: "guest", id: "guest", image: "", name: "Guest" }} />
       </SidebarProvider>
     </>
   );

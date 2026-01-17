@@ -11,7 +11,6 @@ import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTheme } from "next-themes";
 import { CSSProperties, useEffect } from "react";
-import { ChatAgent } from "./chat-agent";
 import { ColoringParameters } from "./coloring-parameters";
 import { EngineProperties } from "./element-properties";
 import { LPSolution } from "./linear-programming-solution";
@@ -90,27 +89,25 @@ export function GraphVisualize({
           selectedVisibilityType={initialVisibilityType}
         />
 
-        <div className="flex flex-row items-stretch gap-1 sm:gap-2 flex-1 overflow-hidden">
-          <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
-            <GraphCanvas
-              key={id}
-              styleProps={styleProps}
-              context={MainCanvasContext}
-              fontSize={fontSize}
-              nodeRadius={nodeRadius}
-              theme={theme}
-            />
-            <div className="flex flex-row gap-1 sm:gap-2">
-              <ColoringParameters />
-              <LPSolution />
-              <EngineProperties />
-            </div>
-          </div>
-
-          <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
-            <ChatAgent />
+        <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
+          <GraphCanvas
+            key={id}
+            styleProps={styleProps}
+            context={MainCanvasContext}
+            fontSize={fontSize}
+            nodeRadius={nodeRadius}
+            theme={theme}
+          />
+          <div className="flex flex-row gap-1 sm:gap-2">
+            <ColoringParameters />
+            <LPSolution />
+            <EngineProperties />
           </div>
         </div>
+
+        {/* <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
+            <ChatAgent />
+          </div> */}
       </div>
     </>
   );
