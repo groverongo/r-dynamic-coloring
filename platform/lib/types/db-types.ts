@@ -3,7 +3,6 @@
  * These replace the types previously inferred from the Drizzle schema.
  */
 
-import type { AppUsage } from "../usage";
 
 export interface User {
     id: string;
@@ -17,7 +16,6 @@ export interface Chat {
     title: string;
     userId: string;
     visibility: "public" | "private";
-    lastContext: AppUsage | null;
 }
 
 export interface DBMessage {
@@ -61,6 +59,3 @@ export interface Stream {
     chatId: string;
     createdAt: Date;
 }
-
-// Re-export for backwards compatibility
-export type { AppUsage };

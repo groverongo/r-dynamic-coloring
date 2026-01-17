@@ -1,7 +1,6 @@
+import { GraphsResponse } from "@/lib/validation";
 import Link from "next/link";
 import { memo } from "react";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
-import type { Chat } from "@/lib/types/db-types";
 import {
   CheckCircleFillIcon,
   GlobeIcon,
@@ -25,7 +24,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { GraphsResponse } from "@/lib/validation";
 
 const PureChatItem = ({
   graph,
