@@ -14,32 +14,21 @@ import { MainCanvasContext } from "@/lib/graph-constants";
 import { queryClient } from "@/lib/queries";
 import { GraphCanvasProvider } from "@r-dynamic-coloring/graph-canvas";
 import { QueryClientProvider } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { GraphVisualize } from "./graph-visualize";
 import type { VisibilityType } from "./visibility-selector";
 
 export function Structure({
   id,
-  initialChatModel,
   initialVisibilityType,
   isReadonly,
 }: {
   id?: string;
-  initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
 }) {
 
-  const [currentModelId, setCurrentModelId] = useState(initialChatModel);
-  const currentModelIdRef = useRef(currentModelId);
-
   const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
-
-  useEffect(() => {
-    currentModelIdRef.current = currentModelId;
-  }, [currentModelId]);
-
-
 
   return (
     <QueryClientProvider client={queryClient}>
