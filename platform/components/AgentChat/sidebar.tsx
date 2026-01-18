@@ -56,10 +56,10 @@ export function AgentChatSidebar() {
     return (
         <ChatContext.Provider value={{ input, setInput, messages, setMessages, isPending, callAgent }}>
 
-            <Sidebar collapsible="none" style={{
+            <Sidebar style={{
                 "--sidebar-width": "35rem",
                 "--sidebar-width-mobile": "35rem",
-            } as React.CSSProperties} side="right" className="hidden md:flex h-svh sticky top-0 group-data-[side=right]:border-l-0">
+            } as React.CSSProperties} side="right" className="hidden md:flex h-svh top-0 group-data-[side=right]:border-l-0">
                 <SidebarHeader>
                     <SidebarMenu>
                         <Title />

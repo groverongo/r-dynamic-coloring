@@ -24,6 +24,7 @@ import { Slot as SlotPrimitive } from "radix-ui";
 import * as React from "react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
+const SIDEBAR_RIGHT_COOKIE_NAME = "sidebar_right_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
@@ -37,6 +38,10 @@ type SidebarContextProps = {
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
   toggleSidebar: () => void;
+  stateRight: "expanded" | "collapsed";
+  openRight: boolean;
+  setOpenRight: (open: boolean) => void;
+  toggleRightSidebar: () => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -56,6 +61,9 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    defaultOpenRight?: boolean;
+    openRight?: boolean;
+    onOpenRightChange?: (open: boolean) => void;
   }
 >(
   (
@@ -63,6 +71,9 @@ const SidebarProvider = React.forwardRef<
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
+      defaultOpenRight = true,
+      openRight: openRightProp,
+      onOpenRightChange: setOpenRightProp,
       className,
       style,
       children,
@@ -96,6 +107,27 @@ const SidebarProvider = React.forwardRef<
       return setOpen((open) => !open);
     }, [setOpen]);
 
+    // Right Sidebar State
+    const [_openRight, _setOpenRight] = React.useState(defaultOpenRight);
+    const openRight = openRightProp ?? _openRight;
+    const setOpenRight = React.useCallback(
+      (value: boolean | ((value: boolean) => boolean)) => {
+        const openState = typeof value === "function" ? value(openRight) : value;
+        if (setOpenRightProp) {
+          setOpenRightProp(openState);
+        } else {
+          _setOpenRight(openState);
+        }
+
+        document.cookie = `${SIDEBAR_RIGHT_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      },
+      [setOpenRightProp, openRight]
+    );
+
+    const toggleRightSidebar = React.useCallback(() => {
+      return setOpenRight((open) => !open);
+    }, [setOpenRight]);
+
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
@@ -115,6 +147,7 @@ const SidebarProvider = React.forwardRef<
     // We add a state so that we can do data-state="expanded" or "collapsed".
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed";
+    const stateRight = openRight ? "expanded" : "collapsed";
 
     const contextValue = React.useMemo<SidebarContextProps>(
       () => ({
@@ -124,8 +157,23 @@ const SidebarProvider = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        stateRight,
+        openRight,
+        setOpenRight,
+        toggleRightSidebar,
       }),
-      [state, open, setOpen, openMobile, setOpenMobile, toggleSidebar]
+      [
+        state,
+        open,
+        setOpen,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+        stateRight,
+        openRight,
+        setOpenRight,
+        toggleRightSidebar,
+      ]
     );
 
     return (
@@ -174,7 +222,8 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { state, openMobile, setOpenMobile } = useSidebar();
+    const { state, openMobile, setOpenMobile, stateRight } = useSidebar();
+    const currentState = side === "right" ? stateRight : state;
 
     if (collapsible === "none") {
       return (
@@ -218,11 +267,12 @@ const Sidebar = React.forwardRef<
     return (
       <div
         className="group peer hidden text-sidebar-foreground md:block"
-        data-collapsible={state === "collapsed" ? collapsible : ""}
+        data-collapsible={currentState === "collapsed" ? collapsible : ""}
         data-side={side}
-        data-state={state}
+        data-state={currentState}
         data-variant={variant}
         ref={ref}
+        style={props.style}
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
