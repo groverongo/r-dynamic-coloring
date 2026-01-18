@@ -1,7 +1,7 @@
 'use client'
 
 import Konva from "konva";
-import { Context, ReactNode, createContext, useContext, useRef, useState } from "react";
+import { Context, ReactNode, createContext, useCallback, useContext, useMemo, useRef, useState } from "react";
 import { EdgeRef } from "../Edge/ref";
 import { VertexRef } from "../Vertex/ref";
 import { ContextInterface } from "./schema";
@@ -39,16 +39,16 @@ export const GraphCanvasProvider: React.FC<{
     const [graphAdjacencyList, setGraphAdjacencyList] = useState<graphAdjacencyListType>(new Map<string, Set<[string, string]>>());
     const [coloring, setColoring] = useState<coloringType>({});
 
-    function clearCanvas() {
+    const clearCanvas = useCallback(() => {
         setVertexGraph(new Map<string, { x: number, y: number, xRelative: number, yRelative: number }>());
         setEdgeGraph(new Map<string, { from: string, to: string, fromEntry: [string, string], toEntry: [string, string] }>());
         setGraphAdjacencyList(new Map<string, Set<[string, string]>>());
         setColoring({});
         vertexRefs.current?.clear();
         edgeRefs.current?.clear();
-    }
+    }, []);
 
-    function saveAsImage(download?: boolean) {
+    const saveAsImage = useCallback((download?: boolean) => {
         if (stageRef.current === null) return;
 
         const stageClone = stageRef.current.clone();
@@ -74,22 +74,27 @@ export const GraphCanvasProvider: React.FC<{
                 navigator.clipboard.write([new ClipboardItem({ 'image/png': blob as Blob })])
             }
         })
-    }
+    }, []);
+
+    const value = useMemo(() => ({
+        rFactor, setRFactor,
+        kColors, setKColors,
+        vertexGraph, setVertexGraph,
+        edgeGraph, setEdgeGraph,
+        graphAdjacencyList, setGraphAdjacencyList,
+        coloring, setColoring,
+        vertexCurrentId, setVertexCurrentId,
+        edgeCurrentId, setEdgeCurrentId,
+        stageRef, vertexRefs, edgeRefs,
+        clearCanvas,
+        saveAsImage
+    }), [
+        rFactor, kColors, vertexGraph, edgeGraph, graphAdjacencyList, coloring,
+        vertexCurrentId, edgeCurrentId, clearCanvas, saveAsImage
+    ]);
 
     return (
-        <context.Provider value={{
-            rFactor, setRFactor,
-            kColors, setKColors,
-            vertexGraph, setVertexGraph,
-            edgeGraph, setEdgeGraph,
-            graphAdjacencyList, setGraphAdjacencyList,
-            coloring, setColoring,
-            vertexCurrentId, setVertexCurrentId,
-            edgeCurrentId, setEdgeCurrentId,
-            stageRef, vertexRefs, edgeRefs,
-            clearCanvas,
-            saveAsImage
-        }}>
+        <context.Provider value={value}>
             {children}
         </context.Provider>
     );

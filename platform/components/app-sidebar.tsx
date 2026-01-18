@@ -1,12 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { User } from "next-auth";
-import { useState } from "react";
-import { toast } from "sonner";
-import { useSWRConfig } from "swr";
-import { unstable_serialize } from "swr/infinite";
 import { PlusIcon, TrashIcon } from "@/components/icons";
 import { SidebarHistory } from "@/components/sidebar-history";
 import { SidebarUserNav } from "@/components/sidebar-user-nav";
@@ -19,7 +12,14 @@ import {
   SidebarMenu,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
+import { queryClient } from "@/lib/queries";
+import { QueryClientProvider } from "@tanstack/react-query";
+import type { User } from "next-auth";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useSWRConfig } from "swr";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,8 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "./ui/alert-dialog";
-import { queryClient } from "@/lib/queries";
-import { QueryClientProvider } from "@tanstack/react-query";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function AppSidebar({ user }: { user: User | undefined }) {
   const router = useRouter();
@@ -58,7 +57,7 @@ export function AppSidebar({ user }: { user: User | undefined }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Sidebar className="group-data-[side=left]:border-r-0">
+      <Sidebar side="left" className="group-data-[side=left]:border-r-0">
         <SidebarHeader>
           <SidebarMenu>
             <div className="flex flex-row items-center justify-between">

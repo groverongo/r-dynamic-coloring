@@ -30,7 +30,8 @@ export function Vertex({
   colorIndexInitial,
   theme,
   fontSize,
-  nodeRadius
+  nodeRadius,
+  onDragEnd
 }: Readonly<VertexProps>) {
 
   const [latex, setLatex] = useState<HTMLImageElement | undefined>();
@@ -156,6 +157,9 @@ export function Vertex({
       }}
       onDragMove={(e) => {
         whileDragging?.(getAbsoluteX(), getAbsoluteY());
+      }}
+      onDragEnd={(e) => {
+        onDragEnd?.(getAbsoluteX(), getAbsoluteY());
       }}
     >
       <Circle

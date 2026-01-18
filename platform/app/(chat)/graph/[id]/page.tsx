@@ -1,65 +1,12 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-
-import { auth } from "@/app/(auth)/auth";
 import { Structure } from "@/components/structure";
-import { DEFAULT_CHAT_MODEL } from "@/lib/ai/models";
 
 export default async function Page(props: { params: Promise<{ id: string }> }) {
   const params = await props.params;
   const { id } = params;
-  // const chat = await getChatById({ id });
-
-  // if (!chat) {
-  //   notFound();
-  // }
-
-  const session = await auth();
-
-  if (!session) {
-    redirect("/api/auth/guest");
-  }
-
-  // if (chat.visibility === "private") {
-  //   if (!session.user) {
-  //     return notFound();
-  //   }
-
-  //   if (session.user.id !== chat.userId) {
-  //     return notFound();
-  //   }
-  // }
-
-  // const messagesFromDb = await getMessagesByChatId({
-  //   id,
-  // });
-
-  // const uiMessages = convertToUIMessages(messagesFromDb);
-
-  const cookieStore = await cookies();
-  const chatModelFromCookie = cookieStore.get("chat-model");
-
-  if (!chatModelFromCookie) {
-    return (
-      <Structure
-        autoResume={true}
-        id={id}
-        initialChatModel={DEFAULT_CHAT_MODEL}
-        initialLastContext={undefined}
-        // initialMessages={uiMessages}
-        initialVisibilityType={"public"}
-        isReadonly={false}
-      />
-    );
-  }
 
   return (
     <Structure
-      autoResume={true}
       id={id}
-      initialChatModel={chatModelFromCookie.value}
-      initialLastContext={undefined}
-      // initialMessages={uiMessages}
       initialVisibilityType={"public"}
       isReadonly={false}
     />

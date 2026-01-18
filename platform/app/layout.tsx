@@ -1,12 +1,11 @@
-import type { Metadata } from "next";
 import { StackProvider, StackTheme } from "@stackframe/stack";
-import { stackClientApp } from "../stack/client";
+import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { stackClientApp } from "../stack/client";
 
-import "./globals.css";
-import { SessionProvider } from "next-auth/react";
 import { ThemeProvider } from "next-themes";
+import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://r-hued-coloring-platform.vercel.app"),
@@ -81,7 +80,7 @@ export default function RootLayout({
           enableSystem
         >
           <Toaster position="top-center" />
-          <SessionProvider>{children}</SessionProvider>
+          {children}
         </ThemeProvider>
       </StackTheme></StackProvider></body>
     </html>

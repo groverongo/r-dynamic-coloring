@@ -4,15 +4,13 @@ import { ChatHeader } from "@/components/chat-header";
 import { fontSizeAtom, graphNameAtom, nodeRadiusAtom, stylePropsAtom } from "@/lib/atoms";
 import { MainCanvasContext } from "@/lib/graph-constants";
 import { GraphDeserializer } from "@/lib/serializers";
-import type { AppUsage } from "@/lib/usage";
 import { GetGraphResponse } from "@/lib/validation";
 import { GraphCanvas, useGraphCanvasContext } from "@r-dynamic-coloring/graph-canvas";
 import { useQuery } from '@tanstack/react-query';
 import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTheme } from "next-themes";
-import { CSSProperties, useEffect, useRef, useState } from "react";
-import { ChatAgent } from "./chat-agent";
+import { CSSProperties, useEffect } from "react";
 import { ColoringParameters } from "./coloring-parameters";
 import { EngineProperties } from "./element-properties";
 import { LPSolution } from "./linear-programming-solution";
@@ -20,18 +18,12 @@ import type { VisibilityType } from "./visibility-selector";
 
 export function GraphVisualize({
   id,
-  initialChatModel,
   initialVisibilityType,
   isReadonly,
-  autoResume,
-  initialLastContext,
 }: {
   id?: string;
-  initialChatModel: string;
   initialVisibilityType: VisibilityType;
   isReadonly: boolean;
-  autoResume: boolean;
-  initialLastContext?: AppUsage;
 }) {
   const [styleProps, setStyleProps] = useAtom<CSSProperties>(stylePropsAtom);
   const { theme } = useTheme();
@@ -70,33 +62,20 @@ export function GraphVisualize({
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    enabled: id !== undefined,
   });
 
   useEffect(() => {
-    if (!id) return;
-    refetch().then((response) => {
-      if (response.data === undefined) return;
+    if (!data) return;
 
-      setGraphName(response.data.name);
-      setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(response.data.graphAdjacencyList));
-      setVertexGraph(GraphDeserializer.vertexGraphDeserializer(response.data.vertexGraph));
-      setEdgeGraph(GraphDeserializer.edgeGraphDeserializer(response.data.edgeGraph));
-      setColoring(GraphDeserializer.coloringDeserializer(response.data.localColoring));
-      setKColors(response.data.localK);
-      setRFactor(response.data.localR);
-    });
-  }, []);
-
-  const [showCreditCardAlert, setShowCreditCardAlert] = useState(false);
-  const [currentModelId, setCurrentModelId] = useState(initialChatModel);
-  const currentModelIdRef = useRef(currentModelId);
-
-
-  useEffect(() => {
-    currentModelIdRef.current = currentModelId;
-  }, [currentModelId]);
-
-
+    setGraphName(data.name);
+    setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(data.graphAdjacencyList));
+    setVertexGraph(GraphDeserializer.vertexGraphDeserializer(data.vertexGraph));
+    setEdgeGraph(GraphDeserializer.edgeGraphDeserializer(data.edgeGraph));
+    setColoring(GraphDeserializer.coloringDeserializer(data.localColoring));
+    setKColors(data.localK);
+    setRFactor(data.localR);
+  }, [data]);
 
   return (
     <>
@@ -107,27 +86,25 @@ export function GraphVisualize({
           selectedVisibilityType={initialVisibilityType}
         />
 
-        <div className="flex flex-row items-stretch gap-1 sm:gap-2 flex-1 overflow-hidden">
-          <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
-            <GraphCanvas
-              key={id}
-              styleProps={styleProps}
-              context={MainCanvasContext}
-              fontSize={fontSize}
-              nodeRadius={nodeRadius}
-              theme={theme}
-            />
-            <div className="flex flex-row gap-1 sm:gap-2">
-              <ColoringParameters />
-              <LPSolution />
-              <EngineProperties />
-            </div>
-          </div>
-
-          <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
-            <ChatAgent />
+        <div className="flex-1 flex flex-col items-center justify-center gap-1 sm:gap-2 overflow-y-auto p-4">
+          <GraphCanvas
+            key={id}
+            styleProps={styleProps}
+            context={MainCanvasContext}
+            fontSize={fontSize}
+            nodeRadius={nodeRadius}
+            theme={theme}
+          />
+          <div className="flex flex-row gap-1 sm:gap-2">
+            <ColoringParameters />
+            <LPSolution />
+            <EngineProperties />
           </div>
         </div>
+
+        {/* <div className="flex flex-col w-full max-w-2xl border-l-2 border-border overflow-hidden">
+            <ChatAgent />
+          </div> */}
       </div>
     </>
   );

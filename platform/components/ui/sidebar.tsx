@@ -1,9 +1,5 @@
 "use client";
 
-import { cva, type VariantProps } from "class-variance-authority";
-import { PanelLeft } from "lucide-react";
-import { Slot as SlotPrimitive } from "radix-ui";
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -21,10 +17,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { cva, type VariantProps } from "class-variance-authority";
+import { PanelLeft } from "lucide-react";
+import { Slot as SlotPrimitive } from "radix-ui";
+import * as React from "react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
+const SIDEBAR_RIGHT_COOKIE_NAME = "sidebar_right_state";
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const SIDEBAR_WIDTH = "16rem";
 const SIDEBAR_WIDTH_MOBILE = "18rem";
@@ -37,8 +37,11 @@ type SidebarContextProps = {
   setOpen: (open: boolean) => void;
   openMobile: boolean;
   setOpenMobile: (open: boolean) => void;
-  isMobile: boolean;
   toggleSidebar: () => void;
+  stateRight: "expanded" | "collapsed";
+  openRight: boolean;
+  setOpenRight: (open: boolean) => void;
+  toggleRightSidebar: () => void;
 };
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null);
@@ -58,6 +61,9 @@ const SidebarProvider = React.forwardRef<
     defaultOpen?: boolean;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
+    defaultOpenRight?: boolean;
+    openRight?: boolean;
+    onOpenRightChange?: (open: boolean) => void;
   }
 >(
   (
@@ -65,6 +71,9 @@ const SidebarProvider = React.forwardRef<
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
+      defaultOpenRight = true,
+      openRight: openRightProp,
+      onOpenRightChange: setOpenRightProp,
       className,
       style,
       children,
@@ -72,7 +81,6 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    const isMobile = useIsMobile();
     const [openMobile, setOpenMobile] = React.useState(false);
 
     // This is the internal state of the sidebar.
@@ -96,10 +104,29 @@ const SidebarProvider = React.forwardRef<
 
     // Helper to toggle the sidebar.
     const toggleSidebar = React.useCallback(() => {
-      return isMobile
-        ? setOpenMobile((open) => !open)
-        : setOpen((open) => !open);
-    }, [isMobile, setOpen, setOpenMobile]);
+      return setOpen((open) => !open);
+    }, [setOpen]);
+
+    // Right Sidebar State
+    const [_openRight, _setOpenRight] = React.useState(defaultOpenRight);
+    const openRight = openRightProp ?? _openRight;
+    const setOpenRight = React.useCallback(
+      (value: boolean | ((value: boolean) => boolean)) => {
+        const openState = typeof value === "function" ? value(openRight) : value;
+        if (setOpenRightProp) {
+          setOpenRightProp(openState);
+        } else {
+          _setOpenRight(openState);
+        }
+
+        document.cookie = `${SIDEBAR_RIGHT_COOKIE_NAME}=${openState}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
+      },
+      [setOpenRightProp, openRight]
+    );
+
+    const toggleRightSidebar = React.useCallback(() => {
+      return setOpenRight((open) => !open);
+    }, [setOpenRight]);
 
     // Adds a keyboard shortcut to toggle the sidebar.
     React.useEffect(() => {
@@ -120,18 +147,33 @@ const SidebarProvider = React.forwardRef<
     // We add a state so that we can do data-state="expanded" or "collapsed".
     // This makes it easier to style the sidebar with Tailwind classes.
     const state = open ? "expanded" : "collapsed";
+    const stateRight = openRight ? "expanded" : "collapsed";
 
     const contextValue = React.useMemo<SidebarContextProps>(
       () => ({
         state,
         open,
         setOpen,
-        isMobile,
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        stateRight,
+        openRight,
+        setOpenRight,
+        toggleRightSidebar,
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [
+        state,
+        open,
+        setOpen,
+        openMobile,
+        setOpenMobile,
+        toggleSidebar,
+        stateRight,
+        openRight,
+        setOpenRight,
+        toggleRightSidebar,
+      ]
     );
 
     return (
@@ -180,7 +222,8 @@ const Sidebar = React.forwardRef<
     },
     ref
   ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar();
+    const { state, openMobile, setOpenMobile, stateRight } = useSidebar();
+    const currentState = side === "right" ? stateRight : state;
 
     if (collapsible === "none") {
       return (
@@ -197,7 +240,7 @@ const Sidebar = React.forwardRef<
       );
     }
 
-    if (isMobile) {
+    if (openMobile) {
       return (
         <Sheet onOpenChange={setOpenMobile} open={openMobile} {...props}>
           <SheetContent
@@ -224,11 +267,12 @@ const Sidebar = React.forwardRef<
     return (
       <div
         className="group peer hidden text-sidebar-foreground md:block"
-        data-collapsible={state === "collapsed" ? collapsible : ""}
+        data-collapsible={currentState === "collapsed" ? collapsible : ""}
         data-side={side}
-        data-state={state}
+        data-state={currentState}
         data-variant={variant}
         ref={ref}
+        style={props.style}
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
@@ -563,7 +607,7 @@ const SidebarMenuButton = React.forwardRef<
     ref
   ) => {
     const Comp = asChild ? SlotPrimitive.Slot : "button";
-    const { isMobile, state } = useSidebar();
+    const { state } = useSidebar();
 
     const button = (
       <Comp
@@ -591,7 +635,7 @@ const SidebarMenuButton = React.forwardRef<
         <TooltipTrigger asChild>{button}</TooltipTrigger>
         <TooltipContent
           align="center"
-          hidden={state !== "collapsed" || isMobile}
+          hidden={state !== "collapsed"}
           side="right"
           {...tooltip}
         />
@@ -621,7 +665,7 @@ const SidebarMenuAction = React.forwardRef<
         "peer-data-[size=lg]/menu-button:top-2.5",
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
-          "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
+        "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
         className
       )}
       data-sidebar="menu-action"
@@ -768,5 +812,6 @@ export {
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
-  useSidebar,
+  useSidebar
 };
+

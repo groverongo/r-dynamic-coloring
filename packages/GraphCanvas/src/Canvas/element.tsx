@@ -340,6 +340,39 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
               draggable={keyDownUnblock}
               mode={nodeMode}
               whileDragging={(x, y) => {
+                // Update connected edges directly
+                const edges = graphAdjacencyList.get(key);
+                if (edges) {
+                  edges.forEach((edgeTuple) => {
+                    const edgeId = edgeTuple[1];
+                    const edgeRef = edgeRefs.current?.get(edgeId);
+                    const neighborId = edgeTuple[0];
+                    const neighborNode = vertexGraph.get(neighborId);
+
+                    if (edgeRef && neighborNode) {
+                      const edgeData = edgeGraph.get(edgeId);
+                      if (edgeData) {
+                        // Determine if we are updating 'from' or 'to'
+                        // The edgeData has from/to. 
+                        // If key === edgeData.from, then we updated 'from'.
+
+                        const isFrom = key === edgeData.from;
+
+                        const newFrom = isFrom
+                          ? { x: x, y: y }
+                          : { x: neighborNode.xRelative, y: neighborNode.yRelative };
+
+                        const newTo = isFrom
+                          ? { x: neighborNode.xRelative, y: neighborNode.yRelative }
+                          : { x: x, y: y };
+
+                        edgeRef.updatePosition(newFrom, newTo);
+                      }
+                    }
+                  });
+                }
+              }}
+              onDragEnd={(x, y) => {
                 setVertexGraph((prev) => {
                   const newMap = new Map(prev);
                   const current = newMap.get(key);

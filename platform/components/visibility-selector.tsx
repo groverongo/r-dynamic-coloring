@@ -1,6 +1,5 @@
 "use client";
 
-import { type ReactNode, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,8 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useChatVisibility } from "@/hooks/use-chat-visibility";
 import { cn } from "@/lib/utils";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CheckCircleFillIcon,
   ChevronDownIcon,
@@ -25,19 +24,19 @@ const visibilities: Array<{
   description: string;
   icon: ReactNode;
 }> = [
-  {
-    id: "private",
-    label: "Private",
-    description: "Only you can access this chat",
-    icon: <LockIcon />,
-  },
-  {
-    id: "public",
-    label: "Public",
-    description: "Anyone with the link can access this chat",
-    icon: <GlobeIcon />,
-  },
-];
+    {
+      id: "private",
+      label: "Private",
+      description: "Only you can access this chat",
+      icon: <LockIcon />,
+    },
+    {
+      id: "public",
+      label: "Public",
+      description: "Anyone with the link can access this chat",
+      icon: <GlobeIcon />,
+    },
+  ];
 
 export function VisibilitySelector({
   chatId,
@@ -49,14 +48,9 @@ export function VisibilitySelector({
 } & React.ComponentProps<typeof Button>) {
   const [open, setOpen] = useState(false);
 
-  const { visibilityType, setVisibilityType } = useChatVisibility({
-    chatId,
-    initialVisibilityType: selectedVisibilityType,
-  });
-
   const selectedVisibility = useMemo(
-    () => visibilities.find((visibility) => visibility.id === visibilityType),
-    [visibilityType]
+    () => visibilities.find((visibility) => visibility.id === selectedVisibilityType),
+    [selectedVisibilityType]
   );
 
   return (
@@ -83,11 +77,10 @@ export function VisibilitySelector({
         {visibilities.map((visibility) => (
           <DropdownMenuItem
             className="group/item flex flex-row items-center justify-between gap-4"
-            data-active={visibility.id === visibilityType}
+            data-active={visibility.id === selectedVisibilityType}
             data-testid={`visibility-selector-item-${visibility.id}`}
             key={visibility.id}
             onSelect={() => {
-              setVisibilityType(visibility.id);
               setOpen(false);
             }}
           >

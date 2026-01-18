@@ -11,6 +11,7 @@ type VertexProps = {
   mode: number;
   compromised?: boolean;
   whileDragging?: (x: number, y: number) => void;
+  onDragEnd?: (x: number, y: number) => void;
   allowedColors?: Set<number>;
   theme: 'light' | 'dark';
   fontSize: number;
