@@ -1,4 +1,5 @@
-import { useEffect, useImperativeHandle, useState } from "react";
+import Konva from "konva";
+import { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { Line } from "react-konva";
 import { EdgeProps } from "./props";
 
@@ -16,12 +17,20 @@ export function Edge({
     const [isSelected, setIsSelected] = useState<boolean>(false);
     const borderColor = theme === "light" ? "black" : "white";
 
+    const lineRef = useRef<Konva.Line>(null);
+
     useImperativeHandle(ref, () => ({
         fromId: fromId,
         toId: toId,
         isSelected: isSelected,
         select: () => setIsSelected(true),
         deselect: () => setIsSelected(false),
+        updatePosition: (newFrom: { x: number, y: number }, newTo: { x: number, y: number }) => {
+            if (lineRef.current) {
+                lineRef.current.points([newFrom.x, newFrom.y, newTo.x, newTo.y]);
+                lineRef.current.getLayer()?.batchDraw();
+            }
+        }
     }));
 
     useEffect(() => {
@@ -32,6 +41,7 @@ export function Edge({
 
     return (
         <Line
+            ref={lineRef}
             points={[from.x, from.y, to.x, to.y]}
             stroke={isSelected ? "blue" : borderColor}
             dash={compromised ? [7, 10] : []}
