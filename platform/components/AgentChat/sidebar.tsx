@@ -40,7 +40,7 @@ export function AgentChatSidebar() {
     });
 
     const callAgent = () => {
-        console.log(graphAdjacencyList, input)
+        console.log(graphAdjacencyList, input, MainCanvasContext)
         if (graphAdjacencyList.size === 0) return;
         if (!input.trim()) return;
         setMessages((prev) => [...prev, { type: 'request', data: input, timestamp: new Date().toISOString(), id: uuidv4() }]);

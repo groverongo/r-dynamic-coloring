@@ -1,5 +1,6 @@
+import { AgentChatSidebar } from "@/components/AgentChat/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { ChatAgentSidebar } from "@/components/app-sidebar copy";
+import { Providers } from "@/components/providers";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Script from "next/script";
 
@@ -17,11 +18,13 @@ export default async function Layout({
         src="https://cdn.jsdelivr.net/pyodide/v0.23.4/full/pyodide.js"
         strategy="beforeInteractive"
       />
-      <SidebarProvider defaultOpen={true}>
-        <AppSidebar user={{ email: "guest", id: "guest", image: "", name: "Guest" }} />
-        <SidebarInset>{children}</SidebarInset>
-        <ChatAgentSidebar user={{ email: "guest", id: "guest", image: "", name: "Guest" }} />
-      </SidebarProvider>
+      <Providers>
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar user={{ email: "guest", id: "guest", image: "", name: "Guest" }} />
+          <SidebarInset>{children}</SidebarInset>
+          <AgentChatSidebar />
+        </SidebarProvider>
+      </Providers>
     </>
   );
 }

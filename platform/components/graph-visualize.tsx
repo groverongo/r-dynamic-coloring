@@ -66,19 +66,16 @@ export function GraphVisualize({
   });
 
   useEffect(() => {
-    if (!id) return;
-    refetch().then((response) => {
-      if (response.data === undefined) return;
+    if (!data) return;
 
-      setGraphName(response.data.name);
-      setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(response.data.graphAdjacencyList));
-      setVertexGraph(GraphDeserializer.vertexGraphDeserializer(response.data.vertexGraph));
-      setEdgeGraph(GraphDeserializer.edgeGraphDeserializer(response.data.edgeGraph));
-      setColoring(GraphDeserializer.coloringDeserializer(response.data.localColoring));
-      setKColors(response.data.localK);
-      setRFactor(response.data.localR);
-    });
-  }, []);
+    setGraphName(data.name);
+    setGraphAdjacencyList(GraphDeserializer.graphAdjacencyListDeserializer(data.graphAdjacencyList));
+    setVertexGraph(GraphDeserializer.vertexGraphDeserializer(data.vertexGraph));
+    setEdgeGraph(GraphDeserializer.edgeGraphDeserializer(data.edgeGraph));
+    setColoring(GraphDeserializer.coloringDeserializer(data.localColoring));
+    setKColors(data.localK);
+    setRFactor(data.localR);
+  }, [data]);
 
   return (
     <>
