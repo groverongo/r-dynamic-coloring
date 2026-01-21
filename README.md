@@ -6,7 +6,7 @@ A comprehensive platform for graph coloring research and visualization, combinin
 
 ## Project Structure
 
-This monorepo contains four main components:
+This monorepo contains five main components:
 
 ### 📊 [`platform`](/platform)
 
@@ -32,6 +32,57 @@ Next.js-based web application providing an interactive chat interface for graph 
 cd platform
 pnpm install
 pnpm dev
+```
+
+
+---
+
+### 🎨 [`packages/GraphCanvas`](/packages/GraphCanvas)
+
+A high-performance, reusable React component library for interactive graph visualization and manipulation, specifically designed for r-hued coloring research.
+
+**Tech Stack:**
+- **Language:** TypeScript 5.9+
+- **Framework:** React 19 with React Konva
+- **Canvas Rendering:** Konva.js, react-konva, react-konva-utils
+- **SVG Processing:** canvg, svgson, tex-to-svg
+- **Build Tool:** tsup for bundling
+
+**Key Features:**
+- Interactive graph canvas with drag-and-drop vertex positioning
+- Real-time edge creation and manipulation
+- R-hued coloring visualization with customizable color palettes
+- Graph state management through React Context API
+- Export graphs as PNG images (download or clipboard)
+- Support for vertex labeling and coloring modes
+- Keyboard shortcuts for efficient graph editing
+- Type-safe API with full TypeScript support
+
+**Components:**
+- `GraphCanvas` - Main canvas component for graph rendering
+- `GraphCanvasProvider` - Context provider for graph state management
+- `Vertex` - Interactive vertex component with customizable styling
+- `Edge` - Dynamic edge component with curved line rendering
+- `TemporaryEdge` - Visual feedback for edge creation
+
+**Installation:**
+```bash
+pnpm add @r-dynamic-coloring/graph-canvas
+```
+
+**Usage:**
+```typescript
+import { GraphCanvas, GraphCanvasProvider, createGraphCanvasContext } from '@r-dynamic-coloring/graph-canvas';
+
+const MyGraphContext = createGraphCanvasContext();
+
+function App() {
+  return (
+    <GraphCanvasProvider context={MyGraphContext}>
+      <GraphCanvas context={MyGraphContext} />
+    </GraphCanvasProvider>
+  );
+}
 ```
 
 ---
