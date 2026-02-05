@@ -259,6 +259,15 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
             const edgeId = uuidv4();
             const fromEntry: [string, string] = [vertexCurrentId, edgeId];
             const toEntry: [string, string] = [closestVertexId, edgeId];
+            const vertexAdjacentSet = graphAdjacencyList.get(vertexCurrentId);
+            if (vertexAdjacentSet !== undefined) {
+              for (const [vertexId, _] of vertexAdjacentSet) {
+                if (vertexId === closestVertexId) {
+                  return;
+                }
+              }
+            }
+
             setEdgeGraph((prev) => {
               const newMap = new Map(prev);
               newMap.set(edgeId, { from: vertexCurrentId, to: closestVertexId, fromEntry, toEntry });
