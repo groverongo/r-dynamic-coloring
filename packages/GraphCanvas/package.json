@@ -29,6 +29,10 @@
   ],
   "author": "groverongo",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/groverongo/r-dynamic-coloring"
+  },
   "peerDependencies": {
     "react": ">=18",
     "react-dom": ">=18"
