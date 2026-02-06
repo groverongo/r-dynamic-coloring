@@ -5,8 +5,7 @@ on:
         tags:
             - 'v*'
         branches:
-            - main
-        
+            - master
         paths:
             - "packages/GraphCanvas/**"
             - ".github/workflows/build-packages.yaml"
@@ -14,7 +13,7 @@ on:
     workflow_dispatch:
 
 permissions:
-  id-token: write  # Required for OIDC
+  id-token: write
   contents: read
 
 jobs:
