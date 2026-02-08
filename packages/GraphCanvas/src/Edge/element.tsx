@@ -32,7 +32,7 @@ export function Edge({
                 lineRef.current.getLayer()?.batchDraw();
             }
         }
-    }));
+    }), [fromId, toId, isSelected, from.x, from.y, to.x, to.y]);
 
     useEffect(() => {
         if (isSelected) {

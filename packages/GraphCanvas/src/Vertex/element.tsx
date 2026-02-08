@@ -138,10 +138,9 @@ export function Vertex({
       if (!isSelected && !enforce) return;
       setColorIndex(index);
     },
-  }));
+  }), [x, y, text, colorIndex, isSelected, neighbors]);
 
   useEffect(() => {
-    console.log("isSelected", isSelected);
     if (isSelected) {
       onSelect?.();
     }
