@@ -10,6 +10,7 @@ export function Edge({
     to,
     ref,
     onSelect,
+    onDeselect,
     compromised,
     theme
 }: EdgeProps) {
@@ -48,7 +49,12 @@ export function Edge({
             strokeWidth={2}
             hitStrokeWidth={40}
             onClick={() => {
-                setIsSelected(!isSelected);
+                setIsSelected(prev => {
+                    if (prev) {
+                        onDeselect?.();
+                    }
+                    return !prev;
+                });
             }}
         />
     );

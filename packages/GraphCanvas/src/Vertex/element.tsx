@@ -22,6 +22,7 @@ export function Vertex({
   x,
   y,
   onSelect,
+  onDeselect,
   draggable,
   mode,
   whileDragging,
@@ -140,6 +141,7 @@ export function Vertex({
   }));
 
   useEffect(() => {
+    console.log("isSelected", isSelected);
     if (isSelected) {
       onSelect?.();
     }
@@ -149,7 +151,12 @@ export function Vertex({
     <Group
       ref={GroupRef}
       onClick={() => {
-        setIsSelected(!isSelected);
+        setIsSelected(prev => {
+          if (prev) {
+            onDeselect?.();
+          }
+          return !prev;
+        });
       }}
       draggable={draggable}
       onDragStart={() => {

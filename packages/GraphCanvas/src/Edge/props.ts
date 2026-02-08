@@ -8,6 +8,7 @@ type EdgeProps = {
     to: { x: number, y: number };
     ref?: Ref<EdgeRef>;
     onSelect?: () => void;
+    onDeselect?: () => void;
     compromised?: boolean;
     theme: 'light' | 'dark';
 }

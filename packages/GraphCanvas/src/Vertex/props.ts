@@ -7,6 +7,7 @@ type VertexProps = {
   x: number;
   y: number;
   onSelect?: () => void;
+  onDeselect?: () => void;
   draggable?: boolean;
   mode: number;
   compromised?: boolean;
