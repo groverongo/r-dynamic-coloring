@@ -315,6 +315,10 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
               onSelect={() => {
                 deselectObjects(null, index);
               }}
+              onDeselect={() => {
+                setEdgeCurrentId(null);
+                edgeRefs.current?.get(index)?.deselect();
+              }}
               fromId={edge.from}
               toId={edge.to}
               theme={theme as 'light' | 'dark'}
@@ -343,6 +347,10 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
               y={vertexGraph.get(key)?.y || 0}
               onSelect={() => {
                 deselectObjects(key, null);
+              }}
+              onDeselect={() => {
+                setVertexCurrentId(null);
+                vertexRefs.current?.get(key)?.deselect();
               }}
               allowedColors={allowedColors}
               compromised={compromisedVertices.has(key)}

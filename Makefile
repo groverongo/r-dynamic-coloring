@@ -31,5 +31,8 @@ platform-packages:
 platform-dev:
 	cd platform && pnpm run dev
 
+packages-dev:	
+	cd packages/GraphCanvas && pnpm run dev:platform
+
 platform-build:
 	cd platform && pnpm run build

@@ -10,6 +10,7 @@ export function Edge({
     to,
     ref,
     onSelect,
+    onDeselect,
     compromised,
     theme
 }: EdgeProps) {
@@ -31,7 +32,7 @@ export function Edge({
                 lineRef.current.getLayer()?.batchDraw();
             }
         }
-    }));
+    }), [fromId, toId, isSelected, from.x, from.y, to.x, to.y]);
 
     useEffect(() => {
         if (isSelected) {
@@ -48,7 +49,12 @@ export function Edge({
             strokeWidth={2}
             hitStrokeWidth={40}
             onClick={() => {
-                setIsSelected(!isSelected);
+                setIsSelected(prev => {
+                    if (prev) {
+                        onDeselect?.();
+                    }
+                    return !prev;
+                });
             }}
         />
     );

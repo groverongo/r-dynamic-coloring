@@ -12,7 +12,8 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTheme } from "next-themes";
 import { CSSProperties, useEffect } from "react";
 import { ColoringParameters } from "./coloring-parameters";
-import { EngineProperties } from "./element-properties";
+import { ElementProperties } from "./element-properties";
+import { EngineProperties } from "./engine-properties";
 import { LPSolution } from "./linear-programming-solution";
 import type { VisibilityType } from "./visibility-selector";
 
@@ -99,6 +100,7 @@ export function GraphVisualize({
             <ColoringParameters />
             <LPSolution />
             <EngineProperties />
+            <ElementProperties />
           </div>
         </div>
 
