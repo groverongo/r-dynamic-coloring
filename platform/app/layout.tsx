@@ -1,7 +1,7 @@
+import { Toaster as Sonner } from "@/components/ui/sonner";
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Toaster } from "sonner";
 import { stackClientApp } from "../stack/client";
 
 import { ThemeProvider } from "next-themes";
@@ -79,7 +79,7 @@ export default function RootLayout({
           disableTransitionOnChange
           enableSystem
         >
-          <Toaster position="top-center" />
+          <Sonner />
           {children}
         </ThemeProvider>
       </StackTheme></StackProvider></body>

@@ -11,6 +11,7 @@ import axios from "axios";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { useTheme } from "next-themes";
 import { CSSProperties, useEffect } from "react";
+import { toast } from "sonner";
 import { ColoringParameters } from "./coloring-parameters";
 import { ElementProperties } from "./element-properties";
 import { EngineProperties } from "./engine-properties";
@@ -95,6 +96,11 @@ export function GraphVisualize({
             fontSize={fontSize}
             nodeRadius={nodeRadius}
             theme={theme}
+            triggers={{
+              existingEdge: (v1, v2) => {
+                toast(`Existing edge between ${v1} and ${v2}`, { position: "bottom-right" })
+              }
+            }}
           />
           <div className="flex flex-row gap-1 sm:gap-2">
             <ColoringParameters />
