@@ -14,7 +14,7 @@ import { Vertex } from "../Vertex/element";
 import { VERTEX_MODES, isIntString } from "../constant";
 import { GraphCanvasProps } from "./props";
 
-export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }: GraphCanvasProps) {
+export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, triggers }: GraphCanvasProps) {
 
   const {
     vertexGraph, setVertexGraph,
@@ -266,6 +266,7 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
             if (vertexAdjacentSet !== undefined) {
               for (const [vertexId, _] of vertexAdjacentSet) {
                 if (vertexId === closestVertexId) {
+                  triggers?.existingEdge?.(vertexCurrentId, closestVertexId);
                   return;
                 }
               }
