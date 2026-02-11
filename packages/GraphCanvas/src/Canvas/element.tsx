@@ -254,7 +254,10 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme }
           setMouseDownPos({ x: e.evt.offsetX, y: e.evt.offsetY });
         }}
         onMouseUp={(e) => {
-          if (mouseDownPos === null || !shiftPressed) return;
+          if (mouseDownPos === null || !shiftPressed) {
+            setMouseDownPos(null);
+            return;
+          }
           if (closestVertexId !== null && vertexCurrentId !== null && vertexCurrentId !== closestVertexId) {
             const edgeId = uuidv4();
             const fromEntry: [string, string] = [vertexCurrentId, edgeId];
