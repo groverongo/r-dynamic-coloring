@@ -267,6 +267,7 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
               for (const [vertexId, _] of vertexAdjacentSet) {
                 if (vertexId === closestVertexId) {
                   triggers?.existingEdge?.(vertexCurrentId, closestVertexId);
+                  setMouseDownPos(null);
                   return;
                 }
               }
