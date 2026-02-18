@@ -1,8 +1,9 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { NextResponse, type NextRequest } from "next/server";
 import { guestRegex, isDevelopmentEnvironment } from "./lib/constants";
 
 export async function proxy(request: NextRequest) {
+  return NextResponse.next();
   const { pathname } = request.nextUrl;
 
   /*
@@ -27,7 +28,8 @@ export async function proxy(request: NextRequest) {
     const redirectUrl = encodeURIComponent(request.url);
 
     return NextResponse.redirect(
-      new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url)
+      new URL(`/`, request.url)
+      // new URL(`/api/auth/guest?redirectUrl=${redirectUrl}`, request.url)
     );
   }
 
@@ -47,7 +49,6 @@ export const config = {
     "/api/:path*",
     "/login",
     "/register",
-
     /*
      * Match all request paths except for the ones starting with:
      * - _next/static (static files)
