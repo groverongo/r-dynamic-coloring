@@ -1,70 +1,48 @@
-import { Plus } from "lucide-react"
-import * as React from "react"
+"use client"
 
-import { Calendars } from "@/components/calendars"
-import { DatePicker } from "@/components/date-picker"
-import { NavUser } from "@/components/nav-user"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem, SidebarSeparator
-} from "@/components/ui/sidebar"
+import { ChatHeader } from "@/components/chat-sidebar/chat-header"
+import { ChatInput } from "@/components/chat-sidebar/chat-input"
+import { ChatMessages } from "@/components/chat-sidebar/chat-messages"
+import { Sidebar } from "@/components/ui/sidebar"
+import { useState } from "react"
 
-// This is sample data.
-const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
-  calendars: [
-    {
-      name: "My Calendars",
-      items: ["Personal", "Work", "Family"],
-    },
-    {
-      name: "Favorites",
-      items: ["Holidays", "Birthdays"],
-    },
-    {
-      name: "Other",
-      items: ["Travel", "Reminders", "Deadlines"],
-    },
-  ],
-}
+// Sample chat data
+const initialMessages = [
+  { role: "agent", content: "Hello! How can I help you today?" },
+  { role: "user", content: "I need help with my project management." },
+  { role: "agent", content: "Sure, I can help with that. What specifically do you need assistance with?" },
+]
 
 export function SidebarRight({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const [messages, setMessages] = useState(initialMessages)
+
+  const handleSendMessage = (content: string) => {
+    setMessages([...messages, { role: "user", content }])
+
+    // Simulate agent response
+    setTimeout(() => {
+      setMessages((prev) => [
+        ...prev,
+        { role: "agent", content: "I received your message: " + content },
+      ])
+    }, 1000)
+  }
+
   return (
     <Sidebar
       collapsible="icon"
       side="right"
       className="sticky top-0 hidden h-svh border-l lg:flex"
+      style={{
+        "--sidebar-width": "24rem",
+      } as React.CSSProperties}
       {...props}
     >
-      <SidebarHeader className="border-sidebar-border h-16 border-b">
-        <NavUser user={data.user} />
-      </SidebarHeader>
-      <SidebarContent>
-        <DatePicker />
-        <SidebarSeparator className="mx-0" />
-        <Calendars calendars={data.calendars} />
-      </SidebarContent>
-      <SidebarFooter>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton>
-              <Plus />
-              <span>New Calendar</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-      </SidebarFooter>
+      <ChatHeader onNewConversation={() => setMessages([])} />
+      <ChatMessages messages={messages} />
+      <ChatInput onSend={handleSendMessage} />
     </Sidebar>
   )
 }
