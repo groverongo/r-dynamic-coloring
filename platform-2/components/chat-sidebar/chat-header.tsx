@@ -53,7 +53,7 @@ export function ChatHeader({ onNewConversation }: ChatHeaderProps) {
             <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:hidden">
                 <div className="flex items-center gap-2">
                     <Sparkles className="h-4 w-4" />
-                    <span className="font-semibold text-sm">AI Assistant</span>
+                    <span className="font-semibold text-sm">Chat with Dynamax</span>
                 </div>
                 <div className="flex gap-2">
                     <Button

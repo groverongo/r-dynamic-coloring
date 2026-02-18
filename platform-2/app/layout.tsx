@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { StackProvider, StackTheme } from "@stackframe/stack";
+import { stackClientApp } from "../stack/client";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -27,11 +29,11 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      ><StackProvider app={stackClientApp}><StackTheme>
         <NextThemesProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
         </NextThemesProvider>
-      </body>
+      </StackTheme></StackProvider></body>
     </html>
   );
 }
