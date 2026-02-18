@@ -3,9 +3,9 @@ import {
   FocusEventHandler,
   KeyboardEventHandler,
   LegacyRef,
-  useEffect, useState
+  useEffect, useMemo, useRef, useState
 } from "react";
-import { Layer, Stage } from "react-konva";
+import { Image, Layer, Stage } from "react-konva";
 import { v4 as uuidv4 } from 'uuid';
 import { useGraphCanvasContext } from "../Context/useContext";
 import { Edge } from "../Edge/element";
@@ -209,6 +209,20 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
     }
   }, [edgeGraph.size]);
 
+  const drawingImageRef = useRef<Konva.Image>(null);
+
+  const { drawingCanvas, drawingContext } = useMemo(() => {
+    const canvas = document.createElement('canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight - 25;
+    const context = canvas.getContext('2d');
+    if (context === null) return { drawingCanvas: undefined, drawingContext: undefined };
+    context.strokeStyle = theme === 'dark' ? '#ffffff' : '#000000';
+    context.lineJoin = 'round';
+    context.lineWidth = 5;
+    return { drawingCanvas: canvas, drawingContext: context };
+  }, [theme]);
+
   return (
     <div onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={onBlur} tabIndex={0}>
       <Stage
@@ -235,20 +249,33 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
         }}
         onMouseMove={(e) => {
           if (mouseDownPos === null) return;
-          for (const [i, ref] of vertexRefs.current?.entries() ?? []) {
-            if (ref === null) continue;
+          if (shiftPressed) {
+            for (const [i, ref] of vertexRefs.current?.entries() ?? []) {
+              if (ref === null) continue;
 
-            const distance = Math.sqrt(
-              Math.pow(ref.x - e.evt.offsetX, 2) +
-              Math.pow(ref.y - e.evt.offsetY, 2)
-            );
-            if (distance > 60) continue;
-            setClosestVertexId(i);
-            setMouseDownPos({ x: ref.x, y: ref.y });
-            return;
+              const distance = Math.sqrt(
+                Math.pow(ref.x - e.evt.offsetX, 2) +
+                Math.pow(ref.y - e.evt.offsetY, 2)
+              );
+              if (distance > 60) continue;
+              setClosestVertexId(i);
+              setMouseDownPos({ x: ref.x, y: ref.y });
+              return;
+            }
+            setClosestVertexId(null);
+            setMouseDownPos({ x: e.evt.offsetX, y: e.evt.offsetY });
+          } else if (vertexCurrentId === null) {
+            const image = drawingImageRef.current;
+
+            drawingContext?.beginPath();
+            drawingContext?.moveTo(mouseDownPos.x, mouseDownPos.y);
+            drawingContext?.lineTo(e.evt.offsetX, e.evt.offsetY);
+            drawingContext?.closePath();
+            drawingContext?.stroke();
+            setMouseDownPos({ x: e.evt.offsetX, y: e.evt.offsetY });
+            if (image === null) return;
+            image.getLayer()?.batchDraw();
           }
-          setClosestVertexId(null);
-          setMouseDownPos({ x: e.evt.offsetX, y: e.evt.offsetY });
         }}
         onMouseDown={(e) => {
           setMouseDownPos({ x: e.evt.offsetX, y: e.evt.offsetY });
@@ -291,6 +318,12 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
       >
         <Layer />
         <Layer>
+          <Image
+            ref={drawingImageRef}
+            image={drawingCanvas}
+            x={0}
+            y={0}
+          />
           {shiftPressed &&
             mouseDownPos !== null &&
             vertexCurrentId !== null && (
