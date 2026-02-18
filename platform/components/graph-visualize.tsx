@@ -97,7 +97,7 @@ export function GraphVisualize({
             nodeRadius={nodeRadius}
             theme={theme}
             triggers={{
-              existingEdge: (v1, v2) => {
+              existingEdge: (v1: string, v2: string) => {
                 toast(`Existing edge between ${v1} and ${v2}`, { position: "bottom-right" })
               }
             }}
