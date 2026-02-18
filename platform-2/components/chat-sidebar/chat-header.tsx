@@ -8,10 +8,10 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Separator } from "@/components/ui/separator"
 import { SidebarHeader } from "@/components/ui/sidebar"
-import { MessageSquare, Plus } from "lucide-react"
+import { MessageSquare, Plus, Sparkles } from "lucide-react"
 import { NavUser } from "../nav-user"
+import { Separator } from "../ui/separator"
 
 const pastConversations = [
     { id: "1", title: "Project Planning", date: "2023-10-25" },
@@ -47,11 +47,14 @@ interface ChatHeaderProps {
 
 export function ChatHeader({ onNewConversation }: ChatHeaderProps) {
     return (
-        <SidebarHeader className="border-sidebar-border h-auto border-b flex flex-col gap-4 p-4">
+        <SidebarHeader className="border-sidebar-border h-auto border-b flex flex-col gap-4 p-4 group-data-[collapsible=icon]:p-2">
             <NavUser user={data.user} />
-            <Separator />
-            <div className="flex w-full items-center justify-between">
-                <span className="font-semibold text-sm">AI Assistant</span>
+            <Separator className="group-data-[collapsible=icon]:hidden" />
+            <div className="flex w-full items-center justify-between group-data-[collapsible=icon]:hidden">
+                <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="font-semibold text-sm">AI Assistant</span>
+                </div>
                 <div className="flex gap-2">
                     <Button
                         variant="ghost"
@@ -74,7 +77,7 @@ export function ChatHeader({ onNewConversation }: ChatHeaderProps) {
                                     Select a conversation to view.
                                 </DialogDescription>
                             </DialogHeader>
-                            <ScrollArea className="h-[300px] w-full rounded-md border p-4">
+                            <ScrollArea className="h-75 w-full rounded-md border p-4">
                                 <div className="flex flex-col gap-2">
                                     {pastConversations.map((chat) => (
                                         <Button

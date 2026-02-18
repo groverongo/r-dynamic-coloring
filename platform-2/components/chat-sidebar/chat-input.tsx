@@ -18,7 +18,7 @@ export function ChatInput({ onSend }: ChatInputProps) {
     }
 
     return (
-        <SidebarFooter className="p-4 pt-0">
+        <SidebarFooter className="p-4 pt-0 group-data-[collapsible=icon]:hidden">
             <div className="flex flex-col gap-2 rounded-lg border bg-background p-2 focus-within:ring-1 focus-within:ring-ring">
                 <Textarea
                     placeholder="Type your message..."
