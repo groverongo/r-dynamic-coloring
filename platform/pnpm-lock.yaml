@@ -170,8 +170,8 @@ importers:
         version: 18.3.7(@types/react@18.3.27)
       '@types/react-syntax-highlighter':
         specifier: ^15.5.13
-      version: 15.5.13
-        baseline-browser-mapping:
+        version: 15.5.13
+      baseline-browser-mapping:
         specifier: ^2.9.19
         version: 2.9.19
       postcss:
