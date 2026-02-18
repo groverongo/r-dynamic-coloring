@@ -1,5 +1,5 @@
-import * as React from "react"
 import { Plus } from "lucide-react"
+import * as React from "react"
 
 import { Calendars } from "@/components/calendars"
 import { DatePicker } from "@/components/date-picker"
@@ -11,9 +11,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-  SidebarSeparator,
+  SidebarMenuItem, SidebarSeparator
 } from "@/components/ui/sidebar"
 
 // This is sample data.
@@ -44,7 +42,8 @@ export function SidebarRight({
 }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar
-      collapsible="none"
+      collapsible="icon"
+      side="right"
       className="sticky top-0 hidden h-svh border-l lg:flex"
       {...props}
     >
