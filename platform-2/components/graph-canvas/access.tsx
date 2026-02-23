@@ -11,7 +11,7 @@ export const AccessGraphCanvas = () => {
   const { theme } = useTheme();
 
   return (
-    <div>
+    <div className="mx-auto flex items-center justify-center">
       <GraphCanvasProvider context={MainCanvasContext}>
         <GraphCanvas
           context={MainCanvasContext}
@@ -19,9 +19,9 @@ export const AccessGraphCanvas = () => {
           nodeRadius={16}
           theme={theme}
           styleProps={{
-            width: 800,
+            width: 1000,
             height: 800,
-            borderColor: "red",
+            borderColor: "var(--border-color)",
             borderWidth: "2px",
             borderStyle: "solid",
             borderRadius: "15px",
