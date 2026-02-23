@@ -1,17 +1,18 @@
-import { SidebarLeft } from "@/components/sidebar-left"
-import { SidebarRight } from "@/components/sidebar-right"
+import { AccessGraphCanvas } from "@/components/graph-canvas/access";
+import { SidebarLeft } from "@/components/sidebar-left";
+import { SidebarRight } from "@/components/sidebar-right";
 import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export default function Page() {
   return (
@@ -39,6 +40,7 @@ export default function Page() {
             <SidebarTrigger side="right" />
           </div>
         </header>
+        <AccessGraphCanvas />
         <div className="flex flex-1 flex-col gap-4 p-4">
           <div className="bg-muted/50 mx-auto h-24 w-full max-w-3xl rounded-xl" />
           <div className="bg-muted/50 mx-auto h-[100vh] w-full max-w-3xl rounded-xl" />
@@ -46,5 +48,5 @@ export default function Page() {
       </SidebarInset>
       <SidebarRight />
     </SidebarProvider>
-  )
+  );
 }
