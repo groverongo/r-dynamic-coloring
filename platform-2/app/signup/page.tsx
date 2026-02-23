@@ -1,6 +1,6 @@
 import { GalleryVerticalEnd } from "lucide-react"
 
-import { SignupForm } from "@/components/signup-form"
+import { CredentialSignUp } from "@stackframe/stack"
 
 export default function SignupPage() {
   return (
@@ -16,7 +16,7 @@ export default function SignupPage() {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <SignupForm />
+            <CredentialSignUp />
           </div>
         </div>
       </div>
