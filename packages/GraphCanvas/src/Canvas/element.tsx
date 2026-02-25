@@ -14,7 +14,7 @@ import { Vertex } from "../Vertex/element";
 import { VERTEX_MODES, isIntString } from "../constant";
 import { GraphCanvasProps } from "./props";
 
-export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, triggers }: GraphCanvasProps) {
+export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, triggers, className }: GraphCanvasProps) {
 
   const {
     vertexGraph, setVertexGraph,
@@ -213,7 +213,7 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
     <div onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={onBlur} tabIndex={0}>
       <Stage
         id="KonvaStage"
-        className="bg-zinc-100 dark:bg-zinc-900"
+        className={className}
         style={styleProps}
         width={styleProps.width as number}
         height={styleProps.height as number}
