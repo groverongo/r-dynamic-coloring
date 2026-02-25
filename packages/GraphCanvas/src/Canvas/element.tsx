@@ -3,7 +3,9 @@ import {
   FocusEventHandler,
   KeyboardEventHandler,
   LegacyRef,
-  useEffect, useState
+  useEffect,
+  useRef,
+  useState
 } from "react";
 import { Layer, Stage } from "react-konva";
 import { v4 as uuidv4 } from 'uuid';
@@ -43,6 +45,39 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
     x: number;
     y: number;
   } | null>(null);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [stageWidth, setStageWidth] = useState<number>(typeof styleProps.width === "number" ? (styleProps.width as number) : 0);
+
+  const stageHeight = (() => {
+    if (typeof styleProps.height === "number") return styleProps.height;
+    if (typeof styleProps.height === "string") {
+      const parsed = Number.parseFloat(styleProps.height);
+      return Number.isFinite(parsed) ? parsed : 0;
+    }
+    return 0;
+  })();
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const updateWidth = () => {
+      const next = el.clientWidth;
+      setStageWidth(next);
+    };
+
+    updateWidth();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", updateWidth);
+      return () => window.removeEventListener("resize", updateWidth);
+    }
+
+    const observer = new ResizeObserver(() => updateWidth());
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [styleProps.width]);
 
   const onBlur: FocusEventHandler<HTMLDivElement> = (e) => {
     setKeyDownUnblock(true);
@@ -210,13 +245,20 @@ export function GraphCanvas({ styleProps, context, fontSize, nodeRadius, theme, 
   }, [edgeGraph.size]);
 
   return (
-    <div onKeyDown={onKeyDown} onKeyUp={onKeyUp} onBlur={onBlur} tabIndex={0}>
+    <div
+      ref={containerRef}
+      style={{ ...styleProps, width: "100%", height: "100%" }}
+      onKeyDown={onKeyDown}
+      onKeyUp={onKeyUp}
+      onBlur={onBlur}
+      tabIndex={0}
+    >
       <Stage
         id="KonvaStage"
         className={className}
-        style={styleProps}
-        width={styleProps.width as number}
-        height={styleProps.height as number}
+        style={{ width: "100%", height: "100%" }}
+        width={stageWidth}
+        height={stageHeight}
         ref={stageRef as LegacyRef<Konva.Stage>}
         onDblClick={(e) => {
           if (!keyDownUnblock) return;
