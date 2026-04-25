@@ -32,7 +32,10 @@ platform-dev:
 	cd platform && pnpm run dev
 
 packages-dev:	
-	cd packages/GraphCanvas && pnpm run dev:platform
+	cd packages/GraphCanvas && pnpm run dev --out-dir ../../platform/node_modules/@r-dynamic-coloring/graph-canvas/dist
+
+packages-dev-2:	
+	cd packages/GraphCanvas && pnpm run dev --out-dir ../../platform-2/node_modules/@r-dynamic-coloring/graph-canvas/dist
 
 platform-build:
 	cd platform && pnpm run build
